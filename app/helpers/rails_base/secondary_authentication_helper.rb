@@ -1,0 +1,2 @@
+module RailsBase::SecondaryAuthenticationHelper
+end

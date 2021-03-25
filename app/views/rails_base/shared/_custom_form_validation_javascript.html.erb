@@ -1,0 +1,122 @@
+<% if false %>
+I wanted to display what this file is supposed to do. Regular comments dont show syntax and are outward facing.
+
+fwiw, this was mostly an experiment to see if metaprograming from a partial would work with jquery. The hackery that is done here is probably pretty slow
+
+This is expected to help with validation
+Expected to be rendered as a partion: ex
+<%= render partial: 'shared/custom_form_validation_javascript', locals: { function_name: function_name, values: values } %>
+
+params:
+	function_name: String -- no special characters or spaces; Needs to be unique for the page otherwse metaprogramming will overwrite functions
+
+	values: Array - Array of hashes
+
+	Hash structure
+		name: 'class or id of input element'
+		criteria: hash
+			required: (true | false) If the value is expected to not be empty (same as min_length: 1)
+			min_length: numeric of the minimum length allowed
+			max_length: numeric of the maximum length allowed
+			pattern: 'regex pattern of what is expected in the value'
+
+Sample params
+<%
+  values = [
+    { name: '#user_first_name', criteria: { required: true, min_length: 2 }},
+    { name: '#user_last_name', criteria: { required: true, min_length: 2 }},
+    { name: '#user_email', criteria: { required: true, pattern: Authentication::Constants::EMAIL_PATTERN }}
+  ]
+  function_name = 'new_registration'
+%>
+
+<% end %>
+
+<script type="text/javascript">
+	function <%= function_name %>_validation_event(){
+		var valid = true
+		console.log('starting validation')
+		<% values.each do |value| %>
+		valid = valid && <%= function_name %>_<%= value[:name][1..-1]%>_valid();
+		console.log(`validating <%= function_name %>_<%= value[:name][1..-1]%>_valid`)
+		<% end %>
+		console.log('finished validation')
+		return valid
+	};
+
+	function <%= function_name %>(){
+		var final_criteria = true
+		<% values.each do |value| %>
+
+		var criteria_met = <%= function_name %>_<%= value[:name][1..-1]%>_valid()
+		<%= function_name %>_manipulator($('<%= value[:name]%>'), criteria_met, false);
+		final_criteria = final_criteria && criteria_met;
+		<% end %>
+		return final_criteria;
+	};
+
+	function <%= function_name %>_manipulator(element, criteria_met, focus){
+		if(criteria_met) {
+		  element.removeClass('is-invalid');
+		} else {
+			if(focus) {
+		  	element.focus();
+		  	element.val('');
+		  };
+		  element.addClass('is-invalid');
+		};
+	};
+
+	<% values.each do |value| %>
+	$('<%= value[:name]%>').blur(function() {
+		var criteria_met = <%= function_name %>_<%= value[:name][1..-1]%>_valid()
+		<%= function_name %>_manipulator($('<%= value[:name]%>'), criteria_met, true);
+	});
+
+	function <%= function_name %>_<%= value[:name][1..-1]%>_valid(){
+		var criteria_met = true
+
+		<% if value[:criteria].dig(:required) %>
+			if ($('<%= value[:name]%>').val().length === 0){
+				console.log(`<%= value[:name]%> failed criteria required of <%= value[:criteria][:required] %>`)
+				criteria_met = false;
+			};
+		<% end %>
+
+		<% if value[:criteria].dig(:min_length) %>
+			if ($('<%= value[:name]%>').val().length < <%= value[:criteria][:min_length] %>){
+				console.log(`<%= value[:name]%> failed criteria min_length of <%= value[:criteria][:min_length] %>`)
+
+				criteria_met = false;
+			};
+		<% end %>
+
+		<% if value[:criteria].dig(:max_length) %>
+			if ($('<%= value[:name]%>').val().length > <%= value[:criteria][:max_length] %>){
+				console.log(`<%= value[:name]%> failed criteria max_length of <%= value[:criteria][:max_length] %>`)
+				criteria_met = false;
+			};
+		<% end %>
+
+		<% if value[:criteria].dig(:pattern) %>
+			<% case value[:criteria][:pattern] %>
+			<% when :name %>
+			var pattern = /^[a-zA-Z ']+$/
+			<% when :numeric %>
+			var pattern = /^[0-9]+$/
+			<% when :alpha %>
+			var pattern = /^[a-zA-Z]+$/
+			<% when :email %>
+			var pattern = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+			<% else %>
+			var pattern = /<%= value[:criteria][:pattern] %>/
+			<% end %>
+			if (pattern.test($('<%= value[:name]%>').val()) === false ){
+				console.log(`<%= value[:name]%> failed criteria pattern of pattern`)
+				criteria_met = false;
+			};
+		<% end %>
+		return criteria_met
+	};
+	<% end %>
+</script>

@@ -1,0 +1,123 @@
+<h2 class="text-center">Sign up</h2>
+
+<% resource ||= @resource  %>
+<% resource_name ||= @resource_name  %>
+
+<% validation_klass = 'form-validation' %>
+<% submit_klass = 'registration-submit' %>
+
+<%= form_for(resource, as: resource_name, url: RailsBase.url_routes.user_registration_path, html: { class: validation_klass, novalidate: true}) do |f| %>
+  <%= render "devise/shared/error_messages", resource: resource %>
+
+  <div class="field form-group row">
+    <div class="col-md-10 offset-md-1">
+      <%= f.label :first_name %>
+      <% klasses = ["form-control"] %>
+      <% klasses << "is-invalid" if @alert_errors&.keys&.include?(:first_name) %>
+      <%= f.text_field :first_name, class: klasses.join(' '), autofocus: true, autocomplete: "email", placeholder: "First Name", required: true %>
+      <div class="invalid-feedback">
+        First Name: <%= RailsBase::Authentication::Constants::NAME_VALIDATION%>
+      </div>
+    </div>
+  </div>
+  <div class="field form-group row">
+    <div class="col-md-10 offset-md-1">
+      <%= f.label :last_name %>
+      <% klasses = ["form-control"] %>
+      <% klasses << "is-invalid" if @alert_errors&.keys&.include?(:last_name) %>
+      <%= f.text_field :last_name, class: klasses.join(' '), autofocus: true, autocomplete: "email", placeholder: "Last Name", required: true  %>
+      <div class="invalid-feedback">
+        Last Name: <%= RailsBase::Authentication::Constants::NAME_VALIDATION%>
+      </div>
+    </div>
+  </div>
+  <div class="field form-group row">
+    <div class="col-md-10 offset-md-1">
+      <%= f.label :email %>
+      <%= f.email_field :email, class: 'form-control', autocomplete: "email", placeholder: "Email to verify: example@gmail.com", required: true %>
+      <div class="invalid-feedback">
+        Valid email is required
+      </div>
+    </div>
+  </div>
+
+  <div class="field form-group row">
+    <div class="col-md-10 offset-md-1">
+      <%= f.label :password %>
+      <% klasses = ["form-control"] %>
+      <% klasses << "is-invalid" if @alert_errors&.keys&.include?(:password) %>
+      <%= f.password_field :password, class: klasses.join(' '), minlength: RailsBase::Authentication::Constants::MP_MIN_LENGTH, autocomplete: 'new-password', placeholder: "password", required: true %>
+      <div class="invalid-feedback">
+        <%= RailsBase::Authentication::Constants::MP_REQ_MESSAGE %>
+      </div>
+    </div>
+  </div>
+
+  <div class="field form-group row">
+    <div class="col-md-10 offset-md-1">
+      <%= f.label :password_confirmation %>
+      <%= f.password_field :password_confirmation, class: 'form-control', autocomplete: "new-password", placeholder: "password confirmation", required: true %>
+      <div class="invalid-feedback">
+        Password Confirmation does not match Password
+      </div>
+    </div>
+  </div>
+
+  <div class="actions row">
+    <div class="col-md-10 offset-md-1 text-center">
+    </div>
+    <div class="col-md-10 offset-md-1 text-center">
+      <div class="row">
+        <div class="col-md-9">
+          <%= f.submit "Sign Up for #{Rails.application.class.parent_name}", class: "btn btn-success btn-block #{submit_klass}" %>
+        </div>
+        <div class="col-md-3">
+          <a class="btn btn-primary btn-block" href="<%=RailsBase.url_routes.new_user_session_path%>" role="button">Have an Account? Sign In</a>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<script type="text/javascript">
+  (function () {
+    'use strict'
+
+    // Fetch all the forms we want to apply custom Bootstrap validation styles to
+    var forms = document.querySelectorAll('.<%= validation_klass %>')
+
+    // Loop over them and prevent submission
+    Array.prototype.slice.call(forms)
+      .forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+          console.log("im here")
+          if (!form.checkValidity()) {
+            event.preventDefault()
+            event.stopPropagation()
+          }
+
+          form.classList.add('was-validated')
+        }, false)
+      })
+  })()
+</script>
+
+<%
+  common_criteria = {
+    # required: true,
+    min_length: RailsBase::Authentication::Constants::MIN_NAME,
+    max_length: RailsBase::Authentication::Constants::MAX_NAME,
+    pattern: :name
+  }
+  values = [
+    { name: '#user_first_name', criteria: common_criteria },
+    { name: '#user_last_name', criteria: common_criteria },
+    { name: '#user_email', criteria: { required: true, pattern: :email }}
+  ]
+  function_name = 'new_registration'
+%>
+
+<%= render partial: 'rails_base/shared/custom_form_validation_javascript', locals: { function_name: function_name, values: values } %>
+
+<%= render partial: 'rails_base/shared/password_confirm_javascript', locals: { id_password_conf: "#{resource_name}_password_confirmation", id_password: "#{resource_name}_password", form_klass: validation_klass, enable_submit: false, submit_klass: submit_klass, validation_events: [function_name] } %>
+

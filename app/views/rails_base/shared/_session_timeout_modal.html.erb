@@ -1,0 +1,77 @@
+<% default_time = 60 %>
+
+<div class="modal fade" id="sessionTimeoutModal" tabindex="-1" role="dialog" aria-labelledby="sessionTimeoutModal" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="sessionTimeoutModalLabel">Are you still there?</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body text-center">
+        <%
+          idle = distance_of_time_in_words(Rails.configuration.session_timeout - 60)
+        %>
+        This session has been idle <%= idle %>. This session will log out in: </br>
+        <strong id='modify_counter' style="font-size: 300%"><%= default_time %></strong>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script type="text/javascript">
+  var nextAt;
+  var timeoutClock;
+  var sessionTimeoutInterval = 1000;
+
+  function showSessionWarning(remainingTime){
+    resetSessionWarning();
+    $('#modify_counter').text(`${remainingTime}`)
+    $('#sessionTimeoutModal').modal('show');
+    nextAt = new Date().getTime();
+    timeoutClock = setTimeout(modifyCounter(), nextAt);
+  }
+
+  function closeSessionWarning(){
+    resetSessionWarning();
+    $('#sessionTimeoutModal').modal('hide');
+  }
+
+  function resetSessionWarning(){
+    clearTimeout(timeoutClock)
+    $('#modify_counter').css('color','')
+    $('#modify_counter').text(`<%= default_time%>`)
+  }
+
+  $('#sessionTimeoutModal').on('hidden.bs.modal', function (e) {
+    // when we close, ensure that we call the heartbeat server to reset the
+    sessionManager.checkForSessionHeartbeat();
+    resetSessionWarning();
+  })
+
+  function modifyCounter(){
+    nextAt += sessionTimeoutInterval;
+    var time_remaining = parseInt($('#modify_counter').text());
+    var modify_time = time_remaining - 1;
+    if(time_remaining>0){
+      $('#modify_counter').text(`${modify_time}`)
+    }
+
+    if(modify_time <= 10){
+      $('#modify_counter').css('color','red')
+    }
+    if(modify_time <=0){
+      timeoutClock = setTimeout(function(){ $('#sessionTimeoutModal').modal('show'); }, nextAt - new Date().getTime());
+      nextAt = null;
+    } else {
+      timeoutClock = setTimeout(function(){ modifyCounter(); }, nextAt - new Date().getTime());
+    }
+  }
+
+</script>

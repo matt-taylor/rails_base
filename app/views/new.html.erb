@@ -1,0 +1,4 @@
+<h2 class="text-center">Log in</h2>
+
+<%= render partial: 'shared/session_create_form', locals: { resource: @user, resource_name: :user, url: Rails.application.routes.url_helpers.user_session_path }%>
+

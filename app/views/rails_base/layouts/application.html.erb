@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= Rails.application.class.parent_name %></title>
+    <% unless defined?(@error_page) %>
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <% # dont load turbolinks twice when we render error pages %>
+    <% # casues Uncaught Error: rails-ujs has already been loaded! %>
+    <%= javascript_include_tag 'rails_base/application', 'data-turbolinks-track': 'reload' %>
+    <% end %>
+
+    <%= stylesheet_link_tag    'rails_base/application', media: 'all', 'data-turbolinks-track': 'reload' %>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://unpkg.com/sticky-table-headers"></script>
+  </head>
+
+  <body>
+    <% raise %>
+    <div class="container-fluid">
+      <% if current_user %>
+        <!-- current_user will return true if a user is logged in -->
+        <%= render partial: 'shared/logged_in_header'%>
+      <% else %>
+        <!-- not logged in -->
+        <%= render partial: 'shared/logged_out_header'%>
+      <% end %>
+      <% if notice %>
+        <p class="alert alert-success"><%= notice %></p>
+      <% end %>
+      <% if alert %>
+        <p class="alert alert-danger"><%= alert %></p>
+      <% end %>
+        <%= yield %>
+    </div>
+
+    <script>
+      <% unless defined?(@error_page) %>
+      $(document).ready(function(){
+        $('[data-toggle="tooltip"]').tooltip();
+        // https://github.com/jmosbech/StickyTableHeaders
+        $('.tableFixHead').stickyTableHeaders();
+      });
+      <% end %>
+      <% if Rails.env == 'production' %>
+      // Disable console logging
+      console.log = function() {}
+      <% end %>
+
+      function goBack() {
+        window.history.back();
+      }
+    </script>
+  </body>
+</html>

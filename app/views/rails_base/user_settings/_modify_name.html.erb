@@ -1,0 +1,71 @@
+
+<div class="modal fade" id="modifyNameModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Modify Name</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" style="text-align: center;">
+        <h4>Please enter the name you would like to change to</h4>
+        <%= form_for(:user, as: :user, url: RailsBase.url_routes.user_edit_name_path, html: { class: 'modify_name_change', method: :post }) do |f| %>
+          <div class="field input-group">
+            <div class="input-group-prepend">
+              <span class="input-group-text">
+                First Name
+              </span>
+            </div>
+            <%= f.text_field :first_name, autofocus: true, class: "flex-fill", placeholder: current_user.first_name %>
+            <div class="invalid-feedback">
+              <%= "Invalid Characters present in first name" %>
+            </div>
+          </div>
+          <div class="field input-group">
+            <div class="input-group-prepend">
+              <span class="input-group-text">
+                Last Name
+              </span>
+            </div>
+            <%= f.text_field :last_name, class: "flex-fill", placeholder: current_user.last_name %>
+            <div class="invalid-feedback">
+              <%= "Invalid Characters present in last name" %>
+            </div>
+          </div>
+
+          <div class="actions">
+            <%= f.submit "Confirm Name Change", class: "submit-name-change btn btn-success", style: "width: 50%;" %>
+          </div>
+        <% end %>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="mr-auto btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%
+  values = [
+    { name: '#user_first_name', criteria: { required: true, min_length: 2, max_length: 25, pattern: :name }},
+    { name: '#user_last_name', criteria: { required: true, min_length: 2 , max_length: 25, pattern: :name }},
+  ]
+  function_name = 'modify_name_validity'
+%>
+
+<%= render partial: 'rails_base/shared/custom_form_validation_javascript', locals: { function_name: function_name, values: values } %>
+
+<script type="text/javascript">
+  $('#modifyName').on('shown.bs.modal', function (e) {
+    $('#user_first_name').focus();
+  });
+
+  $('.modify_name_change').submit(function( event ) {
+    if (<%=function_name%>() == true){
+      return
+    }
+    event.preventDefault();
+    event.stopPropagation();
+  });
+</script>

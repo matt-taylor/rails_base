@@ -1,0 +1,106 @@
+<!-- Modal -->
+<div class="modal fade" id="destroyUserModal" tabindex="-1" role="dialog" aria-labelledby="destroyUserModalTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title text-center font-weight-bold" id="destroyUserModalLongTitle">Destroy User Account!</h2>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-status"></div>
+        <div class="modal-body-content">
+          <h4 class="text-center">Confirm your current password to continue</h4>
+          <div class="field form-group row">
+            <div class="col-md-10 offset-md-1">
+              <%= password_field_tag :destroy_password, nil, autofocus: true, placeholder: "Password", class: 'form-control', required: true %>
+              <div class="invalid-feedback">
+                Incorrect Password
+              </div>
+            </div>
+          </div>
+          <div class="actions row">
+            <div class="col-md-10 offset-md-1 text-center">
+              <button type="button" class="btn btn-success" id="confirm-destroy-current-password">
+              Confirm Password
+              </button>
+              <button class="btn btn-success" id='confirm-destroy-current-password-wait' type="button" disabled style="display: none">
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true">
+                </span>
+                Please wait...
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <fieldset class="w-100">
+          <button type="button" class="btn btn-secondary float-left" data-dismiss="modal" >Close</button>
+
+          <%= button_to "Destroy User", RailsBase.url_routes.destroy_user_path, class: "destroy_user_btn btn btn-danger disabled float-right disabled", params: { data: nil }%>
+        </fieldset>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  var token = 'this_is_a_temp_value';
+  function destroy_password_submit(){
+    var password = $("#destroy_password").val()
+    var data = { 'user': { 'password': password } }
+    $('#confirm-destroy-current-password').hide()
+    $('#confirm-destroy-current-password-wait').show()
+    $.ajax({
+      type: "POST",
+      url: "<%= RailsBase.url_routes.confirm_current_password_path(reason: :destroy_user) %>",
+      headers: { 'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content') },
+      dataType: 'json',
+      data: data,
+      success: function(data) {
+        destroy_password_modal_reset();
+        html_notice = `<p class="alert alert-success">Password valid. Please confirm destruction of Account</p>`
+        token = data.datum
+        $('#destroyUserModal .modal-status').html(html_notice)
+        $('#destroyUserModal .modal-body-content').html(data.html)
+      },
+      error: function(xhr, status, error) {
+        html = `<p class="alert alert-danger">${xhr.responseJSON.msg}</p>`
+        $('#confirm-destroy-current-password').show()
+        $('#confirm-destroy-current-password-wait').hide()
+        $('#destroy_password').val('')
+        $('#destroy_password').focus();
+        $('#destroy_password').addClass('is-invalid');
+        $('#destroyUserModal .modal-status').html(html)
+      }
+    })
+  }
+
+  function destroy_password_modal_reset(){
+    $('#destroy_password').val('')
+    $('#confirm-destroy-current-password').show();
+    $('#confirm-destroy-current-password-wait').hide();
+    $('#destroy_password').removeClass('is-invalid');
+    $('#destroyUserModal .modal-status').html('')
+  }
+
+  $("#confirm-destroy-current-password").click(function(){
+    destroy_password_submit();
+  });
+
+  $('#destroyUserModal').on('shown.bs.modal', function (e) {
+    $('#destroy_password').focus();
+  });
+
+  $('#destroyUserModal').on('hidden.bs.modal', function (e) {
+    destroy_password_modal_reset()
+  });
+
+  $('#destroy_password').keypress(function(event){
+    var keycode = (event.keyCode ? event.keyCode : event.which);
+    if(keycode == '13'){
+      destroy_password_submit();
+    }
+});
+</script>

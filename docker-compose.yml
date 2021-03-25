@@ -1,0 +1,66 @@
+# ./docker-compose.yml
+version: "3.7"
+volumes:
+  bundle:
+    driver: local
+  mysql:
+    driver: local
+  tmp:
+    driver: local
+  node-modules:
+    driver: local
+
+services:
+  mysql:
+    image: mysql:8.0.21
+    command:
+      - --default-authentication-plugin=mysql_native_password
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_HOST=mysql
+    ports:
+      - "3308:3306"
+    expose:
+      - "3308"
+    volumes:
+      - mysql:/var/lib/mysql
+  engine:
+    build:
+      args:
+        BUNDLE_WITHOUT: "darwin"
+        RAILS_ENV: development
+      target: base
+      context: .
+    command: test/dummy/bin/rails s -p 5555 -e development -b '0.0.0.0'
+    image: "authentication-engine:0.1"
+    # so things like pry work
+    tty: true
+    stdin_open: true
+    volumes:
+      # bind-mount your working directory of code
+      - .:/home/app
+      # attach a volume at /bundle to keep gems outside of the container image
+      - bundle:/bundle
+      # attach a volume at ./node_modules to keep node modules cached in a volume
+      - node-modules:/home/app/node_modules
+      # attach a volume at ./tmp to cache asset compilation, rails cache files
+      - tmp:/home/app/tmp
+    env_file:
+      - .env
+    environment:
+      - RAILS_ENV=development
+      - MYSQL_HOST=mysql
+      - MYSQL_USER=root
+      - MYSQL_PORT=3306
+      - MYSQL_PASSWORD=root
+      - BUNDLE_PATH=/bundle
+      - BUNDLE_JOBS=2
+      - BUNDLE_RETRY=3
+      - BASE_URL=http://localhost
+      - BASE_URL_PORT=5555
+      - SESSION_TIMEOUT_IN_SECONDS=900
+      - SESSION_TIMEOUT_WARNING=true
+    ports:
+      - "5555:5555"
+    links:
+      - mysql

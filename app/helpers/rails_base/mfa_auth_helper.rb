@@ -1,0 +1,2 @@
+module RailsBase::MfaAuthHelper
+end

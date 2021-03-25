@@ -1,0 +1,10 @@
+
+<div class="row" >
+  <div class="col-md-8 offset-md-2" style="position: absolute; top:25%">
+    <%= render partial: 'rails_base/shared/mfa_input_layout', locals: { url: RailsBase.url_routes.mfa_code_verify_path, size: 30, masked_phone: @masked_phone }%>
+    <br>
+    <div class="text-center">
+      <%= button_to 'Resend MFA', RailsBase.url_routes.resend_mfa_path, method: :post, class: 'btn btn-warning', style: 'width: 25%;'  %>
+    </div>
+  </div>
+</div>

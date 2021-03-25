@@ -1,0 +1,55 @@
+<%= form_for :mfa, url: url, html: { class: 'mfa_submission', novalidate: true} do |f| %>
+  <div class="form-group text-center">
+    <div class="text-center" style="font-size: <%= size %>px">
+      Please enter the MFA code you received at <%= masked_phone %>
+    </div>
+    <div class='row justify-content-center' style="font-size: <%= size %>px;">
+      <div class="col-xs-2">
+        <%= text_field_tag 'alternate_mfa', nil, maxlength: RailsBase::Authentication::Constants::MFA_LENGTH, class: 'text-center form-control', autofocus: true, type: "tel", style: "font-size:#{size}px;"  %>
+        <div class="invalid-feedback">
+          2FA code must be <%= RailsBase::Authentication::Constants::MFA_LENGTH %> numbers
+        </div>
+      </div>
+    </div>
+    <% RailsBase::Authentication::Constants::MFA_LENGTH.times do |index| %>
+      <%= f.hidden_field "#{RailsBase::Authentication::Constants::MV_BASE_NAME}#{index}", style: "caret-color: transparent; text-align: center;", class: "numbersOnly digit mfa-validator form-control", size: 1, maxlength: 1, autofocus: index==0 %>
+    <% end %>
+  </div>
+  <div class="text-center">
+    <%= f.submit "submit", class: "submit-mfa btn btn-success", style: "width: 50%;"%>
+  </div>
+<% end %>
+
+<script type="text/javascript">
+  $('.mfa_submission').submit(function( event ) {
+    console.log($('#alternate_mfa').val())
+    var length_match = $('#alternate_mfa').val().length === <%= RailsBase::Authentication::Constants::MFA_LENGTH %>;
+    var valid_data = !invalidate_data($('#alternate_mfa').val());
+    if (length_match && valid_data){
+      set_values($('#alternate_mfa').val())
+      return
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+    $('#alternate_mfa').addClass('is-invalid');
+    $('#alternate_mfa').val('')
+    $('#alternate_mfa').focus();
+  });
+
+  function set_values(data) {
+    var dataArr = data.split('')
+    <% RailsBase::Authentication::Constants::MFA_LENGTH.times do |index| %>
+    $('#<%="mfa_#{RailsBase::Authentication::Constants::MV_BASE_NAME}#{index}"%>').val(data[<%=index%>])
+    <% end %>
+  }
+
+  function invalidate_data(data) {
+    dataArr = data.split('');
+    var dataIsNotANumber = dataArr.every(function (pos) {
+      return isNaN(pos)
+    });
+    console.log(dataIsNotANumber)
+    return dataIsNotANumber
+  }
+</script>

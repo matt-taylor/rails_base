@@ -1,0 +1,58 @@
+# Files in the config/locales directory are used for internationalization
+# and are automatically loaded by Rails. If you want to use locales other
+# than English, add the necessary files in this directory.
+#
+# To use the locales, use `I18n.t`:
+#
+#     I18n.t 'hello'
+#
+# In views, this is aliased to just `t`:
+#
+#     <%= t('hello') %>
+#
+# To use a different locale, set it with `I18n.locale`:
+#
+#     I18n.locale = :es
+#
+# This would use the information in config/locales/es.yml.
+#
+# The following keys must be escaped otherwise they will not be retrieved by
+# the default I18n backend:
+#
+# true, false, on, off, yes, no
+#
+# Instead, surround them with single quotes.
+#
+# en:
+#   'true': 'foo'
+#
+# To learn more, please read the Rails Internationalization guide
+# available at http://guides.rubyonrails.org/i18n.html.
+
+en:
+  request_response:
+    teapot:
+      valid: 'You are not a teapot'
+      fail: Unable to complete request
+  user_setting:
+    destroy_user:
+      soft: 'You have succesfully disabled your user. Sign up again to reset your data'
+      hard: 'You have succesfully destroyed your user and associated data'
+  authentication:
+    after_email_login_session_create: Welcome. You have succesfully logged in
+    after_email_login_session_new: Email has been verified. Please Log in again to gain access
+    resend_email: 'Verification Email resent to %{email}'
+    confirm_phone_registration:
+      fail: "Unable to complete request. %{message}"
+      valid: You have succesfully enabled 2fa.
+    remove_phone_mfa: You have Disabled 2fa. 2fa will no longer be applied during log in. You can re-enable any time
+    forgot_password:
+      2fa: 2 Factor Authentication is required for this account
+      base: Please enter your new password
+    forgot_password_with_mfa:
+      expired_datum: 'Unauthorized. Incorrect Data parameter'
+      valid_mfa: 'Successful MFA code. Please reset your password'
+    reset_password: Password succesfully changed. Please login
+    sso_login:
+      fail: 'Unable to Authenticate User - '
+      valid: Succesfully logged in from SSO link

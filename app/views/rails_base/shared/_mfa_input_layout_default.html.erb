@@ -1,0 +1,97 @@
+<%= form_for :mfa, url: url do |f| %>
+  <div class="form-group text-center">
+    <div class="text-center" style="font-size: <%= size %>px">
+      Please enter the MFA code you received at <%= masked_phone %>
+    </div>
+    <span>
+      <div class style="font-size: <%= size %>px;">
+        <% Authentication::Constants::MFA_LENGTH.times do |index| %>
+          <%= f.text_field "#{Authentication::Constants::MV_BASE_NAME}#{index}", type: "tel", style: "caret-color: transparent; text-align: center;", class: "numbersOnly digit mfa-validator", size: 1, maxlength: 1, autofocus: index==0 %>
+        <% end %>
+      </div>
+    </span>
+  </div>
+  <div class="text-center">
+    <% unless defined?(disable) %>
+    <%= f.submit "submit", class: "submit-mfa btn btn-success", style: "width: 50%;", disabled: true %>
+    <%end%>
+  </div>
+<% end %>
+
+
+<script type="text/javascript">
+  $('.mfa-validator').keyup(function(event){
+    this.value = this.value.replace(/[^0-9\.]/g,'');
+    var valid_char = this.value != '';
+    if(valid_char){
+      var next_mfa_id = get_next_mfa($(this).attr('id'));
+      if(next_mfa_id==undefined){
+        $(this).focus();
+        return
+      }
+      $(`#${next_mfa_id}`).focus();
+    } else {
+      $(this).focus();
+    }
+    submit_button_prop();
+  })
+
+  $(".mfa-validator").click(function(event){
+    var next_mfa_id = $(this).attr('id');
+    $(`#${next_mfa_id}`).val('');
+    while (next_mfa_id = get_next_mfa(next_mfa_id)) {
+      $(`#${next_mfa_id}`).val('');
+    }
+    $('.submit-mfa').prop('disabled', true);
+  });
+
+  function submit_button_prop(){
+    var disabled = false
+    var inputs = $(".mfa-validator");
+    for(var i = 0; i < inputs.length; i++){
+      if($(inputs[i]).val().length==0){
+        disabled = true;
+        break;
+      }
+    }
+    $('.submit-mfa').prop('disabled', disabled);
+  }
+
+  function get_next_mfa(elem_id) {
+    var max_length = <%= Authentication::Constants::MFA_LENGTH %>;
+    var elem_array = elem_id.split('_');
+    var last_elem = elem_array.pop();
+    if(isNaN(last_elem)){
+      return undefined
+    }
+    var last_elem_as_int = parseInt(last_elem)
+    if(last_elem_as_int>=max_length){
+      return undefined
+    }
+    elem_array.push(last_elem_as_int + 1)
+    return elem_array.join('_')
+  }
+
+  function paste_mfa_input(pastedData){
+    var pastedDataOg = e.originalEvent.clipboardData.getData('text');
+    if(pastedDataOg.length != <%= Authentication::Constants::MFA_LENGTH %>){
+      return;
+    }
+    pastedData = pastedDataOg.split('');
+    pastedDataIsNotANumber = pastedData.every(function (pos) {
+      return isNaN(pos)
+    });
+
+    if(pastedDataIsNotANumber) {
+      return;
+    }
+
+    <% # We know pasted data is correct length %>
+    <% # We know pasted data is all numbers %>
+    <% # Paste it into the correct boxes %>
+
+    <% Authentication::Constants::MFA_LENGTH.times do |index| %>
+    $("#<%= "mfa_#{Authentication::Constants::MV_BASE_NAME}#{index}"%>").val(pastedData[<%= index %>])
+    <% end %>
+  }
+</script>

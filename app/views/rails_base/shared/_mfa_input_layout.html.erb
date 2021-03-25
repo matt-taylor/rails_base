@@ -1,0 +1,5 @@
+<% if !mfa_fallback? %>
+<%= render partial: 'rails_base/shared/mfa_input_layout_fallback', locals: { url: url, size: size, masked_phone: masked_phone}%>
+<% else %>
+  <%= render partial: 'rails_base/shared/mfa_input_layout_default', locals: { url: url, size: size, masked_phone: masked_phone}%>
+<% end %>
