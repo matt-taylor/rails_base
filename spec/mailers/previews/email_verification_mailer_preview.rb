@@ -9,4 +9,13 @@ class RailsBase::EmailVerificationMailerPreview < ActionMailer::Preview
     url = 'http://www.thisIsAFakeDomain.org'
     RailsBase::EmailVerificationMailer.forgot_password(user: User.first, url: url)
   end
+
+  def event_with_msg
+    msg = 'Isnt this a super cool event?!?!?!!'
+    RailsBase::EmailVerificationMailer.event(user: User.first, event: 'Some cool event', msg: msg)
+  end
+
+  def event_without_msg
+    RailsBase::EmailVerificationMailer.event(user: User.first, event: 'Some cool event')
+  end
 end

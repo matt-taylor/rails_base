@@ -13,9 +13,10 @@ class RailsBase::EmailVerificationMailer < RailsBase::ApplicationMailer
 	  mail(to: @user.email, subject: "#{Rails.application.class.parent_name}: Forgot Password")
 	end
 
-	def event(user:, event:)
+	def event(user:, event:, msg: nil)
 	  @user = user
-
+	  @event = event
+	  @msg = msg
 	  mail(to: @user.email, subject: "#{Rails.application.class.parent_name}: #{event}")
 	end
 end
