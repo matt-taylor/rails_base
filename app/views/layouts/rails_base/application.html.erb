@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%= ::Rails.application.class.name %></title>
+    <title><%= Rails.application.class.parent_name %></title>
     <% unless defined?(@error_page) %>
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>

@@ -6,7 +6,6 @@ class RailsBase::Users::SessionsController < Devise::SessionsController
 
   # GET /user/sign_in
   def new
-    console
     @user = User.new
     render template: 'rails_base/devise/sessions/new'
   end

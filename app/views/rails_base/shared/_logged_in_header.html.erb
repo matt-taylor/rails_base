@@ -6,13 +6,16 @@
 
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav mr-auto">
-      <li class="nav-item active">
-        <a class="nav-link" href="<%= RailsBase.url_routes.authenticated_root_path%>">Dashboard<span class="sr-only">(current)</span></a>
+      <% Rails.application.config.n_logged_in.each_with_index do |link_helper, index| %>
+      <li class="nav-item  <%= 'active' if index==0 %>">
+        <a class="nav-link" href="<%= link_helper.url %>">
+          <%= link_helper.title %>
+          <% if index==0 %>
+          <span class="sr-only">(current)</span>
+          <% end %>
+        </a>
       </li>
-      <li class="nav-item">
-        <% path_to_error = [:error_404_path, :error_422_path, :error_500_path].sample %>
-        <a class="nav-link" href="<%= RailsBase.url_routes.send(path_to_error) %>">Random Error Page</a>
-      </li>
+      <% end %>
     </ul>
     <% if defined?(@error_page)%>
       <button onclick="goBack()" class="btn btn-warning">
