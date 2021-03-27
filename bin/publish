@@ -1,3 +1,34 @@
 #!/bin/bash -e
 
+if [ -z "$GEMFURY_TOKEN" ]; then
+  echo 'Environment variable GEMFURY_TOKEN is not present'
+  exit 1
+fi
+
+
+VERSION=$(bin/rails runner 'RailsBase.print_version')
+PACKAGE=rails_base-${VERSION}.gem
+
+if [ $(git tag -l "$VERSION") ]; then
+  echo "Pre existing version $VERSION, not tagging."
+  echo "Pre existing version $VERSION, not pushing to gemfury."
+  exit 0
+fi
+
+# Build and publish to Gemfury
 gem build rails_base.gemspec
+FILE=$(pwd)/${PACKAGE}
+
+# push to gemfury
+curl -F package=@${FILE} https://${GEMFURY_TOKEN}@push.fury.io/${GEMFURY_USER}/
+
+# create tag in repo
+git tag -a $VERSION -m "$VERSION"
+git push https://${GITHUB_TOKEN}@github.com/${GITHUB_USER}/rails_base.git $VERSION
+
+# send artifacts to git
+SHA=$(git rev-parse HEAD)
+$GOPATH/bin/ghr -soft -t ${GITHUB_TOKEN} -u ${GITHUB_USER} -r rails_base -c ${SHA} ${VERSION} *.gem
+
+# start fresh
+rm rails_base*.gem

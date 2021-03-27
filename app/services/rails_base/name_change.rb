@@ -15,6 +15,8 @@ class RailsBase::NameChange < RailsBase::ServiceBase
 			context.fail!(message: velocity[:msg])
 		end
 
+		original_name = current_user.full_name
+
 		name_validation = validate_full_name?(first_name: first_name, last_name: last_name)
 
 		unless name_validation[:status]
@@ -28,12 +30,13 @@ class RailsBase::NameChange < RailsBase::ServiceBase
 		if !current_user.update(first_name: first_name, last_name: last_name)
 			context.fail!(message: "Unable to update name. Please try again later")
 		end
-
+		context.original_name = original_name
 		context.name_change = current_user.reload.full_name
 
 		RailsBase::EmailVerificationMailer.event(
 			user: current_user,
-			event: "Succesfull name change to #{current_user.full_name}"
+			event: "Succesfull name change",
+			msg: "We changed the name on your account from #{original_name} to #{context.name_change}."
 		).deliver_now
 	end
 

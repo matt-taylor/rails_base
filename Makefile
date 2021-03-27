@@ -49,3 +49,9 @@ clear_pid:
 
 s server: up
 	docker attach rails_base_engine_1
+
+print_version:
+	docker-compose run engine bin/version
+
+publish:
+	docker-compose run engine bin/publish

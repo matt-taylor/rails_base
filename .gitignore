@@ -14,4 +14,5 @@ test/dummy/tmp/
 # Keep local secrets local
 .env
 
-
+# Gemfile.lock is not needed
+Gemfile.lock
