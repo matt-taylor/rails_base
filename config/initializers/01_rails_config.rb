@@ -2,6 +2,8 @@
 # File is prepended with 01 so that it loads first #
 ####################################################
 
+require 'link_decision_helper'
+
 Rails.application.configure do
   #######################
   # Twilio Requirements #
@@ -10,9 +12,9 @@ Rails.application.configure do
   config.twilio_auth_token = ENV.fetch('TWILIO_AUTH_TOKEN')
   config.twilio_from_number = ENV.fetch('TWILIO_FROM_NUMBER')
 
-  ##################################################################
-  # Twilio velocity reqirements - protection from calling too much #
-  ##################################################################
+  ###################################################################
+  # Twilio velocity requirements - protection from calling too much #
+  ###################################################################
   config.twilio_velocity_max = ENV.fetch('TWILIO_VELOCITY_MAX', 1).to_i
   config.twilio_velocity_max_in_frame = ENV.fetch('TWILIO_VELOCITY_MAX_IN_FRAME', 1).to_i
   config.twilio_velocity_frame = ENV.fetch('TWILIO_VELOCITY_MAX_IN_FRAME', 5).to_i
@@ -58,7 +60,7 @@ Rails.application.configure do
   session_timeout = ENV['SESSION_TIMEOUT_IN_SECONDS']
   session_timeout =
     if session_timeout
-      (session_timeout.to_i > 0) ? session_timeout.to_i.seconds : nil
+      (session_timeout.to_i > 0) ? session_timeout.to_i.seconds : 60.days
     end
 
   # session timout set for devise and for forced logout via ajax; when nil, there is no timeout
@@ -72,4 +74,22 @@ Rails.application.configure do
   # Explicitly set RailsBase mailer location #
   ############################################
   config.action_mailer.preview_path = RailsBase::Engine.root.join('spec','mailers','previews')
+
+  ###############################
+  # load assets from rails base #
+  ###############################
+  config.assets.precompile << 'rails_base/manifest'
+
+
+  #################################
+  # Define logged in Header paths #
+  #################################
+  LinkDecisionHelper::ALLOWED_TYPES.each do |type|
+    thing = config.public_send("#{type}||=", [])
+    if thing.empty?
+      default = LinkDecisionHelper.new(title: nil, url: nil, type: type, default_type: type, config: config)
+      config.public_send("#{type}=", [default])
+    end
+  end
+
 end

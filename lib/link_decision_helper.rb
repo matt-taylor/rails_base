@@ -1,0 +1,56 @@
+class LinkDecisionHelper
+  ALLOWED_TYPES = [
+    NAVBAR_LOGGED_IN = :n_logged_in,
+    NAVBAR_LOGGED_OUT = :n_logged_out
+  ]
+
+  def self.clear_type!(type:)
+    raise "Unexpected type [#{type}]. Expected #{ALLOWED_TYPES}" unless ALLOWED_TYPES.include?(type)
+    Rails.application.config.public_send("#{type}=", [])
+  end
+
+  def initialize(title:, url:, type:, default_type: nil, config: nil)
+    raise "Unexpected type [#{type}]. Expected #{ALLOWED_TYPES}" unless ALLOWED_TYPES.include?(type)
+
+    @config = config
+    @type = type
+    @url = url
+    @title = title
+
+    if default_type && ALLOWED_TYPES.include?(default_type)
+      assign_default!
+    elsif default_type && !ALLOWED_TYPES.include?(default_type)
+      raise 'unexpected default value'
+    end
+  end
+
+  def assign!
+    config.public_send(@type).push(self)
+  end
+
+  def url
+    get_value(@url)
+  end
+
+  def title
+    get_value(@title)
+  end
+
+  private
+
+  def get_value(thing)
+    thing.is_a?(Proc) ? thing.call : thing
+  end
+
+  def assign_default!
+    case @type
+    when NAVBAR_LOGGED_IN
+      @url = '/'
+      @title = 'Default Title'
+    end
+  end
+
+  def config
+    @config ||= Rails.application.config
+  end
+end

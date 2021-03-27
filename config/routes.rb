@@ -30,8 +30,13 @@ Rails.application.routes.draw do
   ##################################
 
   # START ROOT PATH AUTHENTICATED -- This is devise magic methods
-  authenticated do
-    root to: 'rails_base/user_settings#index', as: :authenticated_root
+  if (Rails.application.routes.url_helpers.authenticated_root_path rescue false)
+    Rails.logger.debug { 'using authenticated_root from main app' }
+  else
+    Rails.logger.debug { 'using authenticated_root from rails_base' }
+    authenticated do
+      root to: 'rails_base/user_settings#index', as: :authenticated_root
+    end
   end
   # END ROOT PATH AUTHENTICATED
 
@@ -48,9 +53,14 @@ Rails.application.routes.draw do
     post 'heartbeat', to: 'rails_base/users/sessions#hearbeat_with_auth', as: :heartbeat_with_auth
 
     # START ROOT PATH UNAUTHENTICATED
+  if (Rails.application.routes.url_helpers.unauthenticated_root_path rescue false)
+    Rails.logger.debug { 'using unauthenticated_root from main app' }
+  else
+    Rails.logger.debug { 'using unauthenticated_root from rails_base' }
     unauthenticated do
       root to: 'rails_base/users/sessions#new', as: :unauthenticated_root
     end
+  end
     # END ROOT PATH UNAUTHENTICATED
   end
 
