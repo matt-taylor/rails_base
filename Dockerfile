@@ -11,6 +11,9 @@ ENV RUBYOPT '-W0'
 
 # set the app directory var
 ENV APP_HOME /home/app
+# home for go
+ENV GOPATH /home/go
+
 WORKDIR $APP_HOME
 ARG NODE_MAJOR_VERSION=14
 RUN curl -sL https://deb.nodesource.com/setup_${NODE_MAJOR_VERSION}.x | bash - \
@@ -24,6 +27,7 @@ RUN curl -sL https://deb.nodesource.com/setup_${NODE_MAJOR_VERSION}.x | bash - \
   libssl-dev \
   libxslt-dev \
   nodejs \
+  golang-go \
   openssh-client \
   unzip \
   zlib1g-dev \
@@ -35,6 +39,10 @@ RUN curl -sL https://deb.nodesource.com/setup_${NODE_MAJOR_VERSION}.x | bash - \
 # install yarn, required by webpacker
 ARG YARN_VERSION=1.22.4
 RUN npm install -g yarn@${YARN_VERSION}
+
+# install GHR for pushing to git
+RUN go get -u github.com/tcnksm/ghr
+
 # install bundler
 ARG BUNDLER_VERSION=2.0.2
 RUN gem install bundler -v "${BUNDLER_VERSION}"
