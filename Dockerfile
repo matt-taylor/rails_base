@@ -16,9 +16,9 @@ ENV GOPATH /home/go
 
 WORKDIR $APP_HOME
 ARG NODE_MAJOR_VERSION=14
-RUN curl -sL https://deb.nodesource.com/setup_${NODE_MAJOR_VERSION}.x | bash - \
-  && apt-get update -qq \
-  && apt-get install -y --no-install-recommends \
+RUN curl -sL https://deb.nodesource.com/setup_${NODE_MAJOR_VERSION}.x | bash -
+RUN apt-get update -qq
+RUN apt-get install -y --no-install-recommends \
   build-essential \
   curl \
   default-libmysqlclient-dev \
@@ -31,9 +31,16 @@ RUN curl -sL https://deb.nodesource.com/setup_${NODE_MAJOR_VERSION}.x | bash - \
   openssh-client \
   unzip \
   zlib1g-dev \
-  default-mysql-client \
-  && rm -rf /var/lib/apt/lists/* \
-  && apt-get clean
+  default-mysql-client
+
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
+RUN apt-get install -y software-properties-common
+RUN apt-add-repository https://cli.github.com/packages
+RUN apt update
+RUN apt install gh
+RUN rm -rf /var/lib/apt/lists/*
+RUN apt-get clean
+
 
 
 # install yarn, required by webpacker
