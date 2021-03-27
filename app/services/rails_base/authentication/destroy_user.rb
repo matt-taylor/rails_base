@@ -1,11 +1,11 @@
-require RailsBase::Engine.root.join('app', 'helpers', 'rails_base', 'user_settings_helper')
+# require RailsBase::Engine.root.join('app', 'helpers', 'rails_base', 'user_settings_helper')
 
 module RailsBase::Authentication
   class DestroyUser < RailsBase::ServiceBase
     delegate :current_user, to: :context
     delegate :data, to: :context
 
-    include RailsBase::UserSettingsHelper
+    # include RailsBase::UserSettingsHelper
 
     def call
       datum = get_short_lived_datum(data)
@@ -36,7 +36,7 @@ module RailsBase::Authentication
     end
 
     def get_short_lived_datum(data)
-      ShortLivedData.find_datum(data: data, reason: DATUM_REASON)
+      ShortLivedData.find_datum(data: data, reason: :confirm_password)
     end
 
     def validate!
