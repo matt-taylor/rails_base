@@ -1,0 +1,20 @@
+#!/bin/bash -e
+
+read -r -p "This is an unrecoverable action. Are you sure? [Y/n] " response
+if [[ "$response" =~ ^([Y][E][S]|[Y])$ ]]
+then
+  echo 'Good luck recovering from this asshat'
+else
+  echo 'That was probably a good decision'
+  exit 0
+fi
+
+# remove releases and artifacts
+gh -R https://${GITHUB_TOKEN}@github.com/${GITHUB_USER}/rails_base.git release list | sed 's/|/ /' | awk '{print $1, $8}' | while read -r line; do gh release delete -y "$line"; done
+echo 'Remove all releases and Artifacts'
+
+# remove tags
+git fetch https://${GITHUB_TOKEN}@github.com/${GITHUB_USER}/rails_base.git
+git tag https://${GITHUB_TOKEN}@github.com/${GITHUB_USER}/rails_base.git -l | xargs -n 1 git push --delete origin
+git tag -d $(git tag -l)
+echo 'Removed all local and remote tags'
