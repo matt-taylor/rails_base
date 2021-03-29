@@ -50,7 +50,7 @@ RSpec.describe RailsBase::NameChange do
 		end
 
 		it 'sends email' do
-			expect(RailsBase::EmailVerificationMailer).to receive(:event).with(user: current_user, event: /Succesfull name change/).and_call_original
+			expect(RailsBase::EmailVerificationMailer).to receive(:event).with(user: current_user, event: /Succesfull name change/, msg: anything).and_call_original
 
 			call
 		end
