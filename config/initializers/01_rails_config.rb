@@ -91,5 +91,4 @@ Rails.application.configure do
       config.public_send("#{type}=", [default])
     end
   end
-
 end
