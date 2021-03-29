@@ -10,7 +10,7 @@ module RailsBase::Authentication
 
 		MAX_USE_COUNT = 1.freeze
 		DATA_USE = :numeric
-		VELOCITY_MAX = 30 || Rails.configuration.twilio_velocity_max_in_frame
+		VELOCITY_MAX = Rails.configuration.twilio_velocity_max_in_frame
 		VELOCITY_MAX_IN_FRAME = Rails.configuration.twilio_velocity_max_in_frame.hour
 		VELOCITY_FRAME = Rails.configuration.twilio_velocity_frame.hour
 
