@@ -1,7 +1,6 @@
 ENV['RAILS_ENV'] ||= 'test'
 
 
-# byebug
 require File.expand_path("../test/dummy/config/environment.rb", __dir__)
 # Prevent database truncation if the environment is production
 abort("The Rails environment is running in <#{Rails.env}> mode!") unless Rails.env.test?
@@ -36,6 +35,7 @@ rescue ActiveRecord::PendingMigrationError => e
   puts e.to_s.strip
   exit 1
 end
+
 RSpec.configure do |config|
   # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
   config.fixture_path = "#{::Rails.root}/spec/fixtures"
@@ -81,16 +81,4 @@ RSpec.configure do |config|
     DatabaseCleaner.clean
     Timecop.return
   end
-
-  require 'simplecov'
-  SimpleCov.configure do
-    add_filter do |source_file|
-      source_file.lines.count < 6
-    end
-    add_group 'Services', 'app/services/rails_base'
-  end
-
-  # only run when we are not doing 1 file
-  # ensure this is done after config so that we can utilize branches
-  SimpleCov.start 'rails' unless config.files_to_run.one?
 end

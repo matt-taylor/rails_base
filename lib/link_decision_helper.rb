@@ -4,13 +4,18 @@ class LinkDecisionHelper
     NAVBAR_LOGGED_OUT = :n_logged_out
   ]
 
+  DEFAULT_TITLE = 'Default Title'
+  DEFAULT_URL = '/' # root
+
+  class NotOnAllowListError < StandardError; end;
+
   def self.clear_type!(type:)
     raise "Unexpected type [#{type}]. Expected #{ALLOWED_TYPES}" unless ALLOWED_TYPES.include?(type)
     Rails.application.config.public_send("#{type}=", [])
   end
 
   def initialize(title:, url:, type:, default_type: nil, config: nil)
-    raise "Unexpected type [#{type}]. Expected #{ALLOWED_TYPES}" unless ALLOWED_TYPES.include?(type)
+    raise NotOnAllowListError, "Unexpected type [#{type}]. Expected #{ALLOWED_TYPES}" unless ALLOWED_TYPES.include?(type)
 
     @config = config
     @type = type
@@ -20,7 +25,7 @@ class LinkDecisionHelper
     if default_type && ALLOWED_TYPES.include?(default_type)
       assign_default!
     elsif default_type && !ALLOWED_TYPES.include?(default_type)
-      raise 'unexpected default value'
+      raise NotOnAllowListError, 'unexpected default value'
     end
   end
 
@@ -45,8 +50,8 @@ class LinkDecisionHelper
   def assign_default!
     case @type
     when NAVBAR_LOGGED_IN
-      @url = '/'
-      @title = 'Default Title'
+      @url = DEFAULT_URL
+      @title = DEFAULT_TITLE
     end
   end
 

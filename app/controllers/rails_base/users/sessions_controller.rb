@@ -12,6 +12,10 @@ class RailsBase::Users::SessionsController < Devise::SessionsController
 
   # POST /user/sign_in
   def create
+    # Warden/Devise will try to sign the user in before we explicitly do
+    # Sign ou the user when this happens so we can sign them back in later
+    sign_out(current_user) if current_user
+
     authenticate = RailsBase::Authentication::AuthenticateUser.call(email: params[:user][:email], password: params[:user][:password])
 
     if authenticate.failure?
@@ -45,7 +49,11 @@ class RailsBase::Users::SessionsController < Devise::SessionsController
   def destroy
     flash[:notice] = 'You have been succesfully signed out'
     session[:mfa_randomized_token] = nil
+
+    # force the user to sign out
     sign_out(current_user)
+    reset_session
+
     redirect_to RailsBase.url_routes.unauthenticated_root_path
   end
 

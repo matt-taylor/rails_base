@@ -1,5 +1,3 @@
-# require RailsBase::Engine.root.join('app', 'helpers', 'rails_base', 'user_settings_helper')
-
 module RailsBase::Authentication
   class DestroyUser < RailsBase::ServiceBase
     delegate :current_user, to: :context

@@ -18,7 +18,7 @@ setup_db: # sets up db from empty state
 	docker-compose run engine bin/rails db:setup
 
 rspec: # runs the test suite
-	docker-compose run engine ./bin/test
+	docker-compose run -e RAILS_ENV=test engine bin/test
 
 bash: # get a bash container
 	docker-compose run engine bash
