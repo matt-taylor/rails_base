@@ -58,6 +58,9 @@ module VelocityLimiter
 		obj[:within_attempts_arr] = within_attempts
 		obj[:within_attempts_count] = within_attempts.count
 		obj[:threshold] = threshold
+		obj[:velocity_max] = velocity_max
+		obj[:velocity_frame] = velocity_frame
+		obj[:velocity_max_in_frame] = velocity_max_in_frame
 		obj[:to_words] = distance_of_time_in_words(Time.zone.now, attempt_again_at, include_seconds: true)
 
 		obj

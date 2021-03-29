@@ -15,9 +15,9 @@ Rails.application.configure do
   ###################################################################
   # Twilio velocity requirements - protection from calling too much #
   ###################################################################
-  config.twilio_velocity_max = ENV.fetch('TWILIO_VELOCITY_MAX', 1).to_i
-  config.twilio_velocity_max_in_frame = ENV.fetch('TWILIO_VELOCITY_MAX_IN_FRAME', 1).to_i
-  config.twilio_velocity_frame = ENV.fetch('TWILIO_VELOCITY_MAX_IN_FRAME', 5).to_i
+  config.twilio_velocity_max = ENV.fetch('TWILIO_VELOCITY_MAX', 5).to_i # max inside of time frame
+  config.twilio_velocity_max_in_frame = ENV.fetch('TWILIO_VELOCITY_MAX_IN_FRAME', 1).to_i # time frame for max
+  config.twilio_velocity_frame = ENV.fetch('TWILIO_VELOCITY_FRAME', 5).to_i # TTL for key -- for dubuggging/history
 
   #################################################
   # Allow custom exceptions app for 404, 422, 500 #
