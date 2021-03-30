@@ -45,6 +45,8 @@ services:
       - node-modules:/home/app/node_modules
       # attach a volume at ./tmp to cache asset compilation, rails cache files
       - tmp:/home/app/tmp
+      # attach all dirs in the parents dir
+      - ..:/local
     env_file:
       - .env
     environment:

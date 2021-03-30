@@ -21,6 +21,8 @@
 #  last_sign_in_ip        :string(255)
 #  created_at             :datetime         not null
 #  updated_at             :datetime         not null
+#  admin                  :integer          default("none")
+#  active                 :boolean          default(TRUE)
 #
 class User < ApplicationRecord
   # Include default devise modules. Others available are:
@@ -28,6 +30,7 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable, :timeoutable
 
+  enum admin: [:none, :super], _prefix: true
 
   SOFT_DESTROY_PARAMS = {
     mfa_enabled: false,

@@ -25,6 +25,11 @@
         <!-- not logged in -->
         <%= render partial: 'rails_base/shared/logged_out_header'%>
       <% end %>
+      <% if session[RailsBase::Authentication::Constants::ADMIN_REMEMBER_REASON].present? %>
+        <div class="alert alert-warning" role="alert">
+          <%= render partial: 'rails_base/shared/admin_warning_alert' %>
+        </div>
+      <% end %>
       <% if notice %>
       <div class="alert alert-success alert-dismissible fade show" role="alert">
         <%= notice %>

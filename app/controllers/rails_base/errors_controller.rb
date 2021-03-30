@@ -1,5 +1,5 @@
 module RailsBase
-  class ErrorsController < ::ApplicationController
+  class ErrorsController < ApplicationController
     before_action :set_variable
 
     def not_found

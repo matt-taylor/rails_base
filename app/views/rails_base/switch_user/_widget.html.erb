@@ -1,0 +1,5 @@
+<% if SwitchUser.switch_back %>
+  <%= check_box_tag "remember_user", "remember_user", provider.original_user.present?, onchange: "location.href = '#{ActionController::Base.relative_url_root}/switch_user/remember_user?remember=' + encodeURIComponent(this.checked)" %>
+<% end %>
+
+<%= select_tag "switch_user_identifier", option_tags, onchange: "location.href = '#{Rails.application.routes.url_helpers.switch_user_path(scope_identifier: '')}' + encodeURIComponent(this.options[this.selectedIndex].value)", class: classes, style: styles %>
