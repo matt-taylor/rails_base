@@ -11,6 +11,7 @@ test/dummy/tmp/
 test/dummy/.byebug_history
 .byebug_history
 .coverage
+**/coverage/*
 coverage/*
 
 # Keep local secrets local

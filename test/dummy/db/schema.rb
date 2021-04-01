@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_03_30_030618) do
+ActiveRecord::Schema.define(version: 2021_02_12_192645) do
 
   create_table "secrets", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.integer "version"
@@ -41,6 +41,8 @@ ActiveRecord::Schema.define(version: 2021_03_30_030618) do
     t.timestamp "last_mfa_login"
     t.boolean "email_validated", default: false
     t.boolean "mfa_enabled", default: false, null: false
+    t.boolean "active", default: true, null: false
+    t.integer "admin", default: 0, null: false
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
     t.string "reset_password_token"
@@ -53,8 +55,7 @@ ActiveRecord::Schema.define(version: 2021_03_30_030618) do
     t.string "last_sign_in_ip"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.integer "admin", default: 0
-    t.boolean "active", default: true
+    t.index ["active"], name: "index_users_on_active", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["phone_number"], name: "index_users_on_phone_number", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true

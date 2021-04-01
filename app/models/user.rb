@@ -28,9 +28,15 @@ class User < ApplicationRecord
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :trackable and :omniauthable
   devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :validatable, :timeoutable
+         :recoverable, :rememberable, :validatable, :timeoutable, :trackable
 
-  enum admin: [:none, :super], _prefix: true
+  ADMIN_ENUMS = [
+    ADMIN_ROLE_TIER_NONE = :none,
+    ADMIN_ROLE_TIER_1 = :view_only,
+    ADMIN_ROLE_SUPER = :super
+  ]
+
+  enum admin: ADMIN_ENUMS, _prefix: true
 
   SOFT_DESTROY_PARAMS = {
     mfa_enabled: false,
@@ -39,6 +45,15 @@ class User < ApplicationRecord
     encrypted_password: '',
     phone_number: nil,
   }
+
+  SAFE_AUTOMAGIC_UPGRADE_COLS = [
+    :active,
+    :admin,
+    :email,
+    :email_validated,
+    :mfa_enabled,
+    :phone_number,
+  ]
 
   def self.time_bound
     Time.zone.now - Rails.configuration.mfa_time_duration

@@ -112,7 +112,7 @@ Sample params
 			var pattern = /<%= value[:criteria][:pattern] %>/
 			<% end %>
 			if (pattern.test($('<%= value[:name]%>').val()) === false ){
-				console.log(`<%= value[:name]%> failed criteria pattern of pattern`)
+				console.log(`<%= value[:name]%> failed criteria pattern of <%= value[:criteria][:pattern]%>`)
 				criteria_met = false;
 			};
 		<% end %>

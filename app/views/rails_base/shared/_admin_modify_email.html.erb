@@ -1,0 +1,91 @@
+
+<% modal_prepend = "admin_#{modal_id}" %>
+
+<div class="modal fade" id='<%= modal_id %>' tabindex="-1" role="dialog" aria-labelledby="example_'<%= modal_id %>'" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-header text-center">
+        <h4 class="col-12 modal-title text-center" id="exampleModalLabel">
+          !&iexcl; Risky Change Warning !&iexcl;
+        </h4>
+      </div>
+      </div>
+      <div class="modal-body" style="text-align: center;">
+        <h4>Modify Email for <%= user.full_name %>:</h4>
+        <div class="col-auto">
+          <label class="sr-only" for="inlineFormInputGroup">Email</label>
+          <div class="input-group mb-2">
+            <div class="input-group-prepend">
+              <div class="input-group-text">Email</div>
+            </div>
+            <input type="text" class="form-control" id="<%= modal_prepend %>_email" placeholder="<%= user.email %>">
+            <div class="invalid-feedback">
+              <%= "Invalid Email. Try again" %>
+            </div>
+          </div>
+        </div>
+        <div class="col-auto my-1">
+          <button id='<%= modal_prepend %>' class="btn btn-success">Submit</button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="mr-auto btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%
+  values = [
+    { name: "##{modal_prepend}_email", criteria: { required: true, pattern: :email }},
+  ]
+  function_name = modal_id
+  submit_method = "#{modal_id}_#{(10*5*rand).to_i}"
+%>
+
+<%= render partial: 'rails_base/shared/custom_form_validation_javascript', locals: { function_name: function_name, values: values } %>
+
+<script type="text/javascript">
+  $('#<%= modal_id %>').on('shown.bs.modal', function (e) {
+    $('#<%= modal_prepend %>_email').removeClass('is-invalid')
+    $('#<%= modal_prepend %>_email').focus();
+  });
+
+  $('#<%= modal_id %>').on('hidden.bs.modal', function (e) {
+    // make sure to remove invalid field if present
+    $('#<%= modal_prepend %>_email').removeClass('is-invalid')
+    // clear values
+    $('#<%= modal_prepend %>_email').val('');
+  })
+
+  function <%= submit_method %>(){
+    var email = $('#<%= modal_prepend %>_email').val()
+    var data = { 'email': email, 'id': '<%= user.id%>' }
+    console.table(data)
+    $.ajax({
+      type: "POST",
+      url: "<%= RailsBase.url_routes.admin_upate_email_path%>",
+      headers: { 'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content') },
+      dataType: 'json',
+      data: data,
+      success: function(data) {
+        $('#<%= modal_id %>').modal('hide')
+        console.log(`text_id: #<%= text_id %>`)
+        console.log(`email: ${data.new_email}`)
+        $('#<%= text_id %>').text(data.email)
+        _rails_base_display_success(data.message)
+      },
+      error: function(xhr, status, error) {
+        $('#<%= modal_id %>').modal('hide')
+        _rails_base_display_alert(xhr.responseJSON.message)
+      }
+    })
+  }
+
+  $('#<%= modal_prepend %>').click(function( event ) {
+    if (<%= function_name%>() == true){
+      <%= submit_method %>()
+    }
+  });
+</script>

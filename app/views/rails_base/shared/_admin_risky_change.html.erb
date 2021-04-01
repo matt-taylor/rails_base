@@ -1,0 +1,44 @@
+<% text_id = "#{type}_#{user.id}_#{(10**10*rand).to_i}" %>
+<% span_id = "#{text_id}_span" %>
+<% risky_modal_id = "#{text_id}_risky_modal" %>
+<% partial_modal = "#{text_id}_partial_modal" %>
+
+<p style="text-align:left;">
+  <span id='<%= text_id %>'> <%= current_value %> </span>
+  <span class='' id='<%= span_id %>' style="float:right;">
+    <button class='risky-icon-og' style='border:none;, background: transparent;'>
+      &#x270e;
+    </button>
+    <span class="risky-icon-mask spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none">
+    </span>
+  </span>
+</p>
+
+
+<div class="modal fade" id='<%= risky_modal_id %>' tabindex="-1" role="dialog" aria-labelledby="example_'<%= risky_modal_id %>'" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="col-12 modal-title text-center" id="exampleModalLabel">
+          !&iexcl; Risky Change Warning !&iexcl;
+        </h4>
+      </div>
+      <div class="modal-body" style="text-align: center;">
+        <h5>You are about to modify a users <%= type %>. You must 2fa!</h5>
+        <%= render partial: 'rails_base/shared/admin_risky_mfa', locals: { modal_id: risky_modal_id, user: user, parent: "#{parent}_#{type}", text: text_id, next_modal: partial_modal } %>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="mr-auto btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%= render partial: modal_partial, locals: { modal_id: partial_modal, user: user, type: type, parent:  "#{parent}_#{type}", text_id: text_id, risky_modal_id: risky_modal_id, current_value: current_value } %>
+
+<script type="text/javascript">
+  $('#<%= span_id %>').click(function() {
+    admin_risky_icon_wait() // Disable double clicking and sending multiple mfas
+    admin_risky_mfa_send('<%= risky_modal_id %>')
+  });
+</script>

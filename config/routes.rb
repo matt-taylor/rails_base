@@ -84,8 +84,15 @@ Rails.application.routes.draw do
   # Start of Admin routes #
   #########################
   # override url and location for switch_user gem
-  get 'admin/impersonate/:scope_identifier', to: 'rails_base/switch_user#set_current_user', as: :switch_user
+  post 'admin/impersonate/:scope_identifier', to: 'rails_base/switch_user#set_current_user', as: :switch_user
+
   post 'admin/impersonate', to: 'rails_base/admin#switch_back', as: :admin_stop_impersonation
+  post 'admin/update', to: 'rails_base/admin#update_attribute', as: :admin_upate_attribute
+  post 'admin/update/name', to: 'rails_base/admin#update_name', as: :admin_upate_name
+  post 'admin/update/email', to: 'rails_base/admin#update_email', as: :admin_upate_email
+  post 'admin/update/phone', to: 'rails_base/admin#update_phone', as: :admin_upate_phone
+  post 'admin/validate_intent/send', to: 'rails_base/admin#send_2fa', as: :admin_validate_intent
+  post 'admin/validate_intent/verify', to: 'rails_base/admin#verify_2fa', as: :admin_verify_intent
   get 'admin', to: 'rails_base/admin#index', as: :admin_base
 
   #######################

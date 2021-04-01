@@ -3,6 +3,7 @@ module RailsBase::Authentication
 		delegate :params, to: :context
 		delegate :session_mfa_user_id, to: :context
 		delegate :current_user, to: :context
+		delegate :input_reason, to: :context
 
 		def call
 			array = convert_to_array
@@ -59,8 +60,8 @@ module RailsBase::Authentication
 		end
 
 		def get_short_lived_datum(mfa_code)
-			log(level: :debug, msg: "Looking for #{mfa_code} with reason #{Constants::MFA_REASON}")
-			ShortLivedData.find_datum(data: mfa_code, reason: Constants::MFA_REASON)
+			log(level: :debug, msg: "Looking for #{mfa_code} with reason #{reason}")
+			ShortLivedData.find_datum(data: mfa_code, reason: reason)
 		end
 
 		def convert_to_array
@@ -73,6 +74,10 @@ module RailsBase::Authentication
 			end
 
 			array.compact
+		end
+
+		def reason
+			input_reason || Constants::MFA_REASON
 		end
 
 		def validate!

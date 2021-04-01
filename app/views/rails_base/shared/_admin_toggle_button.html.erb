@@ -1,0 +1,51 @@
+<% input_id = "#{type}_#{user.id}_#{(10**10*rand).to_i}_input" %>
+<% span_id = "#{input_id}_span" %>
+<% div_span = "#{input_id}_div" %>
+<% toggle_function = "#{input_id}_function" %>
+<div id='<%= div_span %>' class='text-center'>
+  <input id='<%= input_id %>' class='admin-concurrent-block' type="checkbox" <%= 'checked' if checked %> data-toggle="toggle" data-on='<%= data_on %>' data-off='<%= data_off %>' data-onstyle='success' data-offstyle='warning'>
+</div>
+<button class="btn btn-info btn-block" id='<%= span_id %>' type="button" disabled style="display: none">
+  <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true">
+  </span>
+  Hang tight
+</button>
+
+
+
+<script type="text/javascript">
+  function <%=toggle_function%>(reveal){
+    if(reveal){
+      $('#<%= div_span %>').hide()
+      $('#<%= span_id %>').show()
+    } else {
+      $('#<%= div_span %>').show()
+      $('#<%= span_id %>').hide()
+    }
+  }
+
+  $('#<%= input_id %>').change(function() {
+    admin_pause_concurrency();
+    var original = $("#<%= input_id %>").is(':checked');
+    <%=toggle_function%>(true);
+    var data = { 'attribute':'<%= type %>', 'value': original, 'id': <%= user.id %> }
+    $.ajax({
+      type: "POST",
+      url: "<%= RailsBase.url_routes.admin_upate_attribute_path%>",
+      headers: { 'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content') },
+      dataType: 'json',
+      data: data,
+      success: function(data) {
+        admin_resume_concurrency();
+        <%=toggle_function%>(false);
+        _rails_base_display_success(data.message)
+      },
+      error: function(xhr, status, error) {
+        $('#<%= input_id %>').prop('checked', original);
+        <%=toggle_function%>(false);
+        admin_resume_concurrency();
+        _rails_base_display_alert(xhr.responseJSON.message)
+      }
+    })
+  })
+</script>

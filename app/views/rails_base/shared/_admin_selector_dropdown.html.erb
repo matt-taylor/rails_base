@@ -1,0 +1,62 @@
+<% input_id = "#{type}_#{user.id}_#{(10**10*rand).to_i}_input" %>
+<% span_id = "#{input_id}_span" %>
+<% div_id = "#{input_id}_div" %>
+<% toggle_function = "#{input_id}_function" %>
+<% same_user = current_user == user %>
+<% options = [selector] if current_user == user %>
+
+<%= select_tag input_id, options_for_select(options, selector), class: 'form-control', disabled: same_user %>
+<% if !same_user %>
+<button class="btn btn-info btn-block" id='<%= span_id %>' type="button" disabled style="display: none">
+  <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true">
+  </span>
+  Hang tight
+</button>
+
+
+<script type="text/javascript">
+  function <%=toggle_function%>(reveal){
+    if(reveal){
+      $('#<%= input_id %>').hide()
+      $('#<%= span_id %>').show()
+    } else {
+      $('#<%= input_id %>').show()
+      $('#<%= span_id %>').hide()
+    }
+  }
+
+  $('#<%= input_id %>').change(function() {
+    admin_pause_concurrency();
+
+    var original = $("#<%= input_id %>").val();
+    <%=toggle_function%>(true);
+    var data = { 'attribute':'<%= type %>', 'value': original, 'id': <%= user.id %> }
+    $.ajax({
+      type: "POST",
+      url: "<%= RailsBase.url_routes.admin_upate_attribute_path%>",
+      headers: { 'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content') },
+      dataType: 'json',
+      data: data,
+      success: function(data) {
+        admin_resume_concurrency();
+        <%=toggle_function%>(false);
+        _rails_base_display_success(data.message)
+      },
+      error: function(xhr, status, error) {
+        $('#<%= input_id %>').prop('checked', original);
+        <%=toggle_function%>(false);
+        admin_resume_concurrency();
+        _rails_base_display_alert(xhr.responseJSON.message)
+      }
+    })
+  })
+</script>
+<% else %>
+  <script type="text/javascript">
+    // <div class='b-tooltip' data-toggle="tooltip" title="Hooray!">
+
+    $('#<%= "#{parent}_#{type}"%>').attr('data-toggle', 'tooltip')
+    $('#<%= "#{parent}_#{type}"%>').attr('title', 'Disabled: Cannot make change on current user')
+
+  </script>
+<% end %>

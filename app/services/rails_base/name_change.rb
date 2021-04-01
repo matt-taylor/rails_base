@@ -8,11 +8,16 @@ class RailsBase::NameChange < RailsBase::ServiceBase
 	delegate :first_name, to: :context
 	delegate :last_name, to: :context
 	delegate :current_user, to: :context
+	delegate :admin_user_id, to: :context
 
 	def call
-		velocity = velocity_limit_reached?
-		if velocity[:reached]
-			context.fail!(message: velocity[:msg])
+		if admin_user_id
+			log(level: :warn, msg: "ADMIN CHANGE: initiated by user:#{admin_user_id}")
+		else
+			velocity = velocity_limit_reached?
+			if velocity[:reached]
+				context.fail!(message: velocity[:msg])
+			end
 		end
 
 		original_name = current_user.full_name
@@ -32,6 +37,8 @@ class RailsBase::NameChange < RailsBase::ServiceBase
 		end
 		context.original_name = original_name
 		context.name_change = current_user.reload.full_name
+
+		return if admin_user_id
 
 		RailsBase::EmailVerificationMailer.event(
 			user: current_user,

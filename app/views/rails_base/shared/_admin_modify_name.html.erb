@@ -1,0 +1,105 @@
+
+<% modal_prepend = "admin_#{modal_id}" %>
+
+<div class="modal fade" id='<%= modal_id %>' tabindex="-1" role="dialog" aria-labelledby="example_'<%= modal_id %>'" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Modify Name</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" style="text-align: center;">
+        <h4>Please enter the name you would like to change to</h4>
+        <div class="col-auto">
+          <label class="sr-only" for="inlineFormInputGroup">Full Name</label>
+          <div class="input-group mb-2">
+            <div class="input-group-prepend">
+              <div class="input-group-text">First Name</div>
+            </div>
+            <input type="text" class="form-control" id="<%= modal_prepend %>_first_name" placeholder="<%= user.first_name %>">
+            <div class="invalid-feedback">
+              <%= "Invalid Characters present in first name" %>
+            </div>
+          </div>
+        </div>
+        <div class="col-auto">
+          <label class="sr-only" for="inlineFormInputGroup">Full Name</label>
+          <div class="input-group mb-2">
+            <div class="input-group-prepend">
+              <div class="input-group-text">Last Name</div>
+            </div>
+            <input type="text" class="form-control" id="<%= modal_prepend %>_last_name" placeholder="<%= user.last_name %>">
+            <div class="invalid-feedback">
+              <%= "Invalid Characters present in last name" %>
+            </div>
+          </div>
+        </div>
+        <div class="col-auto my-1">
+          <button id='<%= modal_prepend %>' class="btn btn-success">Submit</button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="mr-auto btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%
+  values = [
+    { name: "##{modal_prepend}_first_name", criteria: { required: true, min_length: 2, max_length: 25, pattern: :name }},
+    { name: "##{modal_prepend}_last_name", criteria: { required: true, min_length: 2 , max_length: 25, pattern: :name }},
+  ]
+  function_name = modal_id
+  submit_method = "#{modal_id}_#{(10*5*rand).to_i}"
+%>
+
+<%= render partial: 'rails_base/shared/custom_form_validation_javascript', locals: { function_name: function_name, values: values } %>
+
+<script type="text/javascript">
+  $('#<%= modal_id %>').on('shown.bs.modal', function (e) {
+    $('#<%= modal_prepend %>_first_name').removeClass('is-invalid')
+    $('#<%= modal_prepend %>_last_name').removeClass('is-invalid')
+    $('#<%= modal_prepend %>_first_name').focus();
+  });
+
+  $('#<%= modal_id %>').on('hidden.bs.modal', function (e) {
+    // make sure to remove invalid field if present
+    $('#<%= modal_prepend %>_first_name').removeClass('is-invalid')
+    $('#<%= modal_prepend %>_last_name').removeClass('is-invalid')
+    // clear values
+    $('#<%= modal_prepend %>_first_name').val('');
+    $('#<%= modal_prepend %>_last_name').val('');
+  })
+
+  function <%= submit_method %>(){
+    var first = $('#<%= modal_prepend %>_first_name').val()
+    var last = $('#<%= modal_prepend %>_last_name').val()
+    var data = { 'first_name': first, 'last_name': last, 'id': '<%= user.id%>' }
+    console.table(data)
+    $.ajax({
+      type: "POST",
+      url: "<%= RailsBase.url_routes.admin_upate_name_path%>",
+      headers: { 'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content') },
+      dataType: 'json',
+      data: data,
+      success: function(data) {
+        $('#<%= modal_id %>').modal('hide')
+        $('#<%= text %>').text(data.full_name)
+        _rails_base_display_success(data.message)
+      },
+      error: function(xhr, status, error) {
+        $('#<%= modal_id %>').modal('hide')
+        _rails_base_display_alert(xhr.responseJSON.message)
+      }
+    })
+  }
+
+  $('#<%= modal_prepend %>').click(function( event ) {
+    if (<%=function_name%>() == true){
+      <%= submit_method %>()
+    }
+  });
+</script>
