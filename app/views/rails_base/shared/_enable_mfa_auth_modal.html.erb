@@ -28,7 +28,7 @@
 	      	</div>
 
 	      	<div class="modal_mfa_input" style="display: none;">
-						<%= render partial: 'rails_base/shared/mfa_input_layout', locals: { url: RailsBase.url_routes.phone_registration_mfa_code_path, size: 25, masked_phone: current_user&.masked_phone || 'fuck off' }%>
+						<%= render partial: 'rails_base/shared/mfa_input_layout', locals: { url: RailsBase.url_routes.phone_registration_mfa_code_path, size: 25, masked_phone: current_user&.masked_phone || '<n\a>' }%>
 					</div>
       	</div>
       </div>

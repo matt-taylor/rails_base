@@ -8,13 +8,23 @@ module RailsBase
       validate_model_row!
 
       attribute = validate_attribute!
+      fail_attribute!(attribute: attribute)
+
       original_value = model_row.public_send(attribute)
       begin
         model_row.update_attribute(attribute, sanitized_value)
       rescue StandardError
         context.fail!(message: "Failed to update [#{attribute}] with #{sanitized_value} on #{model}##{model_row.id}")
       end
+      context.attribute = sanitized_value
       context.message = "#{model}##{params[:id]} has changed attribute [#{attribute}] from [#{original_value}]=>#{sanitized_value}"
+    end
+
+    def fail_attribute!(attribute:)
+      if params[:_fail_].present?
+        log(level: :warn, msg: "FAIL param passed in. Automagic failure for admin update")
+        context.fail!(message: "Failed to update [#{attribute}] with #{sanitized_value} on #{model}##{model_row.id}")
+      end
     end
 
     def validate_attribute!

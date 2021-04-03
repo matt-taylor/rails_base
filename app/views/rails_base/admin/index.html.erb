@@ -30,7 +30,7 @@
               <%= render partial: 'rails_base/shared/admin_toggle_button', locals: { type: 'email_validated', checked: user.email_validated, user: user, data_on: 'valid', data_off: 'invalid', parent: id_base } %>
             </td>
             <td id='<%= id_base %>_phone_number'>
-              <%= render partial: 'rails_base/shared/admin_risky_change', locals: { type: 'phone_number', current_value: user.phone_number, user: user, parent: id_base, modal_partial: 'rails_base/shared/admin_modify_email' } %>
+              <%= render partial: 'rails_base/shared/admin_risky_change', locals: { type: 'phone_number', current_value: user.phone_number, user: user, parent: id_base, modal_partial: 'rails_base/shared/admin_modify_phone' } %>
             </td>
             <td id='<%= id_base %>_mfa_enabled' >
               <%= render partial: 'rails_base/shared/admin_toggle_button', locals: { type: 'mfa_enabled', checked: user.mfa_enabled, user: user, data_on: 'enbaled', data_off: 'disabled', parent: id_base } %>

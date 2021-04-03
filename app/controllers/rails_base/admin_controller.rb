@@ -15,7 +15,7 @@ module RailsBase
     def update_attribute
       update = RailsBase::AdminUpdateAttribute.call(params: params)
       if update.success?
-        render json: { success: true, message: update.message }
+        render json: { success: true, message: update.message, attribute: update.attribute }
       else
         render json: { success: false, message: update.message }, status: 404
       end
@@ -51,6 +51,13 @@ module RailsBase
     end
 
     def update_phone
+      begin
+        params[:value] = params[:phone_number].gsub(/\D/,'')
+      rescue
+        params[:value] = ''
+        params[:_fail_] = true
+      end
+      params[:attribute] = :phone_number
       update_attribute
     end
 
