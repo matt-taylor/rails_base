@@ -26,7 +26,7 @@
 <%
   length = RailsBase::Authentication::Constants::MFA_LENGTH
   values = [
-    { name: "##{mfa_id}", criteria: { required: true, min_length: length, max_length: length, pattern: :numeric }},
+    { name: "##{mfa_id}", criteria: { required: true, min_length: length, max_length: length, pattern: :numeric, enforce_blur: false }},
 
   ]
   function_name = mfa_id
@@ -36,6 +36,10 @@
 <%= render partial: 'rails_base/shared/custom_form_validation_javascript', locals: { function_name: function_name, values: values } %>
 
 <script type="text/javascript">
+  $('#<%= modal_id %>').on('shown.bs.modal', function(){
+    $('#<%= mfa_id %>').focus();
+  });
+
   function <%= modal_id %>_toggle(value){
     if(value=='show'){
       $('#<%= mfa_id %>').val('');

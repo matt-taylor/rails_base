@@ -15,7 +15,7 @@
           <div class="input-group-prepend">
             <div class="input-group-text">Email</div>
           </div>
-          <input type="text" class="form-control" id="modify_email" placeholder="<%= user.email %>">
+          <input type="email" class="form-control" id="modify_email" placeholder="<%= user.email %>">
           <div class="invalid-feedback">
             <%= "Invalid Email. Try again" %>
           </div>
@@ -33,7 +33,7 @@
 
 <%
   values = [
-    { name: "#modify_email", criteria: { required: true, pattern: :email }},
+    { name: "#modify_email", criteria: { required: true, pattern: :email, enforce_blur: false }},
   ]
   function_name = "#{modal_prepend}_custom"
   submit_method = "#{modal_prepend}_submit"
