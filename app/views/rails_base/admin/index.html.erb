@@ -15,7 +15,7 @@
         </thead>
         <tbody class='text-center'>
         <% User.all.each do |user| %>
-          <% id_base = "#{user.id}_#{(10**10*rand).to_i}" %>
+          <% id_base = "#{user.id}_#{(100*rand).to_i}" %>
           <tr>
             <td>
               <%= user.id %>
@@ -24,13 +24,13 @@
               <%= render partial: 'rails_base/shared/admin_modify_text', locals: { type: 'full_name', current_value: user.full_name, user: user, parent: id_base, modal_partial: 'rails_base/shared/admin_modify_name' } %>
             </td>
             <td id='<%= id_base %>_email'>
-              <%= render partial: 'rails_base/shared/admin_risky_change', locals: { type: 'email', current_value: user.email, user: user, parent: id_base, modal_partial: 'rails_base/shared/admin_modify_email' } %>
+              <%= render partial: 'rails_base/shared/admin_risky_change', locals: { type: 'email', current_value: user.email, user: user, parent: id_base , modal_mapping: :email } %>
             </td>
             <td id='<%= id_base %>_email_validated'>
               <%= render partial: 'rails_base/shared/admin_toggle_button', locals: { type: 'email_validated', checked: user.email_validated, user: user, data_on: 'valid', data_off: 'invalid', parent: id_base } %>
             </td>
             <td id='<%= id_base %>_phone_number'>
-              <%= render partial: 'rails_base/shared/admin_risky_change', locals: { type: 'phone_number', current_value: user.phone_number, user: user, parent: id_base, modal_partial: 'rails_base/shared/admin_modify_phone' } %>
+              <%= user.phone_number  %>
             </td>
             <td id='<%= id_base %>_mfa_enabled' >
               <%= render partial: 'rails_base/shared/admin_toggle_button', locals: { type: 'mfa_enabled', checked: user.mfa_enabled, user: user, data_on: 'enbaled', data_off: 'disabled', parent: id_base } %>
@@ -52,7 +52,31 @@
   </div>
 </div>
 
+<div class='modal fade' id='sharedAdminModal' tabindex='-1' role='dialog' aria-labelledby='sharedAdminModalLabel' aria-hidden='true'>
+</div>
+
 <script type="text/javascript">
+  var shared_admin_modal = 'sharedAdminModal'
+
+  function show_shared_admin_modal(){
+    $(`#${shared_admin_modal}`).modal('show');
+  }
+
+  function hide_shared_admin_modal(){
+    $(`#${shared_admin_modal}`).modal('hide');
+    clear_shared_admin_modal();
+  }
+
+  function set_shared_admin_modal_content(html){
+    $(`#${shared_admin_modal}`).html(html)
+    show_shared_admin_modal();
+  }
+
+  function clear_shared_admin_modal(){
+    set_shared_admin_modal_content('');
+  }
+
+
   function admin_risky_mfa_send(modal_id){
     _rails_base_hide_displays()
     $.ajax({
@@ -70,18 +94,18 @@
     })
   }
 
-  function admin_risky_mfa_confirm(mfa_string, curr_modal, show_modal, toggle_method){
-    toggle_method('hide')
+  function admin_risky_mfa_confirm(mfa_string, curr_modal, modal_mapping, id, toggle_method, modify_id){
+    toggle_method('hide');
     $.ajax({
       type: "POST",
       url: "<%= RailsBase.url_routes.admin_verify_intent_path%>",
       headers: { 'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content') },
       dataType: 'json',
-      data: { 'mfa_input': mfa_string },
+      data: { 'mfa_input': mfa_string , 'modal_mapping': modal_mapping, 'id': id, 'modify_id': modify_id },
       success: function(data) {
         $(`#${curr_modal}`).modal('hide');
+        set_shared_admin_modal_content(data.html);
         toggle_method('show');
-        $(`#${show_modal}`).modal('show');
       },
       error: function(xhr, status, error) {
         $(`#${curr_modal}`).modal('hide');
