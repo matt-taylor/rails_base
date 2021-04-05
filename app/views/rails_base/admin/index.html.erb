@@ -59,7 +59,7 @@
   var shared_admin_modal = 'sharedAdminModal'
 
   function show_shared_admin_modal(){
-    $(`#${shared_admin_modal}`).modal('show');
+    $(`#${shared_admin_modal}`).appendTo('body').modal('show');
   }
 
   function hide_shared_admin_modal(){

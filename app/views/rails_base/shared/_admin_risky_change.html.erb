@@ -35,6 +35,7 @@
 </div>
 
 <script type="text/javascript">
+  $('#<%= risky_modal_id %>').append('body');
   $('#<%= span_id %>').click(function() {
     admin_risky_icon_wait() // Disable double clicking and sending multiple mfas
     admin_risky_mfa_send('<%= risky_modal_id %>')
