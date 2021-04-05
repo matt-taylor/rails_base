@@ -35,11 +35,10 @@ SwitchUser.setup do |config|
   # if it returns true, the switch user select box will be shown,
   # else the select box will not be shown
   # if you switch from admin to "user", the current_user param is "user"
-  config.view_guard = ->(_current_user, _request) { Rails.env.development? }
 
   # redirect_path is a block, it returns which page will be redirected
   # after switching a user.
-  config.redirect_path = ->(_request, _params) { '/' }
+  config.redirect_path = ->(_request, _params) { RailsBase.url_routes.authenticated_root_path }
 
   # helper_with_guest is a boolean value, if it set to false
   # the guest item in the helper won't be shown

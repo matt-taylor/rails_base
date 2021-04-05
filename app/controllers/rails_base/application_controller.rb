@@ -39,7 +39,13 @@ module RailsBase
     end
 
     def admin_user?
-      true
+      return if current_user.admin != User::ADMIN_ROLE_TIER_NONE
+
+      session.clear
+      sign_out(current_user)
+
+      flash[:alert] = 'Unauthorized action. You have been signed out'
+      redirect_to RailsBase.url_routes.unauthenticated_root_path
     end
 
     protected

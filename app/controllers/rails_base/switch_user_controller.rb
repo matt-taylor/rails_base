@@ -6,7 +6,6 @@ module RailsBase
     after_action :admin_set_impersonation_session!, only: [:set_current_user]
 
     def admin_set_impersonation_session!
-      admin_user
       admin_set_token_on_session(admin_user: admin_user, other_user: provider.current_user)
       session[RailsBase::Authentication::Constants::ADMIN_REMEMBER_USERID_KEY] = admin_user.id
     end
