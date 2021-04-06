@@ -9,6 +9,8 @@
 #  last_mfa_login         :datetime
 #  email_validated        :boolean          default(FALSE)
 #  mfa_enabled            :boolean          default(FALSE), not null
+#  active                 :boolean          default(TRUE), not null
+#  admin                  :integer          default("none"), not null
 #  email                  :string(255)      default(""), not null
 #  encrypted_password     :string(255)      default(""), not null
 #  reset_password_token   :string(255)
@@ -21,8 +23,6 @@
 #  last_sign_in_ip        :string(255)
 #  created_at             :datetime         not null
 #  updated_at             :datetime         not null
-#  admin                  :integer          default("none")
-#  active                 :boolean          default(TRUE)
 #
 class User < ApplicationRecord
   # Include default devise modules. Others available are:

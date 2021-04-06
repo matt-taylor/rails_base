@@ -17,6 +17,8 @@ module RailsBase
         context.fail!(message: "Failed to update [#{attribute}] with #{sanitized_value} on #{model}##{model_row.id}")
       end
       context.attribute = sanitized_value
+      context.original_attribute = original_value
+      context.model = model_row
       context.message = "#{model}##{params[:id]} has changed attribute [#{attribute}] from [#{original_value}]=>#{sanitized_value}"
     end
 

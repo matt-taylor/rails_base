@@ -9,6 +9,33 @@ module RailsBase
       email: 'rails_base/shared/admin_modify_email'
     }
 
+    def paginate_admin_history_range(start:)
+      ((AdminAction::DEFAULT_PAGE_RANGE-start)..(start+AdminAction::DEFAULT_PAGE_RANGE))
+    end
+
+    def paginante_class_names(curr_page:, page_number:, count_on_page:)
+      bootstrap_class = 'disabled' unless paginate_can_view_page?(page_number: page_number, count_on_page: count_on_page)
+      bootstrap_class = 'active' if curr_page == page_number
+      bootstrap_class || ''
+    end
+
+    def paginate_can_view_page?(page_number:, count_on_page:)
+      min_size = (page_number-1) * count_on_page
+      AdminAction.all.size >= min_size
+    end
+
+    def paginate_admin_can_next?(page_number:, count_on_page:)
+      min_size = (page_number) * count_on_page
+      AdminAction.all.size >= min_size
+    end
+
+    def paginate_admin_can_prev?(page_number:, count_on_page:)
+      return false if (page_number - 1) < 1
+
+      min_size = (page_number - 1) * count_on_page
+      AdminAction.all.size > min_size
+    end
+
     def accurate_admin_user
       session[RailsBase::Authentication::Constants::ADMIN_REMEMBER_USERID_KEY] ||
         current_user.id
