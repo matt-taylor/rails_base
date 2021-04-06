@@ -1,39 +1,39 @@
-<% submit = "admin_#{(10**10*rand).to_i}_modify_phone_submit" %>
-
-<div class="modal-content">
-  <div class="modal-header">
-    <div class="modal-header text-center">
-    <h4 class="col-12 modal-title text-center" id="exampleModalLabel">
-      !&iexcl; Risky Change Warning !&iexcl;
-    </h4>
-  </div>
-  </div>
-  <div class="modal-body" style="text-align: center;">
-    <h4>Modify Phone for <%= @user.full_name %>:</h4>
-    <div class="col-auto">
-      <label class="sr-only" for="inlineFormInputGroup">Phone</label>
-      <div class="form-row phone_number_input_stage justify-content-center">
-        <div class="modal_phone_number_input">
-          <div class="input-group input-group-lg mx-auto">
-            <div class="input-group-prepend">
-              <span class="input-group-text">
-                US Phone Number
-              </span>
-            </div>
-            <%= phone_field_tag("phone_number", nil, style: "font-size:25px;", class: 'phone_us', maxlength: 14, size: 15)%>
-            <div class="invalid-feedback">
-              <%= "Phone number must be a valid US phone number" %>
+<div class="modal-dialog modal-lg" role="document">
+  <div class="modal-content">
+    <div class="modal-header">
+      <div class="modal-header text-center">
+      <h4 class="col-12 modal-title text-center" id="exampleModalLabel">
+        !&iexcl; Risky Change Warning !&iexcl;
+      </h4>
+    </div>
+    </div>
+    <div class="modal-body" style="text-align: center;">
+      <h4>Modify Phone for <%= user.full_name %>:</h4>
+      <div class="col-auto">
+        <label class="sr-only" for="inlineFormInputGroup">Phone</label>
+        <div class="form-row phone_number_input_stage justify-content-center">
+          <div class="modal_phone_number_input">
+            <div class="input-group input-group-lg mx-auto">
+              <div class="input-group-prepend">
+                <span class="input-group-text">
+                  US Phone Number
+                </span>
+              </div>
+              <%= phone_field_tag('phone_number', nil, style: "font-size:25px;", class: 'phone_us', maxlength: 14, size: 15)%>
+              <div class="invalid-feedback">
+                <%= "Phone number must be a valid US phone number" %>
+              </div>
             </div>
           </div>
         </div>
       </div>
+      <div class="col-auto my-1">
+        <button id='modify_phone_submit' class="btn btn-success">Submit</button>
+      </div>
     </div>
-    <div class="col-auto my-1">
-      <button id='modify_phone_submit' class="btn btn-success">Submit</button>
+    <div class="modal-footer">
+      <button type="button" class="mr-auto btn btn-secondary" data-dismiss="modal">Close</button>
     </div>
-  </div>
-  <div class="modal-footer">
-    <button type="button" class="mr-auto btn btn-secondary" data-dismiss="modal">Close</button>
   </div>
 </div>
 
@@ -42,7 +42,7 @@
 <script type="text/javascript">
   $('.phone_us').mask('(000) 000-0000', {placeholder: '(___) ___-____'});
 
-  function <%= submit_method %>(){
+  function submit_phone_number(){
     var phone = $('#phone_number').val()
     var data = { 'phone_number': phone, 'id': '<%= user.id%>'}
     console.table(data)
@@ -66,12 +66,22 @@
     })
   }
 
-  $('#modify_phone_submit').click(function( event ) {
+  function validate_submission(){
     if ($('#phone_number').val().length == 14){
       $('#phone_number').removeClass('is-invalid')
-      <%= submit_method %>();
+      submit_phone_number();
       return;
     }
     $('#phone_number').addClass('is-invalid')
+  }
+
+  $('#modify_phone_submit').keypress(function(e){
+      if(e.which == 13) {
+        validate_submission();
+      }
+    })
+
+  $('#modify_phone_submit').click(function( event ) {
+    validate_submission();
   });
 </script>
