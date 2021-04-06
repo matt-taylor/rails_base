@@ -3,17 +3,17 @@
 <div>
 
 <script type="text/javascript">
-  function submit_paginate(page){
+  function submit_paginate(page, prev_page, prev_count){
     var input_page_count = $('#pagination_count').val()
     $.ajax({
       type: "POST",
       url: "<%= RailsBase.url_routes.admin_history_page_path %>",
       headers: { 'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content') },
       dataType: 'json',
-      data: { 'page': page , 'pagination_count': input_page_count },
+      data: { 'page': page , 'pagination_count': input_page_count, 'prev_page': prev_page, 'prev_count': prev_count },
       success: function(data) {
         $('#admin-history-content').html(data.html)
-        _rails_base_display_success(`Succesfully updated Rows for page ${page}. Showing ${data.per_page} rows per page.`);
+        _rails_base_display_success(`Succesfully updated Rows for page ${data.page}. Showing ${data.per_page} rows per page.`);
       },
       error: function(xhr, status, error) {
         _rails_base_display_alert('Failed to reload history. Try again');

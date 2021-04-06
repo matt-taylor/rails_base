@@ -9,8 +9,17 @@ module RailsBase
       email: 'rails_base/shared/admin_modify_email'
     }
 
+    def paginate_admin_what_page
+      return params[:page].to_i if params[:pagination_count].to_i == params[:prev_count].to_i
+
+      prev_page = params[:prev_page].to_i > 0 ? (params[:prev_page].to_i - 1) : 1
+      start_prev = prev_page * params[:prev_count].to_i
+      page = (start_prev / params[:pagination_count].to_i)
+      page > 0 ? page : 1
+    end
+
     def paginate_admin_history_range(start:)
-      ((AdminAction::DEFAULT_PAGE_RANGE-start)..(start+AdminAction::DEFAULT_PAGE_RANGE))
+      ((start-AdminAction::DEFAULT_PAGE_RANGE)..(start+AdminAction::DEFAULT_PAGE_RANGE))
     end
 
     def paginante_class_names(curr_page:, page_number:, count_on_page:)

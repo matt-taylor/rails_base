@@ -36,21 +36,21 @@
 <nav aria-label="Page navigation">
   <ul class="pagination justify-content-center">
     <li class="page-item <%= 'disabled' unless paginate_admin_can_prev?(page_number: @starting_page, count_on_page: @count_on_page) %>">
-      <p class="page-link" onClick="submit_paginate(<%= @starting_page - 1%>)" style='cursor: pointer;'>Previous</p>
+      <p class="page-link" onClick="submit_paginate(<%= @starting_page - 1%>, <%= @starting_page %>, <%= @count_on_page %>)" style='cursor: pointer;'>Previous</p>
     </li>
     <% paginate_admin_history_range(start: @starting_page).each do |page| %>
     <% next unless page > 0 %>
       <% klasses = paginante_class_names(curr_page: @starting_page, page_number: page, count_on_page: @count_on_page) %>
       <li class="page-item <%= klasses %>">
         <% unless klasses.include?('disable') %>
-          <p style='cursor: pointer; 'class="page-link page-item-admin-history-number" data-value='<%= page %>' onClick="submit_paginate(<%= page %>)"> <%= page %> </p>
+          <p style='cursor: pointer; 'class="page-link page-item-admin-history-number" data-value='<%= page %>' onClick="submit_paginate(<%= page %>, <%= @starting_page %>, <%= @count_on_page %>)"> <%= page %> </p>
         <% else %>
         <p class="page-link" data-value='<%= page %>' > <%= page %> </p>
         <% end %>
       </li>
     <% end %>
     <li class="page-item page-item-admin-next <%= 'disabled' unless paginate_admin_can_next?(page_number: @starting_page, count_on_page: @count_on_page) %>">
-      <p class="page-link" onClick="submit_paginate(<%= @starting_page + 1%>)" style='cursor: pointer;'>Next</p>
+      <p class="page-link" onClick="submit_paginate(<%= @starting_page + 1%>, <%= @starting_page %>, <%= @count_on_page %>)" style='cursor: pointer;'>Next</p>
     </li>
     <li>
     </li>
@@ -61,7 +61,7 @@
       <div class="input-group-prepend">
         <div class="input-group-text">Elements</div>
       </div>
-      <%= select_tag 'pagination_count', options_for_select(AdminAction::DEFAULT_PAGE_COUNT_SELECT_RANGE, @count_on_page), class: 'form-control', onchange: "submit_paginate(#{@starting_page})" %>
+      <%= select_tag 'pagination_count', options_for_select(AdminAction::DEFAULT_PAGE_COUNT_SELECT_RANGE, @count_on_page), class: 'form-control', onchange: "submit_paginate(#{@starting_page}, #{@starting_page}, #{@count_on_page})" %>
     </div>
   </ul>
 </nav>

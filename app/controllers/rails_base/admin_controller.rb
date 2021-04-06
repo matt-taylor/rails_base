@@ -19,7 +19,7 @@ module RailsBase
 
     # POST admin/history
     def history_paginate
-      @starting_page = params[:page].to_i
+      @starting_page = paginate_admin_what_page
       @count_on_page = params[:pagination_count].to_i
       @action_records = AdminAction.paginate_records(page: @starting_page, count_on_page: @count_on_page)
       begin
@@ -31,7 +31,7 @@ module RailsBase
       end
 
       if html
-        render json: { success: true, html: html, per_page: @count_on_page }
+        render json: { success: true, html: html, per_page: @count_on_page, page: @starting_page }
       else
         render json: { success: false }, status: 500
       end
