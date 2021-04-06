@@ -59,6 +59,8 @@
 <%= render partial: 'rails_base/shared/custom_form_validation_javascript', locals: { function_name: function_name, values: values } %>
 
 <script type="text/javascript">
+  $('#<%= modal_id %>').appendTo('body');
+
   $('#<%= modal_id %>').on('shown.bs.modal', function (e) {
     $('#<%= modal_prepend %>_first_name').removeClass('is-invalid')
     $('#<%= modal_prepend %>_last_name').removeClass('is-invalid')
