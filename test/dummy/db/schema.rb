@@ -10,7 +10,20 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_02_12_192645) do
+ActiveRecord::Schema.define(version: 2021_04_06_015744) do
+
+  create_table "admin_actions", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.bigint "admin_user_id", null: false
+    t.bigint "user_id"
+    t.string "action", null: false
+    t.string "change_from"
+    t.string "change_to"
+    t.text "long_action"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["admin_user_id"], name: "index_admin_actions_on_admin_user_id"
+    t.index ["user_id"], name: "index_admin_actions_on_user_id"
+  end
 
   create_table "secrets", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.integer "version"

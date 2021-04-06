@@ -8,13 +8,47 @@ module RailsBase
 
     # GET admin/impersonate/:scope_identifier
     def index
+    end
 
+    # GET admin/history
+    def history
+      @starting_page = 1
+      @count_on_page = AdminAction::DEFAULT_PAGE_COUNT
+      @action_records = AdminAction.paginate_records(page: @starting_page, count_on_page: @count_on_page)
+    end
+
+    # POST admin/history
+    def history_paginate
+      @starting_page = paginate_admin_what_page
+      @count_on_page = params[:pagination_count].to_i
+      @action_records = AdminAction.paginate_records(page: @starting_page, count_on_page: @count_on_page)
+      begin
+        html = render_to_string(partial: 'rails_base/shared/admin_history')
+      rescue StandardError => e
+        logger.error(e.message)
+        logger.error('Failed to render html for history')
+        html
+      end
+
+      if html
+        render json: { success: true, html: html, per_page: @count_on_page, page: @starting_page }
+      else
+        render json: { success: false }, status: 500
+      end
     end
 
     # POST admin/update
     def update_attribute
       update = RailsBase::AdminUpdateAttribute.call(params: params)
       if update.success?
+        action_params = {
+          admin_user: admin_user,
+          user: update.model,
+          action: "Update #{params[:attribute]}",
+          change_from: update.original_attribute,
+          change_to: update.attribute,
+        }
+        AdminAction.action(action_params)
         render json: { success: true, message: update.message, attribute: update.attribute }
       else
         render json: { success: false, message: update.message }, status: 404
@@ -32,6 +66,14 @@ module RailsBase
       )
 
       if result.success?
+        action_params = {
+          admin_user: admin_user,
+          user: user,
+          action: 'Name change',
+          change_from: result.original_name,
+          change_to: result.name_change,
+        }
+        AdminAction.action(action_params)
         msg = "Successfully changed name from [#{result.original_name}] to [#{result.name_change}]"
         render json: { success: true, message: msg, full_name: result.name_change }
       else
@@ -43,6 +85,14 @@ module RailsBase
       user = User.find(params[:id])
       result = EmailChange.call(email: params[:email], user: user)
       if result.success?
+        action_params = {
+          admin_user: admin_user,
+          user: user,
+          action: 'Email change',
+          change_from: result.original_email,
+          change_to: result.new_email,
+        }
+        RailsBase::AdminAction.action(action_params)
         msg = "Successfully changed email from [#{result.original_email}] to [#{result.new_email}]"
         render json: { success: true, message: msg, email: result.new_email }
       else

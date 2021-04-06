@@ -93,7 +93,10 @@ Rails.application.routes.draw do
   post 'admin/update/phone', to: 'rails_base/admin#update_phone', as: :admin_upate_phone
   post 'admin/validate_intent/send', to: 'rails_base/admin#send_2fa', as: :admin_validate_intent
   post 'admin/validate_intent/verify', to: 'rails_base/admin#verify_2fa', as: :admin_verify_intent
+
   get 'admin', to: 'rails_base/admin#index', as: :admin_base
+  get 'admin/history', to: 'rails_base/admin#history', as: :admin_history
+  post 'admin/history', to: 'rails_base/admin#history_paginate', as: :admin_history_page
 
   #######################
   # End of Admin routes #
