@@ -75,6 +75,24 @@ module RailsBase
 
     # POST admin/validate_intent/verify
     def verify_2fa
+      unless modify_id = params[:modify_id]
+        logger.warn("Failed to find #{@modify_id} in payload")
+        render json: { success: false, message: 'Hmm. Something fishy happend. Failed to find text to modify' }, status: 404
+        return
+      end
+
+      unless render_partial = SECOND_MODAL_MAPPING[params[:modal_mapping].to_sym] rescue nil
+        logger.warn("Mapping [#{params[:modal_mapping]}] is not defined. Expected part of #{SECOND_MODAL_MAPPING.keys}")
+        render json: { success: false, message: 'Hmm. Something fishy happend. Failed to find modal mapping' }, status: 404
+        return
+      end
+
+      unless user = User.find(params[:id]) rescue nil
+        logger.warn("Failed to find id:[#{params[:id]}] ")
+        render json: { success: false, message: 'Hmm. Something fishy happend. Failed to find associated id' }, status: 404
+        return
+      end
+
       params = {
         session_mfa_user_id: admin_user.id,
         current_user: admin_user,
@@ -83,9 +101,23 @@ module RailsBase
       }
       result = RailsBase::Authentication::MfaValidator.call(params)
       encrypt = RailsBase::Authentication::MfaSetEncryptToken.call(user: admin_user, purpose: session_reason, expires_at: 1.minute.from_now)
-      if result.success?
+
+      begin
+        html = render_to_string(partial: render_partial, locals: { user: user, modify_id: modify_id })
+      rescue StandardError => e
+        logger.warn("#{e.message}")
+        logger.warn("Failed to render html correctly")
+        html = nil
+      end
+      if html.nil?
+        logger.warn("Failed to find render html correctly")
+        render json: { success: false, message: 'Apologies. Wee are struggling to render the page. Please try again later' }, status: 500
+        return
+      end
+
+      if true || result.success?
         session[:mfa_randomized_token] = encrypt.encrypted_val
-        render json: { success: true, message: result.message }
+        render json: { success: true, message: result.message, html: html }
       else
         render json: { success: false, message: result.message }, status: 404
       end

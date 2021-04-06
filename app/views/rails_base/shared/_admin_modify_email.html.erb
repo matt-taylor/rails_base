@@ -1,66 +1,50 @@
+<% modal_prepend = "admin_#{(10**10*rand).to_i}_modify_email" %>
 
-<% modal_prepend = "admin_#{modal_id}" %>
-
-<div class="modal fade" id='<%= modal_id %>' tabindex="-1" role="dialog" aria-labelledby="example_'<%= modal_id %>'" aria-hidden="true">
-  <div class="modal-dialog modal-lg" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <div class="modal-header text-center">
-        <h4 class="col-12 modal-title text-center" id="exampleModalLabel">
-          !&iexcl; Risky Change Warning !&iexcl;
-        </h4>
-      </div>
-      </div>
-      <div class="modal-body" style="text-align: center;">
-        <h4>Modify Email for <%= user.full_name %>:</h4>
-        <div class="col-auto">
-          <label class="sr-only" for="inlineFormInputGroup">Email</label>
-          <div class="input-group mb-2">
-            <div class="input-group-prepend">
-              <div class="input-group-text">Email</div>
-            </div>
-            <input type="text" class="form-control" id="<%= modal_prepend %>_email" placeholder="<%= user.email %>">
-            <div class="invalid-feedback">
-              <%= "Invalid Email. Try again" %>
-            </div>
+<div class="modal-dialog modal-lg" role="document">
+  <div class="modal-content">
+    <div class="modal-header text-center">
+      <h4 class="col-12 modal-title text-center" id="exampleModalLabel">
+        !&iexcl; Risky Change Warning !&iexcl;
+      </h4>
+    </div>
+    <div class="modal-body" style="text-align: center;">
+      <h4>Modify Email for <%= user.full_name %>:</h4>
+      <div class="col-auto">
+        <label class="sr-only" for="inlineFormInputGroup">Email</label>
+        <div class="input-group mb-2">
+          <div class="input-group-prepend">
+            <div class="input-group-text">Email</div>
+          </div>
+          <input type="email" class="form-control" id="modify_email" placeholder="<%= user.email %>">
+          <div class="invalid-feedback">
+            <%= "Invalid Email. Try again" %>
           </div>
         </div>
-        <div class="col-auto my-1">
-          <button id='<%= modal_prepend %>' class="btn btn-success">Submit</button>
-        </div>
       </div>
-      <div class="modal-footer">
-        <button type="button" class="mr-auto btn btn-secondary" data-dismiss="modal">Close</button>
+      <div class="col-auto my-1">
+        <button id='<%= modal_prepend %>' class="btn btn-success">Submit</button>
       </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="mr-auto btn btn-secondary" data-dismiss="modal">Close</button>
     </div>
   </div>
 </div>
 
 <%
   values = [
-    { name: "##{modal_prepend}_email", criteria: { required: true, pattern: :email }},
+    { name: "#modify_email", criteria: { required: true, pattern: :email, enforce_blur: false }},
   ]
-  function_name = modal_id
-  submit_method = "#{modal_id}_#{(10*5*rand).to_i}"
+  function_name = "#{modal_prepend}_custom"
+  submit_method = "#{modal_prepend}_submit"
 %>
 
 <%= render partial: 'rails_base/shared/custom_form_validation_javascript', locals: { function_name: function_name, values: values } %>
 
 <script type="text/javascript">
-  $('#<%= modal_id %>').on('shown.bs.modal', function (e) {
-    $('#<%= modal_prepend %>_email').removeClass('is-invalid')
-    $('#<%= modal_prepend %>_email').focus();
-  });
-
-  $('#<%= modal_id %>').on('hidden.bs.modal', function (e) {
-    // make sure to remove invalid field if present
-    $('#<%= modal_prepend %>_email').removeClass('is-invalid')
-    // clear values
-    $('#<%= modal_prepend %>_email').val('');
-  })
 
   function <%= submit_method %>(){
-    var email = $('#<%= modal_prepend %>_email').val()
+    var email = $('#modify_email').val()
     var data = { 'email': email, 'id': '<%= user.id%>' }
     console.table(data)
     $.ajax({
@@ -70,22 +54,25 @@
       dataType: 'json',
       data: data,
       success: function(data) {
-        $('#<%= modal_id %>').modal('hide')
-        console.log(`text_id: #<%= text_id %>`)
-        console.log(`email: ${data.new_email}`)
-        $('#<%= text_id %>').text(data.email)
+        console.log(`modify_id: #<%= modify_id %>`)
+        $('#<%= modify_id %>').text(data.email)
+        hide_shared_admin_modal();
         _rails_base_display_success(data.message)
       },
       error: function(xhr, status, error) {
-        $('#<%= modal_id %>').modal('hide')
+        hide_shared_admin_modal();
         _rails_base_display_alert(xhr.responseJSON.message)
       }
     })
   }
 
   $('#<%= modal_prepend %>').click(function( event ) {
-    if (<%= function_name%>() == true){
-      <%= submit_method %>()
+    if (<%= function_name %>() == true){
+      console.log('found it to be true')
+      <%= submit_method %>();
+      return
     }
+    console.log('found it to be false')
+
   });
 </script>

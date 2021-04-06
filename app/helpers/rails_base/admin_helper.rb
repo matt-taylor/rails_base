@@ -4,6 +4,11 @@ module RailsBase
     SESSION_REASON_BASE = 'admin_random'
     SESSION_REASON_KEY = 'admin_2fa_verify'
 
+    SECOND_MODAL_MAPPING = {
+      phone_number: 'rails_base/shared/admin_modify_phone',
+      email: 'rails_base/shared/admin_modify_email'
+    }
+
     def accurate_admin_user
       session[RailsBase::Authentication::Constants::ADMIN_REMEMBER_USERID_KEY] ||
         current_user.id
