@@ -10,6 +10,9 @@ class DeviseCreateRailsBaseUsers < ActiveRecord::Migration[5.2]
       t.timestamp :last_mfa_login
       t.boolean :email_validated, default: false
       t.boolean :mfa_enabled, default: false, null: false
+      t.boolean  :active, default: true, null: false
+      t.integer  :admin, default: 0, null: false
+
 
       ## Database authenticatable
       t.string :email,              null: false, default: ""
@@ -46,7 +49,6 @@ class DeviseCreateRailsBaseUsers < ActiveRecord::Migration[5.2]
     add_index :users, :email,                unique: true
     add_index :users, :phone_number,         unique: true
     add_index :users, :reset_password_token, unique: true
-    # add_index :users, :confirmation_token,   unique: true
-    # add_index :users, :unlock_token,         unique: true
+    add_index :users, :active
   end
 end

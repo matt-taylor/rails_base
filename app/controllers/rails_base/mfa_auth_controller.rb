@@ -1,5 +1,5 @@
 module RailsBase
-  class MfaAuthController < ::ApplicationController
+  class MfaAuthController < ApplicationController
     before_action :validate_token, only: [:mfa_code, :mfa_code_verify, :resend_mfa]
 
     # GET /mfa_verify

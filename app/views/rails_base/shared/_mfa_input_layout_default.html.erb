@@ -5,8 +5,8 @@
     </div>
     <span>
       <div class style="font-size: <%= size %>px;">
-        <% Authentication::Constants::MFA_LENGTH.times do |index| %>
-          <%= f.text_field "#{Authentication::Constants::MV_BASE_NAME}#{index}", type: "tel", style: "caret-color: transparent; text-align: center;", class: "numbersOnly digit mfa-validator", size: 1, maxlength: 1, autofocus: index==0 %>
+        <% RailsBase::Authentication::Constants::MFA_LENGTH.times do |index| %>
+          <%= f.text_field "#{RailsBase::Authentication::Constants::MV_BASE_NAME}#{index}", type: "tel", style: "caret-color: transparent; text-align: center;", class: "numbersOnly digit mfa-validator", size: 1, maxlength: 1, autofocus: index==0 %>
         <% end %>
       </div>
     </span>
@@ -58,7 +58,7 @@
   }
 
   function get_next_mfa(elem_id) {
-    var max_length = <%= Authentication::Constants::MFA_LENGTH %>;
+    var max_length = <%= RailsBase::Authentication::Constants::MFA_LENGTH %>;
     var elem_array = elem_id.split('_');
     var last_elem = elem_array.pop();
     if(isNaN(last_elem)){
@@ -74,7 +74,7 @@
 
   function paste_mfa_input(pastedData){
     var pastedDataOg = e.originalEvent.clipboardData.getData('text');
-    if(pastedDataOg.length != <%= Authentication::Constants::MFA_LENGTH %>){
+    if(pastedDataOg.length != <%= RailsBase::Authentication::Constants::MFA_LENGTH %>){
       return;
     }
     pastedData = pastedDataOg.split('');
@@ -90,8 +90,8 @@
     <% # We know pasted data is all numbers %>
     <% # Paste it into the correct boxes %>
 
-    <% Authentication::Constants::MFA_LENGTH.times do |index| %>
-    $("#<%= "mfa_#{Authentication::Constants::MV_BASE_NAME}#{index}"%>").val(pastedData[<%= index %>])
+    <% RailsBase::Authentication::Constants::MFA_LENGTH.times do |index| %>
+    $("#<%= "mfa_#{RailsBase::Authentication::Constants::MV_BASE_NAME}#{index}"%>").val(pastedData[<%= index %>])
     <% end %>
   }
 </script>

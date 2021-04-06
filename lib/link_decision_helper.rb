@@ -14,13 +14,14 @@ class LinkDecisionHelper
     Rails.application.config.public_send("#{type}=", [])
   end
 
-  def initialize(title:, url:, type:, default_type: nil, config: nil)
+  def initialize(title:, url:, type:, display: true, default_type: nil, config: nil)
     raise NotOnAllowListError, "Unexpected type [#{type}]. Expected #{ALLOWED_TYPES}" unless ALLOWED_TYPES.include?(type)
 
     @config = config
     @type = type
     @url = url
     @title = title
+    @display = display
 
     if default_type && ALLOWED_TYPES.include?(default_type)
       assign_default!
@@ -41,10 +42,14 @@ class LinkDecisionHelper
     get_value(@title)
   end
 
+  def display?(current_user)
+    get_value(@display, current_user)
+  end
+
   private
 
-  def get_value(thing)
-    thing.is_a?(Proc) ? thing.call : thing
+  def get_value(thing, *args)
+    thing.is_a?(Proc) ? thing.call(*args) : thing
   end
 
   def assign_default!

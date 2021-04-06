@@ -11,7 +11,7 @@ require 'turbolinks'
 require 'popper_js'
 require 'bootstrap'
 require 'sassc-rails'
-
+require 'switch_user'
 # RailsBase.url_routes.
 
 module RailsBase

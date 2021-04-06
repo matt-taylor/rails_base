@@ -1,0 +1,74 @@
+<% mfa_id = "mfa_#{modal_id}_mfa_input" %>
+<% mfa_id_submit = "mfa_#{modal_id}_mfa_input_submit" %>
+
+<div class="form-group text-center">
+  <div class="text-center" style="font-size: 25px">
+    Please enter the MFA code you received at <%= admin_user.phone_number %>
+  </div>
+  <div class='row justify-content-center' style="font-size: 25px;">
+    <div class="col-xs-2">
+      <%= text_field_tag mfa_id, nil, maxlength: RailsBase::Authentication::Constants::MFA_LENGTH, class: 'text-center form-control numbersOnly digit', autofocus: true, type: "tel", style: "font-size:25px;"  %>
+      <div class="invalid-feedback">
+        2FA code must be <%= RailsBase::Authentication::Constants::MFA_LENGTH %> numbers
+      </div>
+    </div>
+  </div>
+</div>
+<div class="text-center">
+  <button id='<%= mfa_id_submit %>' class="btn btn-success" type="submit" style='width:50%;'>Submit</button>
+  <button class="btn btn-info btn-block" id='<%= mfa_id_submit %>_spinner' type="button" disabled style="display: none">
+    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true">
+    </span>
+    Hang tight
+  </button>
+</div>
+
+<%
+  length = RailsBase::Authentication::Constants::MFA_LENGTH
+  values = [
+    { name: "##{mfa_id}", criteria: { required: true, min_length: length, max_length: length, pattern: :numeric, enforce_blur: false }},
+
+  ]
+  function_name = mfa_id
+  submit_method = "#{mfa_id}_#{(10*5*rand).to_i}"
+%>
+
+<%= render partial: 'rails_base/shared/custom_form_validation_javascript', locals: { function_name: function_name, values: values } %>
+
+<script type="text/javascript">
+  $('#<%= modal_id %>').on('shown.bs.modal', function(){
+    $('#<%= mfa_id %>').focus();
+  });
+
+  function <%= modal_id %>_toggle(value){
+    if(value=='show'){
+      $('#<%= mfa_id %>').val('');
+      $('#<%= mfa_id_submit %>').show();
+      $('#<%= mfa_id_submit %>_spinner').hide();
+    } else {
+      $('#<%= mfa_id_submit %>').hide();
+      $('#<%= mfa_id_submit %>_spinner').show();
+    }
+  }
+
+  $('#<%= mfa_id_submit %>').click(function( event ) {
+    console.log($('#<%= mfa_id %>').val())
+    var length_match = $('#<%= mfa_id %>').val().length === <%= RailsBase::Authentication::Constants::MFA_LENGTH %>;
+    if (<%= function_name %>()){
+      var mfa_string = $('#<%= mfa_id %>').val();
+      var curr_modal = '<%= modal_id %>';
+      var show_modal = '<%= next_modal %>';
+      var toggle_method = <%= modal_id %>_toggle
+      admin_risky_mfa_confirm(mfa_string, curr_modal, '<%= modal_mapping %>', <%= user.id %>, toggle_method, '<%= modify_id %>')
+    }
+  });
+
+  function invalidate_data(data) {
+    dataArr = data.split('');
+    var dataIsNotANumber = dataArr.every(function (pos) {
+      return isNaN(pos)
+    });
+    console.log(dataIsNotANumber)
+    return dataIsNotANumber
+  }
+</script>

@@ -19,6 +19,7 @@ params:
 			min_length: numeric of the minimum length allowed
 			max_length: numeric of the maximum length allowed
 			pattern: 'regex pattern of what is expected in the value'
+			enforce_blur: (true | false) if element should enforce validity when blurred out : Default true
 
 Sample params
 <%
@@ -27,12 +28,16 @@ Sample params
     { name: '#user_last_name', criteria: { required: true, min_length: 2 }},
     { name: '#user_email', criteria: { required: true, pattern: Authentication::Constants::EMAIL_PATTERN }}
   ]
+  # enforce_blur this is used when validation should only be run on submit
+  # and not when div looses focuse
+  enforce_blur = true || false
   function_name = 'new_registration'
 %>
 
 <% end %>
 
 <script type="text/javascript">
+	<% default_blur = true unless defined?(enforce_blur) %>
 	function <%= function_name %>_validation_event(){
 		var valid = true
 		console.log('starting validation')
@@ -68,10 +73,12 @@ Sample params
 	};
 
 	<% values.each do |value| %>
+	<% unless value[:criteria][:enforce_blur] == false %>
 	$('<%= value[:name]%>').blur(function() {
 		var criteria_met = <%= function_name %>_<%= value[:name][1..-1]%>_valid()
 		<%= function_name %>_manipulator($('<%= value[:name]%>'), criteria_met, true);
 	});
+	<% end %>
 
 	function <%= function_name %>_<%= value[:name][1..-1]%>_valid(){
 		var criteria_met = true
@@ -112,7 +119,7 @@ Sample params
 			var pattern = /<%= value[:criteria][:pattern] %>/
 			<% end %>
 			if (pattern.test($('<%= value[:name]%>').val()) === false ){
-				console.log(`<%= value[:name]%> failed criteria pattern of pattern`)
+				console.log(`<%= value[:name]%> failed criteria pattern of <%= value[:criteria][:pattern]%>`)
 				criteria_met = false;
 			};
 		<% end %>

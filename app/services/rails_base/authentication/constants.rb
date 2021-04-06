@@ -45,8 +45,11 @@ module RailsBase::Authentication
 
 		STATIC_WAIT_FLASH = '"Check email inbox for verification email. Follow instructions to gain access"'
 
-
 		# SSO LOGIN Reason
 		SSO_LOGIN_REASON = 'sso_login_data'
+
+		ADMIN_REMEMBER_REASON = 'current_admin_user'
+		ADMIN_REMEMBER_USERID_KEY = 'admin_remember_me_via_coco'
+		ADMIN_MAX_IDLE_TIME = 3.minutes
 	end
 end

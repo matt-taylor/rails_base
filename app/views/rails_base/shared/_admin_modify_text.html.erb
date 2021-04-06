@@ -1,0 +1,21 @@
+<% text_id = "#{type}_#{user.id}_#{(10**10*rand).to_i}" %>
+<% span_id = "#{text_id}_span" %>
+<% modal_id = "#{text_id}_modal" %>
+
+<p style="text-align:left;">
+  <span id='<%= text_id %>'> <%= current_value %> </span>
+  <span id='<%= span_id %>' style="float:right;">
+    <button style='border:none;, background: transparent;'>
+      &#x270e;
+    </button>
+  </span>
+</p>
+
+<%= render partial: modal_partial, locals: { modal_id: modal_id, user: user, parent: "#{parent}_#{type}", text: text_id } %>
+
+
+<script type="text/javascript">
+  $('#<%= span_id %>').click(function() {
+    $('#<%= modal_id %>').modal('show');
+  });
+</script>

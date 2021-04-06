@@ -87,8 +87,10 @@ Rails.application.configure do
   LinkDecisionHelper::ALLOWED_TYPES.each do |type|
     thing = config.public_send("#{type}||=", [])
     if thing.empty?
+      admin_url_proc = -> { RailsBase.url_routes.admin_base_path }
       default = LinkDecisionHelper.new(title: nil, url: nil, type: type, default_type: type, config: config)
-      config.public_send("#{type}=", [default])
+      admin = LinkDecisionHelper.new(title: 'Admin', url: admin_url_proc, type: type, config: config)
+      config.public_send("#{type}=", [default, admin])
     end
   end
 end

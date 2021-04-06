@@ -54,6 +54,8 @@ class RailsBase::Users::SessionsController < Devise::SessionsController
     sign_out(current_user)
     reset_session
 
+    admin_reset_session!
+
     redirect_to RailsBase.url_routes.unauthenticated_root_path
   end
 
