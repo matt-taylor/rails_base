@@ -20,7 +20,7 @@
         </td>
         <td>
           <% u = action.user %>
-          <%=  "<#{u.id.to_s.rjust(6, ' ')} > : #{u.full_name} " %>
+          <%=  "<#{u.id.to_s.rjust(6, ' ')} > : #{u.full_name}" rescue '----'%>
         </td>
         <td> <%=  action.action %> </td>
         <td> <%=  action.change_from || 'N/a' %> </td>

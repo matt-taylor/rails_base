@@ -41,14 +41,7 @@ module RailsBase
     def update_attribute
       update = RailsBase::AdminUpdateAttribute.call(params: params)
       if update.success?
-        action_params = {
-          admin_user: admin_user,
-          user: update.model,
-          action: "Update #{params[:attribute]}",
-          change_from: update.original_attribute,
-          change_to: update.attribute,
-        }
-        AdminAction.action(action_params)
+        @_admin_action_struct = RailsBase::AdminStruct.new(update.original_attribute, update.attribute, update.model)
         render json: { success: true, message: update.message, attribute: update.attribute }
       else
         render json: { success: false, message: update.message }, status: 404
@@ -66,14 +59,7 @@ module RailsBase
       )
 
       if result.success?
-        action_params = {
-          admin_user: admin_user,
-          user: user,
-          action: 'Name change',
-          change_from: result.original_name,
-          change_to: result.name_change,
-        }
-        AdminAction.action(action_params)
+        @_admin_action_struct = RailsBase::AdminStruct.new(result.original_name, result.name_change, user)
         msg = "Successfully changed name from [#{result.original_name}] to [#{result.name_change}]"
         render json: { success: true, message: msg, full_name: result.name_change }
       else
@@ -85,14 +71,7 @@ module RailsBase
       user = User.find(params[:id])
       result = EmailChange.call(email: params[:email], user: user)
       if result.success?
-        action_params = {
-          admin_user: admin_user,
-          user: user,
-          action: 'Email change',
-          change_from: result.original_email,
-          change_to: result.new_email,
-        }
-        RailsBase::AdminAction.action(action_params)
+        @_admin_action_struct = RailsBase::AdminStruct.new(result.original_email, result.new_email, user)
         msg = "Successfully changed email from [#{result.original_email}] to [#{result.new_email}]"
         render json: { success: true, message: msg, email: result.new_email }
       else
