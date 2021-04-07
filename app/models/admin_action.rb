@@ -18,11 +18,11 @@ class AdminAction < ApplicationRecord
   DEFAULT_PAGE_RANGE = 2
 
   class << self
-    def action(admin_user:, action:, user: nil, change_from: nil, change_to: nil, long_action: nil)
+    def action(admin_user:, action:, user: nil, original_attribute: nil, new_attribute: nil, long_action: nil)
       params = { admin_user_id: admin_user.id, action: action }
       params[:user_id] = user.id if user
-      params[:change_from] = change_from if change_from
-      params[:change_to] = change_to if change_to
+      params[:change_from] = original_attribute if original_attribute
+      params[:change_to] = new_attribute if new_attribute
       params[:long_action] = long_action if long_action
       begin
         AdminAction.create!(params)
@@ -47,7 +47,7 @@ class AdminAction < ApplicationRecord
   end
 
   def user
-    @user ||= User.find user_id
+    @user ||= user_id ? User.find(user_id) : nil
   end
 
   def readable(long: false)

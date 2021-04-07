@@ -20,6 +20,7 @@ module RailsBase
       if result.failure?
         flash[:alert] = result.message
       else
+        @_admin_action_struct = RailsBase::AdminStruct.new(result.original_name, result.name_change)
         flash[:notice] = "Name change succesful to #{result.name_change}"
       end
 
@@ -38,6 +39,7 @@ module RailsBase
         redirect_to RailsBase.url_routes.user_settings_path, alert: result.message
         return
       end
+
       # password was changed so authentication will fail. Re-signin user
       sign_out(current_user)
       sign_in(user.reload)

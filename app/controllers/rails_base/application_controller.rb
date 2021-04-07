@@ -3,6 +3,7 @@ module RailsBase
     before_action :configure_permitted_parameters, if: :devise_controller?
     before_action :is_timeout_error?
     before_action :admin_reset_impersonation_session!
+    after_action :capture_admin_action
 
     include ApplicationHelper
 
@@ -46,6 +47,40 @@ module RailsBase
 
       flash[:alert] = 'Unauthorized action. You have been signed out'
       redirect_to RailsBase.url_routes.unauthenticated_root_path
+    end
+
+    def capture_admin_action
+      # ToDo: Turn this into a service
+      # ToDo: All admin actions come there here: Allow this to be confirugable on or off
+      _controller = ActiveSupport::Inflector.camelize("#{params[:controller]}_controller")
+      admin_user =
+        if _controller == RailsBase::AdminController.to_s
+          current_user
+        else
+          @original_admin_user_id ? User.find(@original_admin_user_id) : nil
+        end
+
+      # Means we are not in the admin controller or we are not impersonating
+      return if admin_user.nil?
+
+      # Admin action for all routes
+      (RailsBase::AdminActionHelper.actions.dig(RailsBase::AdminActionHelper::ACTIONS_KEY) || []).each do |helper|
+        Rails.logger.warn("Admin Action for every action")
+        helper.call(req: request, params: params, admin_user: admin_user, user: current_user, struct: @_admin_action_struct)
+      end
+
+      # Admin action for all controller routes
+      object = RailsBase::AdminActionHelper.actions.dig(_controller, RailsBase::AdminActionHelper::CONTROLLER_ACTIONS_KEY) || []
+      object.each do |helper|
+        Rails.logger.warn("Admin Action for #{_controller}")
+        helper.call(req: request, params: params, admin_user: admin_user, user: current_user, struct: @_admin_action_struct)
+      end
+
+      # Admin action for all controller action specific routes
+      (RailsBase::AdminActionHelper.actions.dig(_controller, params[:action].to_s) || []).each do |helper|
+        Rails.logger.warn("Admin Action for #{_controller}##{params[:action]}")
+        helper.call(req: request, params: params, admin_user: admin_user, user: current_user, struct: @_admin_action_struct)
+      end
     end
 
     protected

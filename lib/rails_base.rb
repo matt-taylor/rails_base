@@ -25,4 +25,6 @@ module RailsBase
   rescue StandardError, ActionController::RoutingError
     false
   end
+
+  AdminStruct = Struct.new(:original_attribute, :new_attribute, :user)
 end
