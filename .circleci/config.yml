@@ -57,7 +57,7 @@ jobs:
           command: |
             mkdir gopath
             export GOPATH=gopath
-            sudo apt-get golang-go
+            sudo apt-get -y --no-install-recommends install golang-go
             sudo which go
       - run:
           name: 'Install GHR'
