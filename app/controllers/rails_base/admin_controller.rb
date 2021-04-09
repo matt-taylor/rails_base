@@ -179,7 +179,7 @@ module RailsBase
         return
       end
 
-      if true || result.success?
+      if result.success?
         session[:mfa_randomized_token] = encrypt.encrypted_val
         render json: { success: true, message: result.message, html: html }
       else
