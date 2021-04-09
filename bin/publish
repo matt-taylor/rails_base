@@ -19,16 +19,22 @@ fi
 gem build rails_base.gemspec
 FILE=$(pwd)/${PACKAGE}
 
+echo "Finished building $FILE"
 # push to gemfury
 curl -F package=@${FILE} https://${GEMFURY_TOKEN}@push.fury.io/${GEMFURY_USER}/
+echo "Finished Pushing to Gemfury"
 
 # create tag in repo
 git tag -a $VERSION -m "$VERSION"
 git push https://${GITHUB_TOKEN}@github.com/${GITHUB_USER}/rails_base.git $VERSION
+echo "Finished Tagging to git"
+
 
 # send artifacts to git
 SHA=$(git rev-parse HEAD)
 $GOPATH/bin/ghr -soft -t ${GITHUB_TOKEN} -u ${GITHUB_USER} -r rails_base -c ${SHA} ${VERSION} *.gem
+
+echo "Finished Pushing artificat to Git"
 
 # start fresh
 rm rails_base*.gem

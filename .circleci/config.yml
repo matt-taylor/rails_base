@@ -65,6 +65,9 @@ jobs:
           command: |
             go get -u github.com/tcnksm/ghr
       - run:
+          name: 'Set Git email'
+          command: git config user.email $GITHUB_EMAIL
+      - run:
           name: Publish
           command: bin/publish
 
