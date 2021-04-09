@@ -21,7 +21,7 @@ jobs:
     # here we set TWO docker images.
     docker:
       - image: cimg/ruby:2.7-node # this is our primary docker image, where step commands run.
-      - image: circleci/mysql:8.0.4
+      - image: circleci/mysql:5.7
         environment:
           MYSQL_ROOT_PASSWORD: rootpw
           MYSQL_DATABASE: test_db
