@@ -70,7 +70,7 @@ module RailsBase
         end
 
       # Means we are not in the admin controller or we are not impersonating
-      return if admin_user.nil?
+      return if admin_user.nil? || @_admin_action_struct == false
 
       # Admin action for all routes
       (RailsBase::AdminActionHelper.actions.dig(RailsBase::AdminActionHelper::ACTIONS_KEY) || []).each do |helper|

@@ -76,6 +76,7 @@ module RailsBase
         @_admin_action_struct = RailsBase::AdminStruct.new(update.original_attribute, update.attribute, update.model)
         render json: { success: true, message: update.message, attribute: update.attribute }
       else
+        @_admin_action_struct = false
         render json: { success: false, message: update.message }, status: 404
       end
     end
@@ -95,6 +96,7 @@ module RailsBase
         msg = "Successfully changed name from [#{result.original_name}] to [#{result.name_change}]"
         render json: { success: true, message: msg, full_name: result.name_change }
       else
+        @_admin_action_struct = false
         render json: { success: false, message: "Failed to change #{user.id} name" }, status: 404
       end
     end
@@ -107,6 +109,7 @@ module RailsBase
         msg = "Successfully changed email from [#{result.original_email}] to [#{result.new_email}]"
         render json: { success: true, message: msg, email: result.new_email }
       else
+        @_admin_action_struct = false
         render json: { success: false, message: result.message }, status: 404
       end
     end
