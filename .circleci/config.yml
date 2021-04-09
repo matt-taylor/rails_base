@@ -16,7 +16,7 @@ jobs:
   publish:
     docker:
       - image: cimg/ruby:2.7-node # this is our primary docker image, where step commands run.
-      - image: circleci/mysql:5.7
+      # - image: circleci/mysql:5.7
         environment:
           MYSQL_ROOT_PASSWORD: rootpw
           MYSQL_DATABASE: test_db
@@ -39,19 +39,19 @@ jobs:
       - ruby/install-deps
       # Here we make sure that the secondary container boots
       # up before we run operations on the database.
-      - run:
-          name: Waiting for MySQL to be ready
-          command: |
-            for i in `seq 1 10`;
-            do
-              nc -z 127.0.0.1 3306 && echo Success && exit 0
-              echo -n .
-              sleep 1
-            done
-            echo Failed waiting for MySQL && exit 1
-      - run:
-          name: Database setup
-          command: bundle exec rails db:schema:load --trace
+      # - run:
+      #     name: Waiting for MySQL to be ready
+      #     command: |
+      #       for i in `seq 1 10`;
+      #       do
+      #         nc -z 127.0.0.1 3306 && echo Success && exit 0
+      #         echo -n .
+      #         sleep 1
+      #       done
+      #       echo Failed waiting for MySQL && exit 1
+      # - run:
+      #     name: Database setup
+      #     command: bundle exec rails db:schema:load --trace
       - run:
           name: 'Get Go'
           command: |
@@ -71,7 +71,9 @@ jobs:
             git config user.email $GITHUB_EMAIL
       - run:
           name: Publish
-          command: bin/publish
+          command: | #bin/publish
+            echo $GOPATH
+            ls $GOPATH
 
 
 
