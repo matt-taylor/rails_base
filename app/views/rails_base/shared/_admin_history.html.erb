@@ -1,7 +1,6 @@
 <div class='table-responsive' style="overflow-x:auto; width: inherit !important;">
   <table class="tableFixHead table table-striped table-bordered">
     <thead class="thead-dark text-center">
-      <th> id </th>
       <th> AdminUser </th>
       <th> User </th>
       <th> Action </th>
@@ -11,22 +10,21 @@
       <th> Created </th>
     </thead>
     <tbody>
-    <% @action_records.each do |action| %>
+    <% paginated_records.each do |action| %>
       <tr>
-        <td> <%=  action.id %> </td>
-        <td>
+        <td style="white-space: nowrap;">
           <% au = action.admin_user %>
           <%=  "[#{au.admin.to_s.ljust(10, ' ')}]<#{au.id.to_s.rjust(6, ' ')}> : #{au.full_name} " %>
         </td>
-        <td>
+        <td style="white-space: nowrap;">
           <% u = action.user %>
           <%=  "<#{u.id.to_s.rjust(6, ' ')} > : #{u.full_name}" rescue '----'%>
         </td>
-        <td> <%=  action.action %> </td>
-        <td> <%=  action.change_from || 'N/a' %> </td>
-        <td> <%=  action.change_to  || 'N/a' %>  </td>
+        <td style="white-space: nowrap;"> <%=  action.action %> </td>
+        <td style="white-space: nowrap;"> <%=  action.change_from || 'N/a' %> </td>
+        <td style="white-space: nowrap;"> <%=  action.change_to  || 'N/a' %>  </td>
         <td> <%=  action.long_action  || 'N/a' %>  </td>
-        <td> <%=  action.created_at %> </td>
+        <td style="white-space: nowrap;"> <%=  action.created_at %> </td>
       </tr>
     <% end %>
     </tbody>
@@ -57,11 +55,32 @@
   </ul>
   <ul class="pagination justify-content-center" style="margin-top: -20px;">
   <div class='justify-content-center'>
-    <div class='input-group'>
-      <div class="input-group-prepend">
-        <div class="input-group-text">Elements</div>
+    <div class='row'>
+      <div class="col-md">
+        <div class='input-group'>
+          <div class="input-group-prepend">
+            <div class="input-group-text">Elements</div>
+          </div>
+          <%= select_tag 'pagination_count', options_for_select(AdminAction::DEFAULT_PAGE_COUNT_SELECT_RANGE, @count_on_page), class: 'form-control', onchange: "submit_paginate(#{@starting_page}, #{@starting_page}, #{@count_on_page})" %>
+        </div>
       </div>
-      <%= select_tag 'pagination_count', options_for_select(AdminAction::DEFAULT_PAGE_COUNT_SELECT_RANGE, @count_on_page), class: 'form-control', onchange: "submit_paginate(#{@starting_page}, #{@starting_page}, #{@count_on_page})" %>
+      <div class="col-md">
+        <div class='input-group'>
+          <div class="input-group-prepend">
+            <div class="input-group-text">User</div>
+          </div>
+          <%= select_tag 'rb_user_select', options_for_select(paginate_get_users_array, @starting_user), class: 'form-control', onchange: "submit_paginate(#{@starting_page}, #{@starting_page}, #{@count_on_page})" %>
+        </div>
+      </div>
+      <div class="col-md">
+        <div class='input-group'>
+          <div class="input-group-prepend">
+            <div class="input-group-text">Admin</div>
+          </div>
+          <%= select_tag 'rb_admin_user_select', options_for_select(paginate_get_admins_array, @starting_admin), class: 'form-control', onchange: "submit_paginate(#{@starting_page}, #{@starting_page}, #{@count_on_page})" %>
+        </div>
+      </div>
+
     </div>
   </ul>
 </nav>

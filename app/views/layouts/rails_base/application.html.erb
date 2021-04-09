@@ -23,16 +23,9 @@
     <% rails_base_success = "successid-#{(10**10*rand).to_i}"%>
     <div class="container-fluid">
       <% if current_user %>
-        <!-- current_user will return true if a user is logged in -->
         <%= render partial: 'rails_base/shared/logged_in_header'%>
       <% else %>
-        <!-- not logged in -->
         <%= render partial: 'rails_base/shared/logged_out_header'%>
-      <% end %>
-      <% if current_user && session[RailsBase::Authentication::Constants::ADMIN_REMEMBER_REASON].present? %>
-        <div class="alert alert-warning" role="alert">
-          <%= render partial: 'rails_base/shared/admin_warning_alert' %>
-        </div>
       <% end %>
       <% if notice %>
       <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -51,11 +44,13 @@
         </div>
       <% end %>
       <div id='<%= rails_base_success %>' class="alert alert-success alert-dismissible fade show" role="alert" style='display:none'>
+        <div class='text'></div>
         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
       <div id='<%= rails_base_alert %>' class="alert alert-danger alert-dismissible fade show" role="alert" style='display:none'>
+        <div class='text'></div>
         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -65,17 +60,15 @@
 
     <script>
       function _rails_base_display_success(msg){
-        $('#<%= rails_base_success %>').hide()
         $('#<%= rails_base_alert %>').hide()
+        $('#<%= rails_base_success %> .text').text(msg)
         $('#<%= rails_base_success %>').show()
-        $('#<%= rails_base_success %>').text(msg)
       };
 
       function _rails_base_display_alert(msg){
-        $('#<%= rails_base_alert %>').hide()
         $('#<%= rails_base_success %>').hide()
+        $('#<%= rails_base_alert %> .text').text(msg)
         $('#<%= rails_base_alert %>').show()
-        $('#<%= rails_base_alert %>').text(msg)
       };
 
       function _rails_base_hide_displays(){

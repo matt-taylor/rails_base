@@ -40,7 +40,8 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'dalli'
   spec.add_dependency 'browser'
   spec.add_dependency 'dotiw'
-  spec.add_dependency 'redis'
+  spec.add_dependency 'redis', '>= 4.2.5'
+  spec.add_dependency 'redis-namespace', '>= 1.8.1'
   spec.add_dependency 'switch_user'
 
   spec.add_development_dependency 'annotate'

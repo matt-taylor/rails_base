@@ -54,6 +54,16 @@
   <%= render partial: 'rails_base/shared/enable_mfa_auth_modal'%>
 <% end %>
 
+<% if @__admin_actions_array && @__admin_actions_array.present? %>
+  <%= render partial: 'rails_base/shared/admin_actions_modal'%>
+<% end %>
+
+<% if session[RailsBase::Authentication::Constants::ADMIN_REMEMBER_REASON].present? %>
+  <div class="alert alert-warning" role="alert">
+    <%= render partial: 'rails_base/shared/admin_warning_alert' %>
+  </div>
+<% end %>
+
 <% if Rails.application.config.session_timeout %>
   <% show_warning = Rails.application.config.session_timeout_warning %>
   <% if show_warning %>

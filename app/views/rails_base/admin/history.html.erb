@@ -5,12 +5,14 @@
 <script type="text/javascript">
   function submit_paginate(page, prev_page, prev_count){
     var input_page_count = $('#pagination_count').val()
+    var admin = $('#rb_admin_user_select').val()
+    var user = $('#rb_user_select').val()
     $.ajax({
       type: "POST",
       url: "<%= RailsBase.url_routes.admin_history_page_path %>",
       headers: { 'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content') },
       dataType: 'json',
-      data: { 'page': page , 'pagination_count': input_page_count, 'prev_page': prev_page, 'prev_count': prev_count },
+      data: { 'page': page , 'pagination_count': input_page_count, 'prev_page': prev_page, 'prev_count': prev_count, 'user': user, 'admin': admin },
       success: function(data) {
         $('#admin-history-content').html(data.html)
         _rails_base_display_success(`Succesfully updated Rows for page ${data.page}. Showing ${data.per_page} rows per page.`);

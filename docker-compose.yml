@@ -24,6 +24,10 @@ services:
       - "3308"
     volumes:
       - mysql:/var/lib/mysql
+  redis:
+    image: redis
+    expose:
+      - 6379
   engine:
     build:
       args:
@@ -63,7 +67,9 @@ services:
       - SESSION_TIMEOUT_IN_SECONDS=900
       - SESSION_TIMEOUT_WARNING=true
       - RAILS_MAX_THREADS=1
+      - REDIS_URL=redis://redis
     ports:
       - "5555:5555"
     links:
       - mysql
+      - redis

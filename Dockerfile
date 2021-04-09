@@ -31,7 +31,8 @@ RUN apt-get install -y --no-install-recommends \
   openssh-client \
   unzip \
   zlib1g-dev \
-  default-mysql-client
+  default-mysql-client \
+  redis-tools
 
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
 RUN apt-get install -y software-properties-common

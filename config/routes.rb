@@ -86,6 +86,7 @@ Rails.application.routes.draw do
   # override url and location for switch_user gem
   post 'admin/impersonate/:scope_identifier', to: 'rails_base/switch_user#set_current_user', as: :switch_user
 
+  post 'admin/ack', to: 'rails_base/admin#ack', as: :admin_ack
   post 'admin/impersonate', to: 'rails_base/admin#switch_back', as: :admin_stop_impersonation
   post 'admin/update', to: 'rails_base/admin#update_attribute', as: :admin_upate_attribute
   post 'admin/update/name', to: 'rails_base/admin#update_name', as: :admin_upate_name

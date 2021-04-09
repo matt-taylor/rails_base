@@ -10,18 +10,50 @@ module RailsBase
     def index
     end
 
+    # POST admin/ack
+    def ack
+      success = true
+      begin
+        time = Time.at params[:time].to_i
+        RailsBase::AdminActionCache.instance.delete_actions_since!(user: current_user, time: time)
+        RailsBase::AdminActionCache.instance.update_last_viewed(user: current_user, time: time)
+      rescue StandardError => e
+        logger.error(e.message)
+        logger.error('Failed to acknowledge users admion actions')
+        success = false
+      end
+      if success
+        render json: { success: true }
+      else
+        render json: { success: false }, status: 500
+      end
+    end
+
     # GET admin/history
     def history
+      @starting_admin = paginate_get_admins_array.last
+      @starting_user = paginate_get_users_array.last
+      session[:rails_base_paginate_start_user] = @starting_user[1]
+      session[:rails_base_paginate_start_admin] = @starting_admin[1]
       @starting_page = 1
       @count_on_page = AdminAction::DEFAULT_PAGE_COUNT
-      @action_records = AdminAction.paginate_records(page: @starting_page, count_on_page: @count_on_page)
     end
 
     # POST admin/history
     def history_paginate
+      @starting_admin = paginate_get_admins_array.find { |u| u[1] == params[:admin].to_i } || paginate_get_admins_array.last
+      @starting_user = paginate_get_users_array.find { |u| u[1] == params[:user].to_i } || paginate_get_users_array.last
+
       @starting_page = paginate_admin_what_page
       @count_on_page = params[:pagination_count].to_i
-      @action_records = AdminAction.paginate_records(page: @starting_page, count_on_page: @count_on_page)
+
+      if paginate_diff_id?(type: :admin) || paginate_diff_id?(type: :user)
+        logger.warn "Admin or User has been selected. paginating from first page"
+        @starting_page = 1
+      end
+
+      session[:rails_base_paginate_start_user] = @starting_user[1]
+      session[:rails_base_paginate_start_admin] = @starting_admin[1]
       begin
         html = render_to_string(partial: 'rails_base/shared/admin_history')
       rescue StandardError => e
@@ -44,6 +76,7 @@ module RailsBase
         @_admin_action_struct = RailsBase::AdminStruct.new(update.original_attribute, update.attribute, update.model)
         render json: { success: true, message: update.message, attribute: update.attribute }
       else
+        @_admin_action_struct = false
         render json: { success: false, message: update.message }, status: 404
       end
     end
@@ -63,6 +96,7 @@ module RailsBase
         msg = "Successfully changed name from [#{result.original_name}] to [#{result.name_change}]"
         render json: { success: true, message: msg, full_name: result.name_change }
       else
+        @_admin_action_struct = false
         render json: { success: false, message: "Failed to change #{user.id} name" }, status: 404
       end
     end
@@ -75,6 +109,7 @@ module RailsBase
         msg = "Successfully changed email from [#{result.original_email}] to [#{result.new_email}]"
         render json: { success: true, message: msg, email: result.new_email }
       else
+        @_admin_action_struct = false
         render json: { success: false, message: result.message }, status: 404
       end
     end
@@ -144,7 +179,7 @@ module RailsBase
         return
       end
 
-      if true || result.success?
+      if result.success?
         session[:mfa_randomized_token] = encrypt.encrypted_val
         render json: { success: true, message: result.message, html: html }
       else

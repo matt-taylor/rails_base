@@ -3,6 +3,7 @@ module RailsBase
     before_action :configure_permitted_parameters, if: :devise_controller?
     before_action :is_timeout_error?
     before_action :admin_reset_impersonation_session!
+    before_action :populate_admin_actions
     after_action :capture_admin_action
 
     include ApplicationHelper
@@ -49,6 +50,14 @@ module RailsBase
       redirect_to RailsBase.url_routes.unauthenticated_root_path
     end
 
+    def populate_admin_actions
+      return if session[RailsBase::Authentication::Constants::ADMIN_REMEMBER_REASON].present?
+      return if current_user.nil?
+      return unless request.fullpath == RailsBase.url_routes.authenticated_root_path
+
+      @__admin_actions_array = AdminAction.get_cache_items(user: current_user, alltime: true)
+    end
+
     def capture_admin_action
       # ToDo: Turn this into a service
       # ToDo: All admin actions come there here: Allow this to be confirugable on or off
@@ -61,7 +70,7 @@ module RailsBase
         end
 
       # Means we are not in the admin controller or we are not impersonating
-      return if admin_user.nil?
+      return if admin_user.nil? || @_admin_action_struct == false
 
       # Admin action for all routes
       (RailsBase::AdminActionHelper.actions.dig(RailsBase::AdminActionHelper::ACTIONS_KEY) || []).each do |helper|

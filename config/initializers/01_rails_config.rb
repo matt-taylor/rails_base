@@ -5,6 +5,18 @@
 require 'link_decision_helper'
 
 Rails.application.configure do
+  ###################
+  # Redis variables #
+  ###################
+  # if not set downstream, send the email
+  unless (config.redis_url_admin_action rescue false)
+    config.redis_url_admin_action = ENV['REDIS_URL']
+  end
+
+  unless (config.redis_namespace_admin_action rescue false)
+    config.redis_namespace_admin_action = nil
+  end
+
   #######################
   # Twilio Requirements #
   #######################

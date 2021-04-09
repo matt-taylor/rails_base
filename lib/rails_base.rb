@@ -12,7 +12,7 @@ require 'popper_js'
 require 'bootstrap'
 require 'sassc-rails'
 require 'switch_user'
-# RailsBase.url_routes.
+require 'rails_base/admin_action_cache'
 
 module RailsBase
   def self.url_routes
