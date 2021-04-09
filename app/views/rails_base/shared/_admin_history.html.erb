@@ -11,7 +11,7 @@
       <th> Created </th>
     </thead>
     <tbody>
-    <% @action_records.each do |action| %>
+    <% paginated_records.each do |action| %>
       <tr>
         <td> <%=  action.id %> </td>
         <td>
@@ -57,11 +57,32 @@
   </ul>
   <ul class="pagination justify-content-center" style="margin-top: -20px;">
   <div class='justify-content-center'>
-    <div class='input-group'>
-      <div class="input-group-prepend">
-        <div class="input-group-text">Elements</div>
+    <div class='row'>
+      <div class="col">
+        <div class='input-group'>
+          <div class="input-group-prepend">
+            <div class="input-group-text">Elements</div>
+          </div>
+          <%= select_tag 'pagination_count', options_for_select(AdminAction::DEFAULT_PAGE_COUNT_SELECT_RANGE, @count_on_page), class: 'form-control', onchange: "submit_paginate(#{@starting_page}, #{@starting_page}, #{@count_on_page})" %>
+        </div>
       </div>
-      <%= select_tag 'pagination_count', options_for_select(AdminAction::DEFAULT_PAGE_COUNT_SELECT_RANGE, @count_on_page), class: 'form-control', onchange: "submit_paginate(#{@starting_page}, #{@starting_page}, #{@count_on_page})" %>
+      <div class="col">
+        <div class='input-group'>
+          <div class="input-group-prepend">
+            <div class="input-group-text">User</div>
+          </div>
+          <%= select_tag 'rb_user_select', options_for_select(paginate_get_users_array, @starting_user), class: 'form-control', onchange: "submit_paginate(#{@starting_page}, #{@starting_page}, #{@count_on_page})" %>
+        </div>
+      </div>
+      <div class="col">
+        <div class='input-group'>
+          <div class="input-group-prepend">
+            <div class="input-group-text">Admin</div>
+          </div>
+          <%= select_tag 'rb_admin_user_select', options_for_select(paginate_get_admins_array, @starting_admin), class: 'form-control', onchange: "submit_paginate(#{@starting_page}, #{@starting_page}, #{@count_on_page})" %>
+        </div>
+      </div>
+
     </div>
   </ul>
 </nav>
