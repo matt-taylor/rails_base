@@ -6,23 +6,10 @@ orbs:
   ruby: circleci/ruby@1.0
   node: circleci/node@2
 
-_custom_env_variables: &custom_env_variables
-  TWILIO_ACCOUNT_SID: 'redis'
-  TWILIO_AUTH_TOKEN: true
-  TWILIO_FROM_NUMBER: 'noeviction'
-  subscription: ue1_pro_prod
-  dataPersistence: 'aof-every-1-second'
-  throughputMeasurement:
-    by: 'operations-per-second'
-    value: 2000
-
 jobs:
   build: # our first job, named "build"
     docker:
       - image: cimg/ruby:2.7-node # use a tailored CircleCI docker image.
-        auth:
-          username: mydockerhub-user
-          password: $DOCKERHUB_PASSWORD  # context / project UI env-var reference
     steps:
       - checkout # pull down our git code.
       - ruby/install-deps # use the ruby orb to install dependencies
@@ -30,17 +17,11 @@ jobs:
   test:  # our next job, called "test"
     # we run "parallel job containers" to enable speeding up our tests;
     # this splits our tests across multiple containers.
-    parallelism: 3
+    # parallelism: 3
     # here we set TWO docker images.
     docker:
       - image: cimg/ruby:2.7-node # this is our primary docker image, where step commands run.
-        auth:
-          username: mydockerhub-user
-          password: $DOCKERHUB_PASSWORD  # context / project UI env-var reference
       - image: circleci/mysql:8.0.4
-        auth:
-          username: mydockerhub-user
-          password: $DOCKERHUB_PASSWORD  # context / project UI env-var reference
         environment:
           MYSQL_ROOT_PASSWORD: rootpw
           MYSQL_DATABASE: test_db
@@ -50,7 +31,7 @@ jobs:
     environment:
       BUNDLE_JOBS: "3"
       BUNDLE_RETRY: "3"
-      MYSSQL_HOST: 127.0.0.1
+      MYSQL_HOST: 127.0.0.1
       MYSQL_ROOT_PASSWORD: rootpw
       MYSQL_DATABASE: test_db
       MYSQL_USER: user
