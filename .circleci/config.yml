@@ -6,6 +6,16 @@ orbs:
   ruby: circleci/ruby@1.0
   node: circleci/node@2
 
+_custom_env_variables: &custom_env_variables
+  TWILIO_ACCOUNT_SID: 'redis'
+  TWILIO_AUTH_TOKEN: true
+  TWILIO_FROM_NUMBER: 'noeviction'
+  subscription: ue1_pro_prod
+  dataPersistence: 'aof-every-1-second'
+  throughputMeasurement:
+    by: 'operations-per-second'
+    value: 2000
+
 jobs:
   build: # our first job, named "build"
     docker:
@@ -40,9 +50,12 @@ jobs:
     environment:
       BUNDLE_JOBS: "3"
       BUNDLE_RETRY: "3"
-      PGHOST: 127.0.0.1
-      PGUSER: circleci-demo-ruby
-      PGPASSWORD: ""
+      MYSSQL_HOST: 127.0.0.1
+      MYSQL_ROOT_PASSWORD: rootpw
+      MYSQL_DATABASE: test_db
+      MYSQL_USER: user
+      MYSQL_PORT: 3306
+      MYSQL_PASSWORD: passw0rd
       RAILS_ENV: test
     # A series of steps to run, some are similar to those in "build".
     steps:
