@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    rails_base (0.12.0)
+    rails_base (0.13.0)
       allow_numeric
       bootstrap
       browser
@@ -226,6 +226,8 @@ GEM
       rspec-mocks (~> 3.10)
       rspec-support (~> 3.10)
     rspec-support (3.10.2)
+    rspec_junit_formatter (0.4.1)
+      rspec-core (>= 2, < 4, != 2.12.0)
     ruby2_keywords (0.0.4)
     sass-rails (6.0.0)
       sassc-rails (~> 2.1, >= 2.1.1)
@@ -296,6 +298,7 @@ DEPENDENCIES
   rails-controller-testing
   rails_base!
   rspec-rails
+  rspec_junit_formatter
   simplecov
   spring
   spring-watcher-listen
