@@ -37,21 +37,6 @@ jobs:
     steps:
       - checkout
       - ruby/install-deps
-      # Here we make sure that the secondary container boots
-      # up before we run operations on the database.
-      # - run:
-      #     name: Waiting for MySQL to be ready
-      #     command: |
-      #       for i in `seq 1 10`;
-      #       do
-      #         nc -z 127.0.0.1 3306 && echo Success && exit 0
-      #         echo -n .
-      #         sleep 1
-      #       done
-      #       echo Failed waiting for MySQL && exit 1
-      # - run:
-      #     name: Database setup
-      #     command: bundle exec rails db:schema:load --trace
       - run:
           name: 'Get Go'
           command: |
@@ -63,16 +48,17 @@ jobs:
             git config user.name $GITHUB_USER
             git config user.email $GITHUB_EMAIL
       - run:
+        name: 'Download GHR'
+        command: |
+          curl -sSL https://github.com/tcnksm/ghr/releases/download/v0.13.0/ghr_v0.13.0_linux_amd64.tar.gz | tar xz -f - -C . ghr_v0.13.0_linux_amd64/ghr
+          mv ghr_v0.13.0_linux_amd64/ghr .
+          rm -rf ghr_v0.13.0_linux_amd64
+          chmod 0755 ghr
+      - run:
           name: Publish
           command: |
-            curl -sSL https://github.com/tcnksm/ghr/releases/download/v0.13.0/ghr_v0.13.0_linux_amd64.tar.gz | tar xz -f - -C . ghr_v0.13.0_linux_amd64/ghr
-            mv ghr_v0.13.0_linux_amd64/ghr .
-            rm -rf ghr_v0.13.0_linux_amd64
-            chmod 0755 ghr
             export GHRLOCATION=ghr
             bin/publish
-
-
 
   test:  # our next job, called "test"
     # we run "parallel job containers" to enable speeding up our tests;
@@ -118,19 +104,19 @@ jobs:
           name: Database setup
           command: bundle exec rails db:schema:load --trace
       # Run rspec in parallel
-      # - ruby/rspec-test
+      - ruby/rspec-test
 
 # We use workflows to orchestrate the jobs that we declared above.
 workflows:
   version: 2
-  yeet:     # The name of our workflow is "build_and_test"
+  yeet-le-jobs:     # The name of our workflow is "build_and_test"
     jobs:             # The list of jobs we run as part of this workflow.
-      # - build         # Run build first.
-      # - test:         # Then run test,
-          # requires:   # Test requires that build passes for it to run.
-            # - build   # Finally, run the build job.
-      - publish
-          # filter:
-          #   branches:
-          #     only:
-          #       - main
+      - build         # Run build first.
+      - test:         # Then run test,
+          requires:   # Test requires that build passes for it to run.
+            - build   # Finally, run the build job.
+      - publish:
+          filters:
+            branches:
+              only:
+                - main
