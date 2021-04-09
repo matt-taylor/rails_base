@@ -53,8 +53,21 @@ jobs:
           name: Database setup
           command: bundle exec rails db:schema:load --trace
       - run:
-          name: 'publish version'
-          command: which go
+          name: 'Get Go'
+          command: |
+            mkdir gopath
+            export GOPATH=gopath
+            sudo apt-get golang-go
+            sudo which go
+      - run:
+          name: 'Install GHR'
+          command: |
+            go get -u github.com/tcnksm/ghr
+      - run:
+          name: Publish
+          command: cat bin/publish
+
+
 
   test:  # our next job, called "test"
     # we run "parallel job containers" to enable speeding up our tests;
@@ -107,12 +120,12 @@ workflows:
   version: 2
   yeet:     # The name of our workflow is "build_and_test"
     jobs:             # The list of jobs we run as part of this workflow.
-      - build         # Run build first.
-      - test:         # Then run test,
-          requires:   # Test requires that build passes for it to run.
-            - build   # Finally, run the build job.
-      - publish
-          # filter:
-          #   branches:
-          #     only:
-          #       - main
+      # - build         # Run build first.
+      # - test:         # Then run test,
+          # requires:   # Test requires that build passes for it to run.
+            # - build   # Finally, run the build job.
+      - publish:
+          filter:
+            branches:
+              only:
+                - main
