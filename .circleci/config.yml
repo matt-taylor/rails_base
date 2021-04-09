@@ -57,6 +57,7 @@ jobs:
           command: |
             mkdir gopath
             export GOPATH=gopath
+            sudo apt-get update -qq
             sudo apt-get -y --no-install-recommends install golang-go
             sudo which go
       - run:
