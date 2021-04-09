@@ -51,7 +51,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'web-console'
   spec.add_development_dependency 'byebug'
 
-
+  spec.add_development_dependency 'rspec_junit_formatter'
   spec.add_development_dependency 'capybara', '>= 2.15'
   spec.add_development_dependency 'rspec-rails'
   spec.add_development_dependency 'null-logger'#, require: 'null_logger'
