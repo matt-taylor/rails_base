@@ -60,10 +60,10 @@ jobs:
             sudo apt-get update -qq
             sudo apt-get -y --no-install-recommends install golang-go
             sudo which go
-      - run:
-          name: 'Install GHR'
-          command: |
-            go get -u github.com/tcnksm/ghr
+      # - run:
+      #     name: 'Install GHR'
+      #     command: |
+      #       go get -u github.com/tcnksm/ghr
       - run:
           name: 'Set Git stats'
           command: |
@@ -72,12 +72,11 @@ jobs:
       - run:
           name: Publish
           command: | #bin/publish
-            export GOPATH=gopath
-            echo $GOPATH
-            ls $GOPATH
-            which go
-            ls /usr/bin/go
-            ls /usr/bin/go/bin
+            curl -sSL https://github.com/tcnksm/ghr/releases/download/v0.13.0/ghr_v0.13.0_linux_amd64.tar.gz | tar xz -f - -C . ghr_v0.13.0_linux_amd64/ghr
+            mv ghr_v0.13.0_linux_amd64/ghr .
+            rm -rf ghr_v0.13.0_linux_amd64
+            chmod 0755 ghr
+            ./ghr
 
 
 
