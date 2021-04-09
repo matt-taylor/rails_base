@@ -47,7 +47,6 @@ class RailsBase::Users::SessionsController < Devise::SessionsController
 
   # DELETE /user/sign_out
   def destroy
-    flash[:notice] = 'You have been succesfully signed out'
     session[:mfa_randomized_token] = nil
 
     # force the user to sign out
@@ -56,6 +55,7 @@ class RailsBase::Users::SessionsController < Devise::SessionsController
 
     admin_reset_session!
 
+    flash[:notice] = 'You have been succesfully signed out'
     redirect_to RailsBase.url_routes.unauthenticated_root_path
   end
 
