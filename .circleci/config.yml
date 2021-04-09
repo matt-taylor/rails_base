@@ -75,6 +75,8 @@ jobs:
             export GOPATH=gopath
             echo $GOPATH
             ls $GOPATH
+            which go
+            ghr
 
 
 
