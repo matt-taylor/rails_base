@@ -32,7 +32,7 @@ echo "Finished Tagging to git"
 
 # send artifacts to git
 SHA=$(git rev-parse HEAD)
-$GOPATH/bin/ghr -soft -t ${GITHUB_TOKEN} -u ${GITHUB_USER} -r rails_base -c ${SHA} ${VERSION} *.gem
+./$GHRLOCATION -soft -t ${GITHUB_TOKEN} -u ${GITHUB_USER} -r rails_base -c ${SHA} ${VERSION} *.gem
 
 echo "Finished Pushing artificat to Git"
 
