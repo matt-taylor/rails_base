@@ -13,6 +13,7 @@ test/dummy/.byebug_history
 .coverage
 **/coverage/*
 coverage/*
+spec/examples.txt
 
 # Keep local secrets local
 .env

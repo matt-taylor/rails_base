@@ -13,25 +13,14 @@ jobs:
     steps:
       - checkout # pull down our git code.
       - ruby/install-deps # use the ruby orb to install dependencies
+
   publish:
     docker:
       - image: cimg/ruby:2.7-node # this is our primary docker image, where step commands run.
-      # - image: circleci/mysql:5.7
-        environment:
-          MYSQL_ROOT_PASSWORD: rootpw
-          MYSQL_DATABASE: test_db
-          MYSQL_USER: user
-          MYSQL_PASSWORD: passw0rd
     # environment variables specific to Ruby/Rails, applied to the primary container.
     environment:
       BUNDLE_JOBS: "3"
       BUNDLE_RETRY: "3"
-      MYSQL_HOST: 127.0.0.1
-      MYSQL_ROOT_PASSWORD: rootpw
-      MYSQL_DATABASE: test_db
-      MYSQL_USER: user
-      MYSQL_PORT: 3306
-      MYSQL_PASSWORD: passw0rd
       RAILS_ENV: test
     # A series of steps to run, some are similar to those in "build".
     steps:
@@ -60,20 +49,18 @@ jobs:
             export GHRLOCATION=ghr
             bin/publish
 
-  test:  # our next job, called "test"
+  test:
     # we run "parallel job containers" to enable speeding up our tests;
     # this splits our tests across multiple containers.
-    # parallelism: 3
-    # here we set TWO docker images.
+    parallelism: 2
     docker:
-      - image: cimg/ruby:2.7-node # this is our primary docker image, where step commands run.
+      - image: cimg/ruby:2.7-node
       - image: circleci/mysql:5.7
         environment:
           MYSQL_ROOT_PASSWORD: rootpw
           MYSQL_DATABASE: test_db
           MYSQL_USER: user
           MYSQL_PASSWORD: passw0rd
-    # environment variables specific to Ruby/Rails, applied to the primary container.
     environment:
       BUNDLE_JOBS: "3"
       BUNDLE_RETRY: "3"
@@ -88,8 +75,6 @@ jobs:
     steps:
       - checkout
       - ruby/install-deps
-      # Here we make sure that the secondary container boots
-      # up before we run operations on the database.
       - run:
           name: Waiting for MySQL to be ready
           command: |
@@ -106,7 +91,6 @@ jobs:
       # Run rspec in parallel
       - ruby/rspec-test
 
-# We use workflows to orchestrate the jobs that we declared above.
 workflows:
   version: 2
   yeet-le-jobs:

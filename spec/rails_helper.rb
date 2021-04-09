@@ -82,7 +82,7 @@ RSpec.configure do |config|
         password: "password1",
         password_confirmation: "password1"
       }
-      User.create!(params) rescue false
+      User.create!(params)
 
       params = {
         email: "some.guy2@gmail.com",
@@ -93,7 +93,7 @@ RSpec.configure do |config|
         password_confirmation: "password2"
       }
 
-      User.create!(params) rescue false
+      User.create!(params)
     end
   end
 
