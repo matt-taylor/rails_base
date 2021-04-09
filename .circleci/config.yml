@@ -76,7 +76,8 @@ jobs:
             echo $GOPATH
             ls $GOPATH
             which go
-            ghr
+            ls /usr/bin/go
+            ls /usr/bin/go/bin
 
 
 
