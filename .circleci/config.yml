@@ -124,7 +124,7 @@ workflows:
       # - test:         # Then run test,
           # requires:   # Test requires that build passes for it to run.
             # - build   # Finally, run the build job.
-      - publish:
+      - publish
           # filter:
           #   branches:
           #     only:
