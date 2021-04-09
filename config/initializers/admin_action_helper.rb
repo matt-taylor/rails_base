@@ -17,7 +17,6 @@ proc = Proc.new do |req, params, admin_user, user, title, struct|
       new_attribute: struct&.new_attribute
     }
   else
-    Rails.logger.info { "Failed to get correct mapping for #{params[:action]}" }
     nil
   end
 end
@@ -48,7 +47,6 @@ proc = Proc.new do |req, params, admin_user, user, title, struct|
       new_attribute: struct&.new_attribute
     }
   else
-    Rails.logger.info { "Failed to get correct mapping for #{params[:action]}" }
     nil
   end
 end

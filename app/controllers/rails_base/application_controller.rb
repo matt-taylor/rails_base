@@ -3,6 +3,7 @@ module RailsBase
     before_action :configure_permitted_parameters, if: :devise_controller?
     before_action :is_timeout_error?
     before_action :admin_reset_impersonation_session!
+    before_action :populate_admin_actions
     after_action :capture_admin_action
 
     include ApplicationHelper
@@ -47,6 +48,14 @@ module RailsBase
 
       flash[:alert] = 'Unauthorized action. You have been signed out'
       redirect_to RailsBase.url_routes.unauthenticated_root_path
+    end
+
+    def populate_admin_actions
+      return if session[RailsBase::Authentication::Constants::ADMIN_REMEMBER_REASON].present?
+      return if current_user.nil?
+      return unless request.fullpath == RailsBase.url_routes.authenticated_root_path
+
+      @__admin_actions_array = AdminAction.get_cache_items(user: current_user, alltime: true)
     end
 
     def capture_admin_action

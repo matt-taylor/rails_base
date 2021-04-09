@@ -1,0 +1,65 @@
+<!-- Modal -->
+<div class="modal fade" id="railsBaseAdminActionsModal" tabindex="-1" role="dialog" aria-labelledby="railsBaseAdminActionsModalTitle" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h3 class="modal-title w-100" id="railsBaseAdminActionsModalTitle"> <strong>Notice!</strong> </h3>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <h5> Admins have made actions recently on your account. Aknowledge to clear alert. </h5>
+        </br>
+        <% @__admin_actions_array.reverse.each do |action, time| %>
+          <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <div class="row">
+              <div class="adminactionalerts col-md-9 border-bottom border-dark">
+                <%= action %>
+              </div>
+              <div class="col-md-3 text-right">
+                <%= time %>
+              </div>
+            </div>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+        <% end%>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id='ackAdminActionAccept' class="btn btn-block btn-warning">Acknowledge</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  $(document).ready(function(){
+    if($(window).width() > 720) {
+      $('.adminactionalerts').removeClass('border-bottom')
+      $('.adminactionalerts').addClass('border-right')
+    }
+  });
+  $('#railsBaseAdminActionsModal').modal('show')
+  $('#ackAdminActionAccept').click(function( event ) {
+    rb_ackowledge_actions();
+  });
+
+  function rb_ackowledge_actions(){
+    $.ajax({
+      type: "POST",
+      url: "<%= RailsBase.url_routes.admin_ack_path%>",
+      headers: { 'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content') },
+      dataType: 'json',
+      data: {'time': '<%= Time.now.to_i %>' },
+      success: function(data) {
+        $('#railsBaseAdminActionsModal').modal('hide')
+        _rails_base_display_success('Acknowledged previous Admin Actions.')
+      },
+      error: function(xhr, status, error) {
+        _rails_base_display_alert('Failed to acknowledged previous Admin Actions.')
+      }
+    })
+  }
+</script>
