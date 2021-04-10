@@ -88,6 +88,23 @@ jobs:
       - run:
           name: Database setup
           command: bundle exec rails db:schema:load --trace
+      - run:
+          name: Setup Climate Control
+          command: |
+            sudo composer self-update
+            composer install -n --prefer-dist
+      - run:
+          name: Setup Climate Control test-reporter
+          command: |
+            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+            chmod +x ./cc-test-reporter
+      - run:
+          name: Run le tests
+          command: |
+            ./cc-test-reporter before-build
+            SIMPLE_COV_RUN=true bundle exec rspec --format progress --format RspecJunitFormatter
+            ./cc-test-reporter after-build format-coverage -t simplecov
+
       # Run rspec in parallel
       - ruby/rspec-test
 
