@@ -53,7 +53,11 @@ module RailsBase
     end
 
     def model_row
-      @model_row ||= model.find(params[:id])
+      @model_row ||= begin
+        model.find(params[:id])
+      rescue ActiveRecord::RecordNotFound
+        nil
+      end
     end
 
     def validate_model_row!
@@ -77,7 +81,7 @@ module RailsBase
     end
 
     def validate!
-      raise "Expected params to be a Hash. Received #{params.class}" unless params.is_a? ActionController::Parameters
+      raise "Expected params to be a Hash. Received #{params.class}" unless [ActionController::Parameters, Hash].include?(params.class)
       raise "Expected params to have a id. Received #{params[:id]}" if params[:id].nil?
     end
   end
