@@ -4,9 +4,9 @@ module RailsBase
   module Configuration
     class Mfa < Base
       MFA_MIN_LENGTH = 4
-      MFA_MAX_LENGTH = 10
+      MFA_MAX_LENGTH = 8
       DEFAULT_VALUES = {
-        enable: { type: :boolean, default: ENV['MFA_ENABLE']=='true' },
+        enable: { type: :boolean, default: ENV.fetch('MFA_ENABLE', 'true')=='true' },
         mfa_length: {
           type: :integer,
           default: 5,
