@@ -94,7 +94,7 @@ jobs:
           name: Run le tests
           command: |
             ./cc-test-reporter before-build
-            SIMPLE_COV_RUN=true bundle exec rspec --format progress --format RspecJunitFormatter
+            SIMPLE_COV_RUN=true bundle exec rspec --format progress  -o "coverage/codeclimate/result_data.json
             ./cc-test-reporter after-build format-coverage -t simplecov
 
 workflows:
