@@ -11,7 +11,7 @@ module RailsBase::Authentication
 
 			mfa_decision =
 				if user.email_validated
-					if user.mfa_enabled
+					if RailsBase.config.mfa.enable? && user.mfa_enabled
 						mfa_enabled_context!
 					else
 						# user has signed up and validated email

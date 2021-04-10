@@ -64,16 +64,18 @@ Rails.application.routes.draw do
   get 'auth/login', to: 'rails_base/secondary_authentication#after_email_login_session_new', as: :login_after_email
   post 'auth/login', to: 'rails_base/secondary_authentication#after_email_login_session_create', as: :login_after_email_session_create
   post 'auth/resend_email', to: 'rails_base/secondary_authentication#resend_email', as: :resend_email_verification
-  post 'auth/phone', to: 'rails_base/secondary_authentication#phone_registration', as: :phone_registration
-  post 'auth/phone/mfa', to: 'rails_base/secondary_authentication#confirm_phone_registration', as: :phone_registration_mfa_code
   delete 'auth/phone/mfa', to: 'rails_base/secondary_authentication#remove_phone_mfa', as: :remove_phone_registration_mfa
   get 'auth/password/forgot/:data', to: 'rails_base/secondary_authentication#forgot_password', as: :forgot_password_auth
   post 'auth/password/forgot/:data', to: 'rails_base/secondary_authentication#forgot_password_with_mfa', as: :forgot_password_with_mfa_auth
   post 'auth/password/reset/:data', to: 'rails_base/secondary_authentication#reset_password', as: :reset_password_auth
 
-  get 'mfa_verify', to: 'rails_base/mfa_auth#mfa_code', as: :mfa_code
-  post 'mfa_verify', to: 'rails_base/mfa_auth#mfa_code_verify', as: :mfa_code_verify
-  post 'resend_mfa', to: 'rails_base/mfa_auth#resend_mfa', as: :resend_mfa
+  constraints(->(_req) { RailsBase.config.mfa.enable? }) do
+    get 'mfa_verify', to: 'rails_base/mfa_auth#mfa_code', as: :mfa_code
+    post 'mfa_verify', to: 'rails_base/mfa_auth#mfa_code_verify', as: :mfa_code_verify
+    post 'resend_mfa', to: 'rails_base/mfa_auth#resend_mfa', as: :resend_mfa
+    post 'auth/phone', to: 'rails_base/secondary_authentication#phone_registration', as: :phone_registration
+    post 'auth/phone/mfa', to: 'rails_base/secondary_authentication#confirm_phone_registration', as: :phone_registration_mfa_code
+  end
 
   ################################
   # END of Authentication routes #

@@ -29,14 +29,16 @@
           My Settings
         </a>
         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-          <% if current_user.mfa_enabled %>
-            <button type="button" class="btn btn-block btn-info my-2 my-sm-0" data-toggle="modal" data-target="#modifyMfamodal">
-                Modify 2fa Auth
-            </button>
-          <% else %>
-            <button type="button" class="btn btn-block btn-info my-2 my-sm-0" data-toggle="modal" data-target="#enableMfamodal">
-              Enable 2fa Auth
-            </button>
+          <% if RailsBase.config.mfa.enable? %>
+            <% if current_user.mfa_enabled %>
+              <button type="button" class="btn btn-block btn-info my-2 my-sm-0" data-toggle="modal" data-target="#modifyMfamodal">
+                  Modify 2fa Auth
+              </button>
+            <% else %>
+              <button type="button" class="btn btn-block btn-info my-2 my-sm-0" data-toggle="modal" data-target="#enableMfamodal">
+                Enable 2fa Auth
+              </button>
+            <% end %>
           <% end %>
           <a class="btn btn-info btn-block" href="<%=RailsBase.url_routes.user_settings_path%>" role="button">Modify User</a>
           <div class="dropdown-divider"></div>
@@ -48,10 +50,12 @@
   </div>
 </nav>
 
-<% if current_user.mfa_enabled %>
-  <%= render partial: 'rails_base/shared/modify_mfa_auth_modal'%>
-<% else %>
-  <%= render partial: 'rails_base/shared/enable_mfa_auth_modal'%>
+<% if RailsBase.config.mfa.enable? %>
+  <% if current_user.mfa_enabled %>
+    <%= render partial: 'rails_base/shared/modify_mfa_auth_modal'%>
+  <% else %>
+    <%= render partial: 'rails_base/shared/enable_mfa_auth_modal'%>
+  <% end %>
 <% end %>
 
 <% if @__admin_actions_array && @__admin_actions_array.present? %>

@@ -11,7 +11,7 @@
       </div>
       <div class="modal-body text-center">
         <%
-          idle = distance_of_time_in_words(Rails.configuration.session_timeout - 60)
+          idle = distance_of_time_in_words(RailsBase.config.auth.session_timeout - 60)
         %>
         This session has been idle ~<%= idle %>. This session will log out in: </br>
         <strong id='modify_counter' style="font-size: 300%"><%= default_time %></strong>
