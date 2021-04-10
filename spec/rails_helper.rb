@@ -6,6 +6,7 @@ if ENV['SIMPLE_COV_RUN'] =='true' && ENV['RAILS_ENV'] == 'test'
   SimpleCov.start do
     load_profile 'rails' # load_adapter < 0.8
     enable_coverage :branch
+    add_group 'Services','app/services'
   end
 end
 
