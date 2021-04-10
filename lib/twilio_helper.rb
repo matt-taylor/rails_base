@@ -2,9 +2,9 @@ require 'twilio-ruby'
 
 class TwilioHelper
   class << self
-    TWILIO_ACCOUNT_SID = Rails.configuration.twilio_sid
-    TWILIO_AUTH_TOKEN = Rails.configuration.twilio_auth_token
-    TWILIO_FROM_NUMBER = Rails.configuration.twilio_from_number
+    TWILIO_ACCOUNT_SID = RailsBase.config.mfa.twilio_sid
+    TWILIO_AUTH_TOKEN = RailsBase.config.mfa.twilio_auth_token
+    TWILIO_FROM_NUMBER = RailsBase.config.mfa.twilio_from_number
 
     def send_sms(message:, to:)
       Rails.logger.info "Sending Twilio message:[#{message}] to [#{to}]"

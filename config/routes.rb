@@ -31,7 +31,6 @@ Rails.application.routes.draw do
 
   # START ROOT PATH AUTHENTICATED -- This is devise magic methods
   unless (Rails.application.routes.url_helpers.authenticated_root_path rescue false)
-    Rails.logger.debug { 'using authenticated_root from rails_base' }
     authenticated do
       root to: 'rails_base/user_settings#index', as: :authenticated_root
     end
@@ -84,21 +83,22 @@ Rails.application.routes.draw do
   # Start of Admin routes #
   #########################
   # override url and location for switch_user gem
-  post 'admin/impersonate/:scope_identifier', to: 'rails_base/switch_user#set_current_user', as: :switch_user
+  constraints(->(_req) { RailsBase.config.admin.enable? }) do
+    post 'admin/impersonate/:scope_identifier', to: 'rails_base/switch_user#set_current_user', as: :switch_user
 
-  post 'admin/ack', to: 'rails_base/admin#ack', as: :admin_ack
-  post 'admin/impersonate', to: 'rails_base/admin#switch_back', as: :admin_stop_impersonation
-  post 'admin/update', to: 'rails_base/admin#update_attribute', as: :admin_upate_attribute
-  post 'admin/update/name', to: 'rails_base/admin#update_name', as: :admin_upate_name
-  post 'admin/update/email', to: 'rails_base/admin#update_email', as: :admin_upate_email
-  post 'admin/update/phone', to: 'rails_base/admin#update_phone', as: :admin_upate_phone
-  post 'admin/validate_intent/send', to: 'rails_base/admin#send_2fa', as: :admin_validate_intent
-  post 'admin/validate_intent/verify', to: 'rails_base/admin#verify_2fa', as: :admin_verify_intent
+    post 'admin/ack', to: 'rails_base/admin#ack', as: :admin_ack
+    post 'admin/impersonate', to: 'rails_base/admin#switch_back', as: :admin_stop_impersonation
+    post 'admin/update', to: 'rails_base/admin#update_attribute', as: :admin_upate_attribute
+    post 'admin/update/name', to: 'rails_base/admin#update_name', as: :admin_upate_name
+    post 'admin/update/email', to: 'rails_base/admin#update_email', as: :admin_upate_email
+    post 'admin/update/phone', to: 'rails_base/admin#update_phone', as: :admin_upate_phone
+    post 'admin/validate_intent/send', to: 'rails_base/admin#send_2fa', as: :admin_validate_intent
+    post 'admin/validate_intent/verify', to: 'rails_base/admin#verify_2fa', as: :admin_verify_intent
 
-  get 'admin', to: 'rails_base/admin#index', as: :admin_base
-  get 'admin/history', to: 'rails_base/admin#history', as: :admin_history
-  post 'admin/history', to: 'rails_base/admin#history_paginate', as: :admin_history_page
-
+    get 'admin', to: 'rails_base/admin#index', as: :admin_base
+    get 'admin/history', to: 'rails_base/admin#history', as: :admin_history
+    post 'admin/history', to: 'rails_base/admin#history_paginate', as: :admin_history_page
+  end
   #######################
   # End of Admin routes #
   #######################

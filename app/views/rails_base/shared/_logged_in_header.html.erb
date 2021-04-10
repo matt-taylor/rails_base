@@ -64,15 +64,15 @@
   </div>
 <% end %>
 
-<% if Rails.application.config.session_timeout %>
-  <% show_warning = Rails.application.config.session_timeout_warning %>
+<% if RailsBase.config.auth.session_timeout %>
+  <% show_warning = RailsBase.config.auth.session_timeout_warning %>
   <% if show_warning %>
     <%= render partial: 'rails_base/shared/session_timeout_modal'%>
   <% end %>
 <script type="text/javascript">
   <%
   # this is to account for the delay
-  timeout = Rails.application.config.session_timeout
+  timeout = RailsBase.config.auth.session_timeout
   %>
   sessionManager.init(<%= timeout %>, '<%= RailsBase.url_routes.heartbeat_without_auth_path %>', '<%= RailsBase.url_routes.heartbeat_with_auth_path %>' ,$('meta[name="csrf-token"]').attr('content'), <%=show_warning %>)
 </script>

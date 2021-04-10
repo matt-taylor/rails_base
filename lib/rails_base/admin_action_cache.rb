@@ -15,8 +15,8 @@ module RailsBase
     attr_reader :redis
 
     def initialize
-      url = Rails.configuration.redis_url_admin_action || ENV['REDIS_URL']
-      namespace = Rails.configuration.redis_namespace_admin_action
+      url = RailsBase.config.redis.admin_action
+      namespace = RailsBase.config.redis.admin_action_namespace
       client = Redis.new(url: url)
       @redis = Redis::Namespace.new(namespace, redis_url: client)
       @logger = Rails.logger
