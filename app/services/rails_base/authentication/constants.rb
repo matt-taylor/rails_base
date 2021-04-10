@@ -5,7 +5,7 @@ module RailsBase::Authentication
 		BASE_URL = Rails.configuration._custom_base_url
 		BASE_URL_PORT = Rails.configuration._custom_base_url_port
 		MFA_REASON = :two_factor_mfa_code
-		MFA_LENGTH = 5
+		MFA_LENGTH = RailsBase.config.mfa.mfa_length
 		EMAIL_LENGTH = 255 # MAX LENGTH we can insert into mysql
 
 		MIN_NAME = 2
