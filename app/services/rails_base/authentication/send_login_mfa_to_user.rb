@@ -10,9 +10,6 @@ module RailsBase::Authentication
 
 		MAX_USE_COUNT = 1.freeze
 		DATA_USE = :numeric
-		VELOCITY_MAX = RailsBase.config.mfa.twilio_velocity_max
-		VELOCITY_MAX_IN_FRAME = RailsBase.config.mfa.twilio_velocity_max_in_frame
-		VELOCITY_FRAME = RailsBase.config.mfa.twilio_velocity_frame
 
 		delegate :user, to: :context
 		delegate :expires_at, to: :context
@@ -53,15 +50,15 @@ module RailsBase::Authentication
 		end
 
 		def velocity_max_in_frame
-			VELOCITY_MAX_IN_FRAME
+			RailsBase.config.mfa.twilio_velocity_max_in_frame
 		end
 
 		def velocity_max
-			VELOCITY_MAX
+			RailsBase.config.mfa.twilio_velocity_max
 		end
 
 		def velocity_frame
-			VELOCITY_FRAME
+			RailsBase.config.mfa.twilio_velocity_frame
 		end
 
 		def cache_key
