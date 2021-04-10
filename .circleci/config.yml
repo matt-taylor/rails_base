@@ -50,9 +50,6 @@ jobs:
             bin/publish
 
   test:
-    # we run "parallel job containers" to enable speeding up our tests;
-    # this splits our tests across multiple containers.
-    parallelism: 2
     docker:
       - image: cimg/ruby:2.7-node
       - image: circleci/mysql:5.7
@@ -99,9 +96,6 @@ jobs:
             ./cc-test-reporter before-build
             SIMPLE_COV_RUN=true bundle exec rspec --format progress --format RspecJunitFormatter
             ./cc-test-reporter after-build format-coverage -t simplecov
-
-      # Run rspec in parallel
-      - ruby/rspec-test
 
 workflows:
   version: 2
