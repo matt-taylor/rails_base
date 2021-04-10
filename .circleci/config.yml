@@ -89,11 +89,6 @@ jobs:
           name: Database setup
           command: bundle exec rails db:schema:load --trace
       - run:
-          name: Setup Climate Control
-          command: |
-            sudo composer self-update
-            composer install -n --prefer-dist
-      - run:
           name: Setup Climate Control test-reporter
           command: |
             curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
