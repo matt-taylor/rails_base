@@ -102,7 +102,3 @@ RailsBase.configure do |config|
   # Redis Namespace for admin action cache
   # config.mfa.admin_action_namespace = nil
 end
-
-
-
-

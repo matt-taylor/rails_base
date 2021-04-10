@@ -1,12 +1,19 @@
 ENV['RAILS_ENV'] ||= 'test'
 
+if ENV['SIMPLE_COV_RUN'] =='true' && ENV['RAILS_ENV'] == 'test'
+  require 'simplecov'
+  # Needs to be loaded prior to application start
+  SimpleCov.start do
+    load_profile 'rails' # load_adapter < 0.8
+    enable_coverage :branch
+  end
+end
 
 require File.expand_path("../test/dummy/config/environment.rb", __dir__)
 # Prevent database truncation if the environment is production
 abort("The Rails environment is running in <#{Rails.env}> mode!") unless Rails.env.test?
 require 'rspec/rails'
 # Add additional requires below this line. Rails is not loaded until this point!
-
 require 'byebug'
 require 'null_logger'
 require 'rails-controller-testing'
