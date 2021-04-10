@@ -50,9 +50,6 @@ jobs:
             bin/publish
 
   test:
-    # we run "parallel job containers" to enable speeding up our tests;
-    # this splits our tests across multiple containers.
-    parallelism: 2
     docker:
       - image: cimg/ruby:2.7-node
       - image: circleci/mysql:5.7
@@ -88,8 +85,17 @@ jobs:
       - run:
           name: Database setup
           command: bundle exec rails db:schema:load --trace
-      # Run rspec in parallel
-      - ruby/rspec-test
+      - run:
+          name: Setup Climate Control test-reporter
+          command: |
+            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+            chmod +x ./cc-test-reporter
+      - run:
+          name: Run le tests
+          command: |
+            ./cc-test-reporter before-build
+            SIMPLE_COV_RUN=true bundle exec rspec --format RspecJunitFormatter --out test-results/rspec/rspec.xml --format progress --color
+            ./cc-test-reporter after-build format-coverage -t simplecov
 
 workflows:
   version: 2
