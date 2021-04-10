@@ -74,9 +74,24 @@ RSpec.describe RailsBase::AdminUpdateAttribute do
       it { expect(call.attribute).to eq false }
     end
 
+    context 'when unsafe variable update' do
+      let(:attribute) { 'not_in_list' }
+
+      it { expect(call.failure?).to be true }
+      it { expect(call.message).to include("#{attribute} is not part of allowed updatable columns") }
+    end
+
+    context 'when fail param pased' do
+      let(:input_params) { super().merge(_fail_: 'present') }
+
+      it { expect(call.failure?).to be true }
+      it { expect(call.message).to include("Failed to update [#{attribute}] with #{value}") }
+    end
+
     context 'when update fails' do
       let(:value) { "#{"d" * 255 }@gmail.com" }
       let(:attribute) { 'email' }
+
       it { expect(call.failure?).to be true }
       it { expect(call.message).to include("Failed to update") }
     end
