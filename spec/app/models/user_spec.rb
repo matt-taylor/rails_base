@@ -4,7 +4,7 @@ RSpec.describe User do
   describe '.time_bound' do
     subject(:time_bound) { described_class.time_bound }
 
-    it { is_expected.to eq(Time.zone.now - Rails.configuration.mfa_time_duration) }
+    it { is_expected.to eq(Time.zone.now - RailsBase.config.auth.mfa_time_duration) }
   end
 
   describe '#full_name' do

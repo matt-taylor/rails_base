@@ -30,8 +30,8 @@ class LinkDecisionHelper
     end
   end
 
-  def assign!
-    config.public_send(@type).push(self)
+  def assign!(index: -1)
+    config.public_send(@type).insert(index, self)
   end
 
   def url

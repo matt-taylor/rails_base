@@ -12,7 +12,9 @@ require 'popper_js'
 require 'bootstrap'
 require 'sassc-rails'
 require 'switch_user'
+
 require 'rails_base/admin_action_cache'
+require 'rails_base/config'
 
 module RailsBase
   def self.url_routes
@@ -24,6 +26,20 @@ module RailsBase
     true
   rescue StandardError, ActionController::RoutingError
     false
+  end
+
+  def self.configure(&block)
+    yield(config) if block_given?
+
+    config.validate_configs!
+  end
+
+  def self.config
+    @config ||= RailsBase::Config.new
+  end
+
+  def self.reset_config!
+    config.reset_config!
   end
 
   AdminStruct = Struct.new(:original_attribute, :new_attribute, :user)

@@ -10,10 +10,10 @@ module RailsBase
 
     MAX_USE_COUNT = 1.freeze
     DATA_USE = :numeric
-    VELOCITY_MAX = 45 || Rails.configuration.twilio_velocity_max
-    VELOCITY_MAX_IN_FRAME = 10.minutes || Rails.configuration.twilio_velocity_max_in_frame.hour
-    VELOCITY_FRAME = 30.minutes || Rails.configuration.twilio_velocity_frame.hour
-    EXPIRES_AT = 2.minutes
+    VELOCITY_MAX = RailsBase.config.admin.admin_velocity_max
+    VELOCITY_MAX_IN_FRAME = RailsBase.config.admin.admin_velocity_max_in_frame
+    VELOCITY_FRAME = RailsBase.config.admin.admin_velocity_frame
+    EXPIRES_AT = 1.minutes
 
     delegate :user, to: :context
     delegate :reason, to: :context

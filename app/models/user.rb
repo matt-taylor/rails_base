@@ -56,7 +56,7 @@ class User < ApplicationRecord
   ]
 
   def self.time_bound
-    Time.zone.now - Rails.configuration.mfa_time_duration
+    Time.zone.now - RailsBase.config.auth.mfa_time_duration
   end
 
   def full_name

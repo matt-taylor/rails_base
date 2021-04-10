@@ -3,8 +3,9 @@ module RailsBase
     before_action :configure_permitted_parameters, if: :devise_controller?
     before_action :is_timeout_error?
     before_action :admin_reset_impersonation_session!
-    before_action :populate_admin_actions
-    after_action :capture_admin_action
+    before_action :populate_admin_actions, if: -> { RailsBase.config.admin.enable_actions? }
+
+    after_action :capture_admin_action, if: -> { RailsBase.config.admin.enable_actions? }
 
     include ApplicationHelper
 
