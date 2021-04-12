@@ -15,8 +15,8 @@ module RailsBase
       success = true
       begin
         time = Time.at params[:time].to_i
-        RailsBase::AdminActionCache.instance.delete_actions_since!(user: current_user, time: time)
-        RailsBase::AdminActionCache.instance.update_last_viewed(user: current_user, time: time)
+        RailsBase::Admin::ActionCache.instance.delete_actions_since!(user: current_user, time: time)
+        RailsBase::Admin::ActionCache.instance.update_last_viewed(user: current_user, time: time)
       rescue StandardError => e
         logger.error(e.message)
         logger.error('Failed to acknowledge users admion actions')

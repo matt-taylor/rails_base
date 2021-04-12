@@ -26,7 +26,7 @@ params = {
   controller: RailsBase::UserSettingsController,
   default: true
 }
-RailsBase::AdminActionHelper.new(params).add!
+RailsBase::Admin::ActionHelper.new(params).add!
 
 
 proc = Proc.new do |req, params, admin_user, user, title, struct|
@@ -56,7 +56,7 @@ params = {
   controller: RailsBase::AdminController,
   default: true
 }
-RailsBase::AdminActionHelper.new(params).add!
+RailsBase::Admin::ActionHelper.new(params).add!
 
 
 params = {
@@ -66,7 +66,7 @@ params = {
   action: 'remove_phone_mfa',
   default: true
 }
-RailsBase::AdminActionHelper.new(params).add!
+RailsBase::Admin::ActionHelper.new(params).add!
 
 params = {
   proc: nil,
@@ -75,7 +75,7 @@ params = {
   action: 'phone_registration',
   default: true
 }
-RailsBase::AdminActionHelper.new(params).add!
+RailsBase::Admin::ActionHelper.new(params).add!
 
 params = {
   proc: nil,
@@ -84,4 +84,4 @@ params = {
   action: 'set_current_user',
   default: true
 }
-RailsBase::AdminActionHelper.new(params).add!
+RailsBase::Admin::ActionHelper.new(params).add!
