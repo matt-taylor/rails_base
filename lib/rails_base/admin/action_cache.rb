@@ -2,8 +2,8 @@ require 'redis'
 require 'redis-namespace'
 require 'json'
 
-module RailsBase
-  class AdminActionCache
+module RailsBase::Admin
+  class ActionCache
     include Singleton
 
     KEY_BASE = 'aac_user'
