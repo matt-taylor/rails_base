@@ -11,6 +11,7 @@ module RailsBase
         string: -> (val) { [String].include?(val.class) },
         duration: -> (val) { [ActiveSupport::Duration].include?(val.class) },
         string_nil: -> (val) { [String, NilClass].include?(val.class) },
+        array: -> (val) { [Array].include?(val.class) },
       }
 
       def initialize

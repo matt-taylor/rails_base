@@ -45,7 +45,7 @@ class AdminAction < ApplicationRecord
           count += 1
           user = instance.user
           msg = instance.readable(with_occurred: false)
-          RailsBase::AdminActionCache.instance.add_action(user: user, msg: msg, occured: instance.created_at)
+          RailsBase::Admin::ActionCache.instance.add_action(user: user, msg: msg, occured: instance.created_at)
         end
       end
       count
@@ -54,11 +54,11 @@ class AdminAction < ApplicationRecord
     def get_cache_items(user:, time: Time.zone.now, use_lv: false, alltime: false, delete: false, update_lv: false)
       if use_lv
         Rails.logger.warn { "Using Last Viewed admin actions for user #{user.id}" }
-        temp = RailsBase::AdminActionCache.instance.get_last_viewed(user: user)
+        temp = RailsBase::Admin::ActionCache.instance.get_last_viewed(user: user)
         time = temp.nil? ? time : (Time.at(temp) rescue time)
       end
 
-      objects = RailsBase::AdminActionCache.instance.actions_since(user: user, time: time, alltime: alltime)
+      objects = RailsBase::Admin::ActionCache.instance.actions_since(user: user, time: time, alltime: alltime)
 
       admin_messages = objects.map do |object|
         msg = object[0]
@@ -68,12 +68,12 @@ class AdminAction < ApplicationRecord
 
       if delete
         Rails.logger.warn { "Deleting admin actions for user #{user.id}" }
-        RailsBase::AdminActionCache.instance.delete_actions_since!(user: user, time: time)
+        RailsBase::Admin::ActionCache.instance.delete_actions_since!(user: user, time: time)
       end
 
       if update_lv
         Rails.logger.warn { "Udating Last Viewed admin actions for user #{user.id}" }
-        RailsBase::AdminActionCache.instance.update_last_viewed(user: user, time: time)
+        RailsBase::Admin::ActionCache.instance.update_last_viewed(user: user, time: time)
       end
 
       admin_messages
@@ -81,7 +81,7 @@ class AdminAction < ApplicationRecord
 
     def ship_to_cache!(instance:, user:, created_at: nil)
       msg = instance.readable(with_occurred: false)
-      RailsBase::AdminActionCache.instance.add_action(user: user, msg: msg, occured: instance.created_at)
+      RailsBase::Admin::ActionCache.instance.add_action(user: user, msg: msg, occured: instance.created_at)
     end
 
     def paginate_records(page:, user_id: nil, admin_id: nil, count_on_page: DEFAULT_PAGE_COUNT, count: false)

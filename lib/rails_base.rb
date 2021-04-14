@@ -13,7 +13,7 @@ require 'bootstrap'
 require 'sassc-rails'
 require 'switch_user'
 
-require 'rails_base/admin_action_cache'
+require 'rails_base/admin/action_cache'
 require 'rails_base/config'
 
 module RailsBase

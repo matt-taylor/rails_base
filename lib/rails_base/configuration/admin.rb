@@ -1,4 +1,6 @@
 require 'rails_base/configuration/base'
+require 'rails_base/admin/index_tile'
+require 'rails_base/admin/default_index_tile'
 
 module RailsBase
   module Configuration
@@ -14,6 +16,11 @@ module RailsBase
           type: :proc,
           default: ->(user) { user.active && user.admin_super? },
           dependents: [ -> (i) { i.enable? } ]
+        },
+        admin_page_tiles: {
+          type: :array,
+          klass: [],
+          default: RailsBase::Admin::IndexTile.defaults,
         },
         enable_history_by_user: {
           type: :proc,

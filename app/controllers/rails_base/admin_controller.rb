@@ -15,8 +15,8 @@ module RailsBase
       success = true
       begin
         time = Time.at params[:time].to_i
-        RailsBase::AdminActionCache.instance.delete_actions_since!(user: current_user, time: time)
-        RailsBase::AdminActionCache.instance.update_last_viewed(user: current_user, time: time)
+        RailsBase::Admin::ActionCache.instance.delete_actions_since!(user: current_user, time: time)
+        RailsBase::Admin::ActionCache.instance.update_last_viewed(user: current_user, time: time)
       rescue StandardError => e
         logger.error(e.message)
         logger.error('Failed to acknowledge users admion actions')
@@ -140,7 +140,7 @@ module RailsBase
     # POST admin/validate_intent/verify
     def verify_2fa
       unless modify_id = params[:modify_id]
-        logger.warn("Failed to find #{@modify_id} in payload")
+        logger.warn("Failed to find #{modify_id} in payload")
         render json: { success: false, message: 'Hmm. Something fishy happend. Failed to find text to modify' }, status: 404
         return
       end
