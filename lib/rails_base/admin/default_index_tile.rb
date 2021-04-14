@@ -100,7 +100,7 @@ instance = RailsBase::Admin::IndexTile.new(params)
 RailsBase::Admin::IndexTile.add(instance)
 
 
-# Admin Type Tile
+# Impersonation Tile
 params = {
   type: :button,
   value: ->(_user) { },
@@ -109,6 +109,19 @@ params = {
   method: :post,
   color: 'warning',
   url: ->(user) { RailsBase.url_routes.switch_user_path(scope_identifier: "user_#{user.id}") }
+}
+instance = RailsBase::Admin::IndexTile.new(params)
+RailsBase::Admin::IndexTile.add(instance)
+
+# SSO send Tile
+params = {
+  type: :button,
+  value: ->(_user) { },
+  name: 'sso_send', # name to be amended to html id
+  col_name: 'Send SSO', # Expected to be the column header name
+  method: :post,
+  color: 'warning',
+  url: ->(user) { RailsBase.url_routes.admin_sso_send_path(id: user.id) }
 }
 instance = RailsBase::Admin::IndexTile.new(params)
 RailsBase::Admin::IndexTile.add(instance)

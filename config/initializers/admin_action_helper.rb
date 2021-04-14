@@ -35,7 +35,8 @@ proc = Proc.new do |req, params, admin_user, user, title, struct|
     update_name: 'Updated Name',
     update_email: 'Updated Email',
     update_phone: 'Updated Phone number',
-    index: 'Viewed Admin Index'
+    index: 'Viewed Admin Index',
+    sso_send: 'Sent SSO to user'
   }
 
   if actions_mapping.keys.include?(params[:action].to_sym)

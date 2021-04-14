@@ -51,5 +51,10 @@ module RailsBase::Authentication
 		ADMIN_REMEMBER_REASON = 'current_admin_user'
 		ADMIN_REMEMBER_USERID_KEY = 'admin_remember_me_via_coco'
 		ADMIN_MAX_IDLE_TIME = 3.minutes
+
+		SSO_SEND_LENGTH = 64
+		SSO_SEND_USES = 2
+		SSO_REASON = :sending_sso_to_user
+		SSO_EXPIRES = 2.hours
 	end
 end

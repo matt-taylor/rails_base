@@ -171,7 +171,7 @@ module RailsBase
       redirect_to RailsBase.url_routes.authenticated_root_path, notice: I18n.t('authentication.reset_password')
     end
 
-    # GET auth/sso/:data
+    # GET auth/validate/:data
     def sso_login
       input_params = {
         data: params[:data],

@@ -58,7 +58,7 @@ Rails.application.routes.draw do
     # END ROOT PATH UNAUTHENTICATED
   end
 
-  get 'auth/sso/:data', to: 'rails_base/secondary_authentication#sso_login', as: :sso_login
+  get 'auth/validate/:data', to: 'rails_base/secondary_authentication#sso_login', as: :sso_login
   get 'auth/email/wait', to: 'rails_base/secondary_authentication#static', as: :auth_static
   get 'auth/email/:data', to: 'rails_base/secondary_authentication#email_verification', as: :email_verification
   get 'auth/login', to: 'rails_base/secondary_authentication#after_email_login_session_new', as: :login_after_email
@@ -73,6 +73,7 @@ Rails.application.routes.draw do
     get 'mfa_verify', to: 'rails_base/mfa_auth#mfa_code', as: :mfa_code
     post 'mfa_verify', to: 'rails_base/mfa_auth#mfa_code_verify', as: :mfa_code_verify
     post 'resend_mfa', to: 'rails_base/mfa_auth#resend_mfa', as: :resend_mfa
+
     post 'auth/phone', to: 'rails_base/secondary_authentication#phone_registration', as: :phone_registration
     post 'auth/phone/mfa', to: 'rails_base/secondary_authentication#confirm_phone_registration', as: :phone_registration_mfa_code
   end
@@ -100,7 +101,12 @@ Rails.application.routes.draw do
     get 'admin', to: 'rails_base/admin#index', as: :admin_base
     get 'admin/history', to: 'rails_base/admin#history', as: :admin_history
     post 'admin/history', to: 'rails_base/admin#history_paginate', as: :admin_history_page
+
+    post 'admin/sso/:id', to: 'rails_base/admin#sso_send', as: :admin_sso_send
   end
+  # route is part of admin control, but does not need admin enabled
+  get 'auth/sso/:data', to: 'rails_base/admin#sso_retrieve', as: :sso_retrieve
+
   #######################
   # End of Admin routes #
   #######################
