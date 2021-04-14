@@ -1,3 +1,5 @@
+require 'twilio_helper'
+
 module RailsBase::Authentication
   class SingleSignOnSend < RailsBase::ServiceBase
     delegate :user, to: :context
@@ -35,8 +37,10 @@ module RailsBase::Authentication
       url = sso_url(data: datum.data.data)
       case sso_decision_type
       when SSO_DECISION_TWILIO
+        context.sso_destination = :sms
         send_to_twilio!(message: message(url: url))
       when SSO_DECISION_EMAIL
+        context.sso_destination = :email
         send_to_email!(message: message(url: url))
       end
     end
@@ -66,6 +70,7 @@ module RailsBase::Authentication
       log(level: :info, msg: "Sent twilio message to #{user.phone_number}")
     rescue StandardError => e
       log(level: :error, msg: "Error caught #{e.class.name}")
+      log(level: :error, msg: "Error caught #{e.message}")
       log(level: :error, msg: "Failed to send sms to #{user.phone_number}")
       context.fail!(message: "Failed to send sms to user. Try again.")
     end
@@ -84,7 +89,7 @@ module RailsBase::Authentication
         host: Constants::BASE_URL,
       }
       params[:port] = Constants::BASE_URL_PORT if Constants::BASE_URL_PORT
-      Constants::URL_HELPER.sso_login_url(params)
+      Constants::URL_HELPER.sso_retrieve_url(params)
     end
 
     def validate!
