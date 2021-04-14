@@ -1,4 +1,4 @@
-require 'rails_base/admin_action_helper'
+require 'rails_base/admin/action_helper'
 
 proc = Proc.new do |req, params, admin_user, user, title, struct|
   actions_mapping = {

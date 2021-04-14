@@ -40,6 +40,10 @@ RailsBase.configure do |config|
   # Used for debug. Max time frame an admins details is stored in the cache
   # config.admin.admin_velocity_frame = ENV.fetch('ADMIN_VELOCITY_FRAME', 5).to_i.hours
 
+  # RailsBase::Admin::IndexTile Instances that are pushed into this array added to the admin view screen
+  # For examples refer to app/helpers/rails_base/admin_helper.rb
+  # Note: This is just an array. It can be deleted and reloaded to output exacly what is desired
+  # config.admin.admin_page_tiles << `RailsBase::Admin::IndexTile instance`
 
 
   #################################

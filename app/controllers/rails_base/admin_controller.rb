@@ -140,7 +140,7 @@ module RailsBase
     # POST admin/validate_intent/verify
     def verify_2fa
       unless modify_id = params[:modify_id]
-        logger.warn("Failed to find #{@modify_id} in payload")
+        logger.warn("Failed to find #{modify_id} in payload")
         render json: { success: false, message: 'Hmm. Something fishy happend. Failed to find text to modify' }, status: 404
         return
       end
