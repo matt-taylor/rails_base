@@ -45,42 +45,34 @@ module RailsBase
         impersonate_tile_users: {
           type: :proc,
           default: ->(user) { user.active && user.at_least_super? },
-          dependents: [ -> (i) { i.enable_sso_tile? } ]
         },
         admin_type_tile_users: {
           type: :proc,
           default: ->(user) { user.active && user.at_least_owner? },
-          dependents: [ -> (i) { i.enable_sso_tile? } ]
         },
         mfa_tile_users: {
           type: :proc,
           default: ->(user) { user.active && user.at_least_super? },
-          dependents: [ -> (i) { i.enable_sso_tile? } ]
         },
         phone_tile_users: {
           type: :proc,
           default: ->(user) { user.active && user.at_least_super? },
-          dependents: [ -> (i) { i.enable_sso_tile? } ]
         },
         email_tile_users: {
           type: :proc,
           default: ->(user) { user.active && user.at_least_super? },
-          dependents: [ -> (i) { i.enable_sso_tile? } ]
         },
         email_validate_tile_users: {
           type: :proc,
           default: ->(user) { user.active && user.at_least_super? },
-          dependents: [ -> (i) { i.enable_sso_tile? } ]
         },
         name_tile_users: {
           type: :proc,
           default: ->(user) { user.active && user.at_least_super? },
-          dependents: [ -> (i) { i.enable_sso_tile? } ]
         },
         active_tile_users: {
           type: :proc,
           default: ->(user) { user.active && user.at_least_super? },
-          dependents: [ -> (i) { i.enable_sso_tile? } ]
         },
 
         admin_velocity_max: { type: :integer, default: ENV.fetch('ADMIN_VELOCITY_MAX', 20).to_i },

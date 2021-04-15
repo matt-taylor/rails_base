@@ -2,7 +2,8 @@
 
 ##
 # This is a file full of defaults.
-# The values commend out are already defaults. Uncomment and change the values if you would like
+# The values commented out are already defaults. Uncomment and change the values if you would like
+# If no changes are requested, this file is not needed
 ##
 
 RailsBase.configure do |config|
@@ -45,6 +46,45 @@ RailsBase.configure do |config|
   # Note: This is just an array. It can be deleted and reloaded to output exacly what is desired
   # config.admin.admin_page_tiles << `RailsBase::Admin::IndexTile instance`
 
+  # Enable displaying the sso tile in the admin page
+  # config.admin.enable_sso_tile = true
+
+  # Enable users that can click SSO tiles
+  # `enable_sso_tile` is a dependent
+  # note: user must have enough permissions from view_admin_page to proceed
+  # config.admin.sso_tile_users = ->(user) { user.active && user.at_least_super? }
+
+  # Users that can impersonate other users
+  # note: user must have enough permissions from view_admin_page to proceed
+  # config.admin.impersonate_tile_users = ->(user) { user.active && user.at_least_super? }
+
+  # Users that can change admin level of other users
+  # note: user must have enough permissions from view_admin_page to proceed
+  # config.admin.admin_type_tile_users = ->(user) { user.active && user.at_least_owner? }
+
+  # Users that can enable/disable mfa tile users
+  # note: user must have enough permissions from view_admin_page to proceed
+  # config.admin.mfa_tile_users = ->(user) { user.active && user.at_least_super? }
+
+  # Users that can modify phone numbers
+  # note: user must have enough permissions from view_admin_page to proceed
+  # config.admin.phone_tile_users = ->(user) { user.active && user.at_least_super? }
+
+  # Users that can enable/disable phone mfa
+  # note: user must have enough permissions from view_admin_page to proceed
+  # config.admin.email_tile_users = ->(user) { user.active && user.at_least_super? }
+
+  # Users that can enable/disable phone mfa
+  # note: user must have enough permissions from view_admin_page to proceed
+  # config.admin.email_validate_tile_users = ->(user) { user.active && user.at_least_super? }
+
+  # Users that can modify users names
+  # note: user must have enough permissions from view_admin_page to proceed
+  # config.admin.name_tile_users = ->(user) { user.active && user.at_least_super? }
+
+  # Users that can enable/disable active users
+  # note: user must have enough permissions from view_admin_page to proceed
+  # config.admin.active_tile_users = ->(user) { user.active && user.at_least_super? }
 
   #################################
   # Authentication configurations #
@@ -105,4 +145,12 @@ RailsBase.configure do |config|
 
   # Redis Namespace for admin action cache
   # config.mfa.admin_action_namespace = nil
+
+  ########################
+  # Owner configurations #
+  ########################
+  # Max number of owners the app can have
+  # This is on the `admin` status on the user
+  # Important for admin as only admin can make some changes
+  # config.owner.max = 1
 end
