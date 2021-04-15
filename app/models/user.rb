@@ -49,12 +49,12 @@ class User < ApplicationRecord
   }
 
   SAFE_AUTOMAGIC_UPGRADE_COLS = {
-    active: ->(user) { RailsBase.config.admin.active_tile_users(user) } ,
-    admin: ->(user) { RailsBase.config.admin.admin_type_tile_users(user) } ,
-    email: ->(user) { RailsBase.config.admin.email_tile_users(user) } ,
-    email_validated: ->(user) { RailsBase.config.admin.email_validate_tile_users(user) } ,
-    mfa_enabled: ->(user) { RailsBase.config.admin.mfa_tile_users(user) } ,
-    phone_number: ->(user) { RailsBase.config.admin.phone_tile_users(user) } ,
+    active: ->(user) { RailsBase.config.admin.active_tile_users?(user) } ,
+    admin: ->(user) { RailsBase.config.admin.admin_type_tile_users?(user) } ,
+    email: ->(user) { RailsBase.config.admin.email_tile_users?(user) } ,
+    email_validated: ->(user) { RailsBase.config.admin.email_validate_tile_users?(user) } ,
+    mfa_enabled: ->(user) { RailsBase.config.admin.mfa_tile_users?(user) } ,
+    phone_number: ->(user) { RailsBase.config.admin.phone_tile_users?(user) } ,
   }
 
   def self.time_bound

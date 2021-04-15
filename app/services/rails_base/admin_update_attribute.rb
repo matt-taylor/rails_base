@@ -9,7 +9,7 @@ module RailsBase
       validate_model_row!
 
       attribute = validate_attribute!
-      validate_permission!
+      validate_permission!(attribute: attribute)
       fail_attribute!(attribute: attribute)
 
       original_value = model_row.public_send(attribute)
@@ -33,9 +33,9 @@ module RailsBase
       end
     end
 
-    def validate_permission!
+    def validate_permission!(attribute:)
       proc = model::SAFE_AUTOMAGIC_UPGRADE_COLS[attribute]
-      return if proc.call
+      return if proc.call(admin_user)
 
       context.fail!(message: "User does not have permissions to update #{attribute}")
     end
