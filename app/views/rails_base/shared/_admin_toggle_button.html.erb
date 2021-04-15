@@ -2,50 +2,67 @@
 <% span_id = "#{input_id}_span" %>
 <% div_span = "#{input_id}_div" %>
 <% toggle_function = "#{input_id}_function" %>
-<div id='<%= div_span %>' class='text-center'>
-  <input id='<%= input_id %>' class='admin-concurrent-block' type="checkbox" <%= 'checked' if checked %> data-toggle="toggle" data-on='<%= data_on %>' data-off='<%= data_off %>' data-onstyle='success' data-offstyle='warning'>
-</div>
-<button class="btn btn-info btn-block" id='<%= span_id %>' type="button" disabled style="display: none">
-  <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true">
+
+<% if disable_action %>
+  <span style="width: 88%; float: left;">
+    <div id='<%= div_span %>' class='text-center'>
+      <input id='<%= input_id %>' class='admin-concurrent-block stay-disabled' type="checkbox" <%= 'checked' if checked %> data-toggle="toggle" data-on='<%= data_on %>' data-off='<%= data_off %>' data-onstyle='success' data-offstyle='warning' disabled>
+    </div>
   </span>
-  Hang tight
-</button>
+  <span style="width: 8%; float: right;">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-circle" viewBox="0 0 16 16" data-toggle='tooltip' title='<%= disable_msg %> '>
+      <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+      <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286zm1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z"/>
+    </svg>
+  </span>
+<% else %>
+  <div id='<%= div_span %>' class='text-center'>
+    <input id='<%= input_id %>' class='admin-concurrent-block' type="checkbox" <%= 'checked' if checked %> data-toggle="toggle" data-on='<%= data_on %>' data-off='<%= data_off %>' data-onstyle='success' data-offstyle='warning'>
+  </div>
+  <button class="btn btn-info btn-block" id='<%= span_id %>' type="button" disabled style="display: none">
+    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true">
+    </span>
+    Hang tight
+  </button>
 
 
 
-<script type="text/javascript">
-  function <%=toggle_function%>(reveal){
-    if(reveal){
-      $('#<%= div_span %>').hide()
-      $('#<%= span_id %>').show()
-    } else {
-      $('#<%= div_span %>').show()
-      $('#<%= span_id %>').hide()
-    }
-  }
-
-  $('#<%= input_id %>').change(function() {
-    admin_pause_concurrency();
-    var original = $("#<%= input_id %>").is(':checked');
-    <%=toggle_function%>(true);
-    var data = { 'attribute':'<%= type %>', 'value': original, 'id': <%= user.id %> }
-    $.ajax({
-      type: "POST",
-      url: "<%= RailsBase.url_routes.admin_upate_attribute_path%>",
-      headers: { 'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content') },
-      dataType: 'json',
-      data: data,
-      success: function(data) {
-        admin_resume_concurrency();
-        <%=toggle_function%>(false);
-        _rails_base_display_success(data.message)
-      },
-      error: function(xhr, status, error) {
-        $('#<%= input_id %>').prop('checked', original);
-        <%=toggle_function%>(false);
-        admin_resume_concurrency();
-        _rails_base_display_alert(xhr.responseJSON.message)
+  <script type="text/javascript">
+    function <%=toggle_function%>(reveal){
+      if(reveal){
+        $('#<%= div_span %>').hide()
+        $('#<%= span_id %>').show()
+      } else {
+        $('#<%= div_span %>').show()
+        $('#<%= span_id %>').hide()
       }
+    }
+
+    $('#<%= input_id %>').change(function() {
+      admin_pause_concurrency();
+      var original = $("#<%= input_id %>").is(':checked');
+      <%=toggle_function%>(true);
+      var data = { 'attribute':'<%= type %>', 'value': original, 'id': <%= user.id %> }
+      $.ajax({
+        type: "POST",
+        url: "<%= RailsBase.url_routes.admin_upate_attribute_path%>",
+        headers: { 'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content') },
+        dataType: 'json',
+        data: data,
+        success: function(data) {
+          admin_resume_concurrency();
+          <%=toggle_function%>(false);
+          admin_ensure_disabled();
+          _rails_base_display_success(data.message)
+        },
+        error: function(xhr, status, error) {
+          $('#<%= input_id %>').prop('checked', original);
+          <%=toggle_function%>(false);
+          admin_ensure_disabled();
+          admin_resume_concurrency();
+          _rails_base_display_alert(xhr.responseJSON.message)
+        }
+      })
     })
-  })
-</script>
+  </script>
+<% end %>

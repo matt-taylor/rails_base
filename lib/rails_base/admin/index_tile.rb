@@ -93,7 +93,7 @@ module RailsBase::Admin
       @on = on
       @off = off
       @partial = partial
-      @min_width = min_width.to_i rescue nil
+      @min_width = min_width&.to_i rescue nil
       @disabled = disabled
       @disabled_msg = disabled_msg
       @selector = selector

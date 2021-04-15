@@ -1,8 +1,8 @@
-<div class='table-responsive' style="overflow-x:auto; width: inherit !important;">
+<div class='table-responsive-xl' >
   <table class="tableFixHead table table-striped table-bordered">
     <thead class="thead-dark text-center">
       <% RailsBase.config.admin.admin_page_tiles.each do |tile| %>
-        <th> <%= tile.col_name %> </th>
+        <th <%= "style='min-width:300px'" if tile.min_width %>> <%= tile.col_name %> </th>
       <% end %>
     </thead>
     <tbody class='text-center'>
@@ -11,7 +11,7 @@
       <% id_base = "#{user.id}_#{(100*rand).to_i}" %>
       <tr>
         <% RailsBase.config.admin.admin_page_tiles.each do |tile| %>
-          <td id='<%= id_base %>_<%= tile.name %>' <%= "style='min-width:#{tile.min_width}px'" if tile.min_width %>>
+          <td id='<%= id_base %>_<%= tile.name %>' >
             <% case tile.type %>
             <% when :risky %>
               <%= render partial: 'rails_base/shared/admin_risky_change', locals: { type:  tile.name, current_value: tile.value.call(user), user: user, parent: id_base , modal_mapping: tile.name, disable_action: tile.disabled&.call(user, admin_user), disable_msg: tile.disabled_msg&.call(user, admin_user) } %>
@@ -22,7 +22,21 @@
             <% when :text %>
               <%= render partial: 'rails_base/shared/admin_modify_text', locals: { type: tile.name , current_value: tile.value.call(user), user: user, parent: id_base, modal_partial: tile.partial, disable_action: tile.disabled&.call(user, admin_user), disable_msg: tile.disabled_msg&.call(user, admin_user) } %>
             <% when :button %>
-              <%= button_to tile.col_name,  tile.url.call(user), method: tile.method, class: "btn btn-block btn-#{tile.color}"%>
+              <% if tile.disabled&.call(user, admin_user) %>
+              <div>
+                <span style="width: 88%; float: left;">
+                  <%= button_to tile.col_name,  tile.url.call(user), method: tile.method, class: "btn btn-block btn-#{tile.color}  stay-disabled", disabled: true %>
+                </span>
+                <span style="width: 8%; float: right;">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-circle" viewBox="0 0 16 16" data-toggle='tooltip' title='<%= tile.disabled_msg&.call(user, admin_user) %> '>
+                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                    <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286zm1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z"/>
+                  </svg>
+                </span>
+              </div>
+              <% else %>
+                <%= button_to tile.col_name,  tile.url.call(user), method: tile.method, class: "btn btn-block btn-#{tile.color}"%>
+              <% end %>
             <% when :plain %>
               <%= tile.value.call(user) %>
             <% end %>
@@ -102,6 +116,10 @@
   function admin_risky_icon_proceed(){
     $('.risky-icon-og').show()
     $('.risky-icon-mask').hide()
+  }
+
+  function admin_ensure_disabled(){
+    $('.stay-disabled').bootstrapToggle('disable')
   }
 
   function admin_pause_concurrency(){
