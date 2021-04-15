@@ -1,6 +1,7 @@
 module RailsBase
   class AdminController < ApplicationController
     before_action :authenticate_user!, except: [:sso_retrieve]
+    before_action :admin_user?, only: [:index, :sso_send]
     before_action :validate_token!, only: [:update_email, :update_phone]
     skip_before_action :admin_reset_impersonation_session!
 
@@ -13,6 +14,12 @@ module RailsBase
 
     #POST admin/sso/:id
     def sso_send
+      if RailsBase.config.admin.sso_tile_users.call(admin_user)
+        flash[:alert] = 'You do not have correct permissions to Send an SSO'
+        redirect_to RailsBase.url_routes.admin_base_path
+        return
+      end
+
       user = User.find params[:id]
 
       local_params = {
@@ -87,6 +94,12 @@ module RailsBase
 
     # GET admin/history
     def history
+      unless RailsBase.config.admin.enable_history_by_user?(current_user)
+        flash[:alert] = 'You do not have correct permissions to view admin history'
+        redirect_to RailsBase.url_routes.authenticated_root_path
+        return
+      end
+
       @starting_admin = paginate_get_admins_array.last
       @starting_user = paginate_get_users_array.last
       session[:rails_base_paginate_start_user] = @starting_user[1]
@@ -97,6 +110,11 @@ module RailsBase
 
     # POST admin/history
     def history_paginate
+      unless RailsBase.config.admin.enable_history_by_user?(current_user)
+        render json: { success: false, msg: 'Incorrect permissions to view this page' }, status: 403
+        return
+      end
+
       @starting_admin = paginate_get_admins_array.find { |u| u[1] == params[:admin].to_i } || paginate_get_admins_array.last
       @starting_user = paginate_get_users_array.find { |u| u[1] == params[:user].to_i } || paginate_get_users_array.last
 
@@ -127,7 +145,7 @@ module RailsBase
 
     # POST admin/update
     def update_attribute
-      update = RailsBase::AdminUpdateAttribute.call(params: params)
+      update = RailsBase::AdminUpdateAttribute.call(params: params, admin_user: admin_user)
       if update.success?
         @_admin_action_struct = RailsBase::AdminStruct.new(update.original_attribute, update.attribute, update.model)
         render json: { success: true, message: update.message, attribute: update.attribute }
@@ -138,6 +156,11 @@ module RailsBase
     end
 
     def update_name
+      unless RailsBase.config.admin.name_tile_users?(admin_user)
+        flash[:alert] = 'You do not have correct permissions to change a users name'
+        redirect_to RailsBase.url_routes.admin_base_path
+        return
+      end
       user = User.find(params[:id])
 
       result = NameChange.call(
@@ -158,6 +181,12 @@ module RailsBase
     end
 
     def update_email
+      unless RailsBase.config.admin.email_tile_users?(admin_user)
+        flash[:alert] = 'You do not have correct permissions to change a users name'
+        redirect_to RailsBase.url_routes.admin_base_path
+        return
+      end
+
       user = User.find(params[:id])
       result = EmailChange.call(email: params[:email], user: user)
       if result.success?

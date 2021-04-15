@@ -42,7 +42,7 @@ module RailsBase
     end
 
     def admin_user?
-      return if current_user.admin != User::ADMIN_ROLE_TIER_NONE
+      return if RailsBase.config.admin.view_admin_page?(current_user)
 
       session.clear
       sign_out(current_user)

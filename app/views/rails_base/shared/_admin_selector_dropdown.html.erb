@@ -3,7 +3,6 @@
 <% div_id = "#{input_id}_div" %>
 <% toggle_function = "#{input_id}_function" %>
 <% same_user = current_user == user %>
-<% options = [selector] if current_user == user %>
 
 <% if !disable_action %>
 <%= select_tag input_id, options_for_select(options, selector), class: 'form-control' %>
@@ -15,6 +14,7 @@
 
 
 <script type="text/javascript">
+  var <%= input_id %> = '<%= selector %>'
   function <%=toggle_function%>(reveal){
     if(reveal){
       $('#<%= input_id %>').hide()
@@ -38,13 +38,17 @@
       dataType: 'json',
       data: data,
       success: function(data) {
+        <%= input_id %> = original
         admin_resume_concurrency();
         <%=toggle_function%>(false);
+        admin_ensure_disabled();
         _rails_base_display_success(data.message)
       },
       error: function(xhr, status, error) {
         $('#<%= input_id %>').prop('checked', original);
         <%=toggle_function%>(false);
+        admin_ensure_disabled();
+        $("#<%= input_id %>").val(<%= input_id %>);
         admin_resume_concurrency();
         _rails_base_display_alert(xhr.responseJSON.message)
       }
