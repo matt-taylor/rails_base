@@ -13,17 +13,22 @@ module RailsBase
         session_timeout: {
           type: :duration,
           default: ENV.fetch('SESSION_TIMEOUT_IN_SECONDS', DEFAULT_SESSION).to_i.seconds,
-          custom: ->(val) { val.to_i > MIN_SESSION },
+          custom: ->(val) { val.to_i >= MIN_SESSION },
           msg: "session_timeout must be a duration. Greater than #{MIN_SESSION}",
-          on_assignment: ->(val) { Devise.timeout_in = val }
+          on_assignment: ->(val) { Devise.timeout_in = val },
+          description: 'Debug purposes. How long to keep admin_velocity_max attempts',
         },
-        session_timeout_warning: { type: :boolean, default: true },
+        session_timeout_warning: {
+          type: :boolean,
+          default: true,
+          description: 'Display a timeout warning. When disabled, user will be logged out without warning',
+        },
         mfa_time_duration: {
           type: :duration,
           default: DEFAULT_MFA_TIME,
           custom: ->(val) { val.to_i > MIN_MFA_TIME },
-          msg: "mfa_time_duration must be a duration. Greater than #{MIN_MFA_TIME}"
-
+          msg: "mfa_time_duration must be a duration. Greater than #{MIN_MFA_TIME}",
+          description: 'Max time between when MFA will be required',
         }
       }
       attr_accessor *DEFAULT_VALUES.keys
