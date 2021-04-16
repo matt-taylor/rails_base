@@ -3,7 +3,7 @@ class RailsBase::ApplicationMailer < ActionMailer::Base
   layout 'mailer'
 
   CONTACT_URL = [
-      Rails.configuration._custom_base_url,
-      Rails.configuration._custom_base_url_port
+      RailsBase.config.app_url.base_url,
+      RailsBase.config.app_url.base_port,
     ].compact.join(':')
 end

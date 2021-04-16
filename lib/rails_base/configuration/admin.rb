@@ -37,7 +37,7 @@ module RailsBase
         },
         admin_page_tiles: {
           type: :array,
-          klass: [],
+          klass_type: [RailsBase::Admin::IndexTile],
           default: RailsBase::Admin::IndexTile.defaults,
           decipher: ->(thing) { thing.description },
           description: 'List of tiles on admin page',

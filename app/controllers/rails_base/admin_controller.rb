@@ -7,10 +7,11 @@ module RailsBase
 
     include AdminHelper
 
-    # GET admin/impersonate/:scope_identifier
+    # GET admin
     def index
     end
 
+    # GET admin
     def show_config
       unless RailsBase.config.admin.config_page?(current_user)
         flash[:alert] = 'You do not have correct permissions to view admin config'

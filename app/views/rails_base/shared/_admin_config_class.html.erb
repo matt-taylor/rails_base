@@ -28,6 +28,8 @@
             <td>
               <% if object[:secret] %>
                 < Secret Value >
+              <% elsif object[:decipher] %>
+                <%= object[:decipher].call(instance.public_send(name)).to_s %>
               <% else %>
                 <%= instance.public_send(name) %>
               <% end %>
