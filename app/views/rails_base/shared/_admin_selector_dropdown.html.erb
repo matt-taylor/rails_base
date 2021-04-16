@@ -47,9 +47,9 @@
       error: function(xhr, status, error) {
         $('#<%= input_id %>').prop('checked', original);
         <%=toggle_function%>(false);
-        admin_ensure_disabled();
         $("#<%= input_id %>").val(<%= input_id %>);
         admin_resume_concurrency();
+        admin_ensure_disabled();
         _rails_base_display_alert(xhr.responseJSON.message)
       }
     })
