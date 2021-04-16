@@ -2,6 +2,14 @@ module RailsBase
   class Engine < ::Rails::Engine
     isolate_namespace RailsBase
 
+    initializer 'instantiate RailsBase configs' do |_app|
+      RailsBase.config
+    end
+
+    initializer 'remove write access to RailsBase config', after: 'after_initialize' do |app|
+      RailsBase::Configuration::Base._unset_allow_write!
+    end
+
     initializer 'remove switch_user routes', after: 'add_routing_paths' do |app|
       app.routes_reloader.paths.delete_if{ |path| path.include?('switch_user') }
     end
