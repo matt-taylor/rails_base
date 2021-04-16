@@ -3,6 +3,17 @@ module RailsBase
     class Base
       class InvalidConfiguration < StandardError; end;
       class InvalidCustomConfiguration < StandardError; end;
+      class ConfigurationAlreadyEstablished < StandardError; end;
+
+      def self._allow_write_block?
+        true
+      end
+
+      def self._unset_allow_write!
+        define_singleton_method('_allow_write_block?') do
+          false
+        end
+      end
 
       ALLOWED_TYPES = {
         boolean: -> (val) { [TrueClass, FalseClass].include?(val.class) },
@@ -15,6 +26,7 @@ module RailsBase
       }
 
       def initialize
+        override_methods!
         assign_default_values!
         def_convenience_methods
       end
@@ -24,6 +36,16 @@ module RailsBase
           public_send(:"#{key}=", object[:default])
         end
         true
+      end
+
+      def override_methods!
+        self.class::DEFAULT_VALUES.each do |key, object|
+          self.class.define_method(:"#{key}=") do |value|
+            raise ConfigurationAlreadyEstablished, "Unable to assign [#{key}] on. Assignment must happen on boot" unless self.class._allow_write_block?
+
+            instance_variable_set(:"@#{key}", value)
+          end
+        end
       end
 
       def validate!
