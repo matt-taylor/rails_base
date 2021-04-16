@@ -1,0 +1,12 @@
+<% RailsBase.config.instance_variables.each do |var| %>
+  <% instance = RailsBase.config.instance_variable_get(var) %>
+  <% klass = instance.class %>
+  <%= render partial: 'rails_base/shared/admin_config_class', locals: { instance: instance, klass: klass, var: var } %>
+<% end %>
+
+
+<script type="text/javascript">
+  $(function () {
+    $('[data-toggle="popover"]').popover()
+  })
+</script>

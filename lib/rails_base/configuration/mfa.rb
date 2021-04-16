@@ -6,19 +6,51 @@ module RailsBase
       MFA_MIN_LENGTH = 4
       MFA_MAX_LENGTH = 8
       DEFAULT_VALUES = {
-        enable: { type: :boolean, default: ENV.fetch('MFA_ENABLE', 'true')=='true' },
+        enable: {
+          type: :boolean,
+          default: ENV.fetch('MFA_ENABLE', 'true')=='true',
+          description: 'Enable MFA and SMS verification. When not enabled, there are some interesting consequences',
+        },
         mfa_length: {
           type: :integer,
           default: 5,
           custom: ->(val) { val > MFA_MIN_LENGTH && val < MFA_MAX_LENGTH },
-          msg: "Must be an integer greater than #{MFA_MIN_LENGTH} and less than #{MFA_MAX_LENGTH}"
+          msg: "Must be an integer greater than #{MFA_MIN_LENGTH} and less than #{MFA_MAX_LENGTH}",
+          description: 'Length of MFA verification',
         },
-        twilio_sid: { type: :string, default: ENV.fetch('TWILIO_ACCOUNT_SID','') },
-        twilio_auth_token: { type: :string, default: ENV.fetch('TWILIO_AUTH_TOKEN', '') },
-        twilio_from_number: { type: :string, default: ENV.fetch('TWILIO_FROM_NUMBER', '') },
-        twilio_velocity_max: { type: :integer, default: ENV.fetch('TWILIO_VELOCITY_MAX', 5).to_i },
-        twilio_velocity_max_in_frame: { type: :duration, default: ENV.fetch('TWILIO_VELOCITY_MAX_IN_FRAME', 1).to_i.hours},
-        twilio_velocity_frame: { type: :duration, default: ENV.fetch('TWILIO_VELOCITY_FRAME', 5).to_i.hours },
+        twilio_sid: {
+          type: :string,
+          default: ENV.fetch('TWILIO_ACCOUNT_SID',''),
+          secret: true,
+          description: 'Twilio SID',
+        },
+        twilio_auth_token: {
+          type: :string,
+          default: ENV.fetch('TWILIO_AUTH_TOKEN', ''),
+          secret: true,
+          description: 'Twilio Auth Token',
+        },
+        twilio_from_number: {
+          type: :string,
+          default: ENV.fetch('TWILIO_FROM_NUMBER', ''),
+          description: 'Number that we send MFA\'s From',
+        },
+        twilio_velocity_max: {
+          type: :integer,
+          default: ENV.fetch('TWILIO_VELOCITY_MAX', 5).to_i,
+          description: 'Max number of SMS we send to a user in a sliding window',
+
+        },
+        twilio_velocity_max_in_frame: {
+          type: :duration,
+          default: ENV.fetch('TWILIO_VELOCITY_MAX_IN_FRAME', 1).to_i.hours,
+          description: 'Sliding window for twilio_velocity_max',
+        },
+        twilio_velocity_frame: {
+          type: :duration,
+          default: ENV.fetch('TWILIO_VELOCITY_FRAME', 5).to_i.hours,
+          description: 'Debug purposes. How long to keep admin_velocity_max attempts',
+        },
       }
 
       attr_accessor *DEFAULT_VALUES.keys
