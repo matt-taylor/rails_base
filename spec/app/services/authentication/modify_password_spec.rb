@@ -132,7 +132,7 @@ RSpec.describe RailsBase::Authentication::ModifyPassword do
 		end
 
 		context 'when user is not found' do
-			let(:user_id) { 3 }
+			let(:user_id) { User.all.size + 1 }
 
 			it { expect(call.failure?).to be true }
 			it { expect(call.message).to include('Unknown error. Please try again') }

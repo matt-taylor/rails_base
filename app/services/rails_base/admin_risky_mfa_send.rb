@@ -10,9 +10,6 @@ module RailsBase
 
     MAX_USE_COUNT = 1.freeze
     DATA_USE = :numeric
-    VELOCITY_MAX = RailsBase.config.admin.admin_velocity_max
-    VELOCITY_MAX_IN_FRAME = RailsBase.config.admin.admin_velocity_max_in_frame
-    VELOCITY_FRAME = RailsBase.config.admin.admin_velocity_frame
     EXPIRES_AT = 1.minutes
 
     delegate :user, to: :context
@@ -56,15 +53,15 @@ module RailsBase
     end
 
     def velocity_max_in_frame
-      VELOCITY_MAX_IN_FRAME
+      RailsBase.config.admin.admin_velocity_max_in_frame
     end
 
     def velocity_max
-      VELOCITY_MAX
+      RailsBase.config.admin.admin_velocity_max
     end
 
     def velocity_frame
-      VELOCITY_FRAME
+      RailsBase.config.admin.admin_velocity_frame
     end
 
     def cache_key
