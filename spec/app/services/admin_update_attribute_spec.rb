@@ -5,12 +5,14 @@ RSpec.describe RailsBase::AdminUpdateAttribute do
   let(:klass_string) { nil }
   let(:user) { User.first }
   let(:value) { 'value' }
-  let(:attribute) { User::SAFE_AUTOMAGIC_UPGRADE_COLS.first }
+  let(:attribute) { User::SAFE_AUTOMAGIC_UPGRADE_COLS.keys.first }
   let(:input_params) { { id: id, attribute: attribute, value: value} }
+  let(:admin_user) { User.where(admin: :owner).first }
   let(:params) {
     {
       params: input_params,
       klass_string: klass_string,
+      admin_user: admin_user
     }
   }
 
@@ -47,6 +49,13 @@ RSpec.describe RailsBase::AdminUpdateAttribute do
         it { expect(call.failure?).to be true }
         it { expect(call.message).to include("#{klass_string}::SAFE_AUTOMAGIC_UPGRADE_COLS array does not exist") }
       end
+    end
+
+    context 'with admin_user lacking perms' do
+      let(:admin_user) { User.where(admin: :none).first }
+
+      it { expect(call.failure?).to be true }
+      it { expect(call.message).to include("User does not have permissions to update") }
     end
 
     context 'when invalid id' do

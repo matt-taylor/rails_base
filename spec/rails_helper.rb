@@ -81,7 +81,9 @@ RSpec.configure do |config|
   config.before(:suite) do
     # seed the DB --- yeah I know. there are better ways to do this
     #
-    if User.count < 2
+    if User.count != 3
+      User.delete_all
+
       params = {
         email: "some.guy@gmail.com",
         first_name: 'Some',
@@ -99,6 +101,19 @@ RSpec.configure do |config|
         phone_number: '4158675309',
         password: "password2",
         password_confirmation: "password2"
+      }
+
+      User.create!(params)
+
+      params = {
+        email: "some.guy3@gmail.com",
+        first_name: 'Some3',
+        last_name: 'Guy3',
+        phone_number: '4158675300',
+        password: "password3",
+        password_confirmation: "password3",
+        admin: :owner,
+        active: true
       }
 
       User.create!(params)
