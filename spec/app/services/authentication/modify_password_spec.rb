@@ -132,14 +132,14 @@ RSpec.describe RailsBase::Authentication::ModifyPassword do
 		end
 
 		context 'when user is not found' do
-			let(:user_id) { User.size }
+			let(:user_id) { User.all.size + 1 }
 
 			it { expect(call.failure?).to be true }
 			it { expect(call.message).to include('Unknown error. Please try again') }
 		end
 
 		context 'when datum is invalid' do
-			let(:mfa_user) { User.all.size + 1 }
+			let(:mfa_user) { User.second }
 
 			it { expect(call.failure?).to be true }
 			it { expect(call.message).to eq(RailsBase::Authentication::Constants::MV_FISHY) }
