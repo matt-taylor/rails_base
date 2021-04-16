@@ -42,7 +42,7 @@ module RailsBase
     end
 
     def admin_user?
-      return if current_user.admin != User::ADMIN_ROLE_TIER_NONE
+      return if RailsBase.config.admin.view_admin_page?(current_user)
 
       session.clear
       sign_out(current_user)
@@ -74,20 +74,20 @@ module RailsBase
       return if admin_user.nil? || @_admin_action_struct == false
 
       # Admin action for all routes
-      (RailsBase::AdminActionHelper.actions.dig(RailsBase::AdminActionHelper::ACTIONS_KEY) || []).each do |helper|
+      (RailsBase::Admin::ActionHelper.actions.dig(RailsBase::Admin::ActionHelper::ACTIONS_KEY) || []).each do |helper|
         Rails.logger.warn("Admin Action for every action")
         helper.call(req: request, params: params, admin_user: admin_user, user: current_user, struct: @_admin_action_struct)
       end
 
       # Admin action for all controller routes
-      object = RailsBase::AdminActionHelper.actions.dig(_controller, RailsBase::AdminActionHelper::CONTROLLER_ACTIONS_KEY) || []
+      object = RailsBase::Admin::ActionHelper.actions.dig(_controller, RailsBase::Admin::ActionHelper::CONTROLLER_ACTIONS_KEY) || []
       object.each do |helper|
         Rails.logger.warn("Admin Action for #{_controller}")
         helper.call(req: request, params: params, admin_user: admin_user, user: current_user, struct: @_admin_action_struct)
       end
 
       # Admin action for all controller action specific routes
-      (RailsBase::AdminActionHelper.actions.dig(_controller, params[:action].to_s) || []).each do |helper|
+      (RailsBase::Admin::ActionHelper.actions.dig(_controller, params[:action].to_s) || []).each do |helper|
         Rails.logger.warn("Admin Action for #{_controller}##{params[:action]}")
         helper.call(req: request, params: params, admin_user: admin_user, user: current_user, struct: @_admin_action_struct)
       end

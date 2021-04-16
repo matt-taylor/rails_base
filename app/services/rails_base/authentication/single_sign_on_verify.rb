@@ -8,7 +8,8 @@ module RailsBase::Authentication
       datum = find_data_point
       context.data = datum
       if bypass
-        context.url_redirect = datum[:extra]
+        context.should_fail = !datum[:valid]
+        context.url_redirect = datum[:extra] || RailsBase.url_routes.authenticated_root_path
         log(level: :info, msg: "sending full data point. bypass set to true")
         return
       end
@@ -16,10 +17,10 @@ module RailsBase::Authentication
       context.sign_in = false
       if datum[:valid]
         context.sign_in = true
-        context.url_redirect = datum[:extra]
+        context.url_redirect = datum[:extra] || RailsBase.url_routes.authenticated_root_path
         context.user = datum[:user]
       else
-        context.url_redirect = datum[:extra]
+        context.url_redirect = datum[:extra] || RailsBase.url_routes.unauthenticated_root_path
         context.fail!(message: "Authorization token error: #{datum[:invalid_reason].join(',')}")
       end
     end

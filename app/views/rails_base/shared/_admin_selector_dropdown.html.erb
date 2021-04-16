@@ -3,10 +3,9 @@
 <% div_id = "#{input_id}_div" %>
 <% toggle_function = "#{input_id}_function" %>
 <% same_user = current_user == user %>
-<% options = [selector] if current_user == user %>
 
-<% if !same_user %>
-<%= select_tag input_id, options_for_select(options, selector), class: 'form-control', disabled: same_user %>
+<% if !disable_action %>
+<%= select_tag input_id, options_for_select(options, selector), class: 'form-control' %>
 <button class="btn btn-info btn-block" id='<%= span_id %>' type="button" disabled style="display: none">
   <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true">
   </span>
@@ -15,6 +14,7 @@
 
 
 <script type="text/javascript">
+  var <%= input_id %> = '<%= selector %>'
   function <%=toggle_function%>(reveal){
     if(reveal){
       $('#<%= input_id %>').hide()
@@ -38,14 +38,18 @@
       dataType: 'json',
       data: data,
       success: function(data) {
+        <%= input_id %> = original
         admin_resume_concurrency();
         <%=toggle_function%>(false);
+        admin_ensure_disabled();
         _rails_base_display_success(data.message)
       },
       error: function(xhr, status, error) {
         $('#<%= input_id %>').prop('checked', original);
         <%=toggle_function%>(false);
+        $("#<%= input_id %>").val(<%= input_id %>);
         admin_resume_concurrency();
+        admin_ensure_disabled();
         _rails_base_display_alert(xhr.responseJSON.message)
       }
     })
@@ -54,10 +58,10 @@
 <% else %>
 <div>
   <span style="width: 88%; float: left;">
-  <%= select_tag input_id, options_for_select(options, selector), class: 'form-control', disabled: same_user %>
+  <%= select_tag input_id, options_for_select(options, selector), class: 'form-control', disabled: true %>
   </span>
   <span style="width: 8%; float: right;">
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-circle" viewBox="0 0 16 16" data-toggle='tooltip' title='Disabled: Cannot make change to [<%= type %>] for this user'>
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-circle" viewBox="0 0 16 16" data-toggle='tooltip' title='<%= disable_msg %> '>
       <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
       <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286zm1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z"/>
     </svg>

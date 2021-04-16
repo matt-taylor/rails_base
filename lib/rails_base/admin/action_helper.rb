@@ -1,5 +1,5 @@
-module RailsBase
-  class AdminActionHelper
+module RailsBase::Admin
+  class ActionHelper
     ACTIONS_KEY = "___all_actions_#{(rand*10**10).to_i}___"
     CONTROLLER_ACTIONS_KEY = "___all_controller_actions__#{(rand*10**10).to_i}___"
     DEFAULT_ALLOWED_KLASSES = [ApplicationController, RailsBase::ApplicationController, ::SwitchUserController]

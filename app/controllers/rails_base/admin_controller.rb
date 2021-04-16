@@ -1,6 +1,7 @@
 module RailsBase
   class AdminController < ApplicationController
-    before_action :authenticate_user!
+    before_action :authenticate_user!, except: [:sso_retrieve]
+    before_action :admin_user?, only: [:index, :sso_send]
     before_action :validate_token!, only: [:update_email, :update_phone]
     skip_before_action :admin_reset_impersonation_session!
 
@@ -10,13 +11,75 @@ module RailsBase
     def index
     end
 
+
+    #POST admin/sso/:id
+    def sso_send
+      if RailsBase.config.admin.sso_tile_users.call(admin_user)
+        flash[:alert] = 'You do not have correct permissions to Send an SSO'
+        redirect_to RailsBase.url_routes.admin_base_path
+        return
+      end
+
+      user = User.find params[:id]
+
+      local_params = {
+        user: user,
+        token_length: Authentication::Constants::SSO_SEND_LENGTH,
+        uses: Authentication::Constants::SSO_SEND_USES,
+        reason: Authentication::Constants::SSO_REASON,
+        expires_at: Authentication::Constants::SSO_EXPIRES.from_now,
+        url_redirect: RailsBase.url_routes.user_settings_path
+      }
+
+      status = RailsBase::Authentication::SingleSignOnSend.call(local_params)
+      if status.failure?
+        @_admin_action_struct = false
+        flash[:alert] = "Failed to send SSO to user via #{status.sso_destination}. #{status.message}"
+      else
+        @_admin_action_struct = RailsBase::AdminStruct.new(nil, nil, user)
+        flash[:notice] = "Successfully sent SSO to user via #{status.sso_destination}."
+      end
+      redirect_to RailsBase.url_routes.admin_base_path
+    end
+
+    #GET auth/sso/:data
+    def sso_retrieve
+      local_params = {
+        data: params[:data],
+        reason: Authentication::Constants::SSO_REASON.to_s,
+      }
+      local_params[:bypass] = true if current_user
+
+      status = RailsBase::Authentication::SingleSignOnVerify.call(local_params)
+
+      if status.failure? && current_user.nil?
+        flash[:alert] = "SSO login failed. #{status.message}"
+        redirect_to RailsBase.url_routes.unauthenticated_root_path
+        return
+      end
+
+      if status.should_fail
+        flash[:notice] = "SSO failed but you are already logged in."
+        redirect_to status.url_redirect
+        return
+      end
+
+      if current_user
+        flash[:notice] = "SSO success. You are already logged in."
+      else
+        sign_in(status.user)
+        flash[:notice] = "SSO success. You are now logged in."
+      end
+      redirect_to status.url_redirect
+    end
+
     # POST admin/ack
     def ack
       success = true
       begin
         time = Time.at params[:time].to_i
-        RailsBase::AdminActionCache.instance.delete_actions_since!(user: current_user, time: time)
-        RailsBase::AdminActionCache.instance.update_last_viewed(user: current_user, time: time)
+        RailsBase::Admin::ActionCache.instance.delete_actions_since!(user: current_user, time: time)
+        RailsBase::Admin::ActionCache.instance.update_last_viewed(user: current_user, time: time)
       rescue StandardError => e
         logger.error(e.message)
         logger.error('Failed to acknowledge users admion actions')
@@ -31,6 +94,12 @@ module RailsBase
 
     # GET admin/history
     def history
+      unless RailsBase.config.admin.enable_history_by_user?(current_user)
+        flash[:alert] = 'You do not have correct permissions to view admin history'
+        redirect_to RailsBase.url_routes.authenticated_root_path
+        return
+      end
+
       @starting_admin = paginate_get_admins_array.last
       @starting_user = paginate_get_users_array.last
       session[:rails_base_paginate_start_user] = @starting_user[1]
@@ -41,6 +110,11 @@ module RailsBase
 
     # POST admin/history
     def history_paginate
+      unless RailsBase.config.admin.enable_history_by_user?(current_user)
+        render json: { success: false, msg: 'Incorrect permissions to view this page' }, status: 403
+        return
+      end
+
       @starting_admin = paginate_get_admins_array.find { |u| u[1] == params[:admin].to_i } || paginate_get_admins_array.last
       @starting_user = paginate_get_users_array.find { |u| u[1] == params[:user].to_i } || paginate_get_users_array.last
 
@@ -71,7 +145,7 @@ module RailsBase
 
     # POST admin/update
     def update_attribute
-      update = RailsBase::AdminUpdateAttribute.call(params: params)
+      update = RailsBase::AdminUpdateAttribute.call(params: params, admin_user: admin_user)
       if update.success?
         @_admin_action_struct = RailsBase::AdminStruct.new(update.original_attribute, update.attribute, update.model)
         render json: { success: true, message: update.message, attribute: update.attribute }
@@ -82,6 +156,11 @@ module RailsBase
     end
 
     def update_name
+      unless RailsBase.config.admin.name_tile_users?(admin_user)
+        flash[:alert] = 'You do not have correct permissions to change a users name'
+        redirect_to RailsBase.url_routes.admin_base_path
+        return
+      end
       user = User.find(params[:id])
 
       result = NameChange.call(
@@ -102,6 +181,12 @@ module RailsBase
     end
 
     def update_email
+      unless RailsBase.config.admin.email_tile_users?(admin_user)
+        flash[:alert] = 'You do not have correct permissions to change a users name'
+        redirect_to RailsBase.url_routes.admin_base_path
+        return
+      end
+
       user = User.find(params[:id])
       result = EmailChange.call(email: params[:email], user: user)
       if result.success?
@@ -140,7 +225,7 @@ module RailsBase
     # POST admin/validate_intent/verify
     def verify_2fa
       unless modify_id = params[:modify_id]
-        logger.warn("Failed to find #{@modify_id} in payload")
+        logger.warn("Failed to find #{modify_id} in payload")
         render json: { success: false, message: 'Hmm. Something fishy happend. Failed to find text to modify' }, status: 404
         return
       end

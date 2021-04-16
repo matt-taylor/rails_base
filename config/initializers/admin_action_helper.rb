@@ -1,4 +1,4 @@
-require 'rails_base/admin_action_helper'
+require 'rails_base/admin/action_helper'
 
 proc = Proc.new do |req, params, admin_user, user, title, struct|
   actions_mapping = {
@@ -26,7 +26,7 @@ params = {
   controller: RailsBase::UserSettingsController,
   default: true
 }
-RailsBase::AdminActionHelper.new(params).add!
+RailsBase::Admin::ActionHelper.new(params).add!
 
 
 proc = Proc.new do |req, params, admin_user, user, title, struct|
@@ -35,7 +35,8 @@ proc = Proc.new do |req, params, admin_user, user, title, struct|
     update_name: 'Updated Name',
     update_email: 'Updated Email',
     update_phone: 'Updated Phone number',
-    index: 'Viewed Admin Index'
+    index: 'Viewed Admin Index',
+    sso_send: 'Sent SSO to user'
   }
 
   if actions_mapping.keys.include?(params[:action].to_sym)
@@ -56,7 +57,7 @@ params = {
   controller: RailsBase::AdminController,
   default: true
 }
-RailsBase::AdminActionHelper.new(params).add!
+RailsBase::Admin::ActionHelper.new(params).add!
 
 
 params = {
@@ -66,7 +67,7 @@ params = {
   action: 'remove_phone_mfa',
   default: true
 }
-RailsBase::AdminActionHelper.new(params).add!
+RailsBase::Admin::ActionHelper.new(params).add!
 
 params = {
   proc: nil,
@@ -75,7 +76,7 @@ params = {
   action: 'phone_registration',
   default: true
 }
-RailsBase::AdminActionHelper.new(params).add!
+RailsBase::Admin::ActionHelper.new(params).add!
 
 params = {
   proc: nil,
@@ -84,4 +85,4 @@ params = {
   action: 'set_current_user',
   default: true
 }
-RailsBase::AdminActionHelper.new(params).add!
+RailsBase::Admin::ActionHelper.new(params).add!

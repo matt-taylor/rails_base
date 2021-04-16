@@ -1,47 +1,47 @@
-<div class='table-responsive' style="overflow-x:auto; width: inherit !important;">
+<div class='table-responsive-xl' >
   <table class="tableFixHead table table-striped table-bordered">
     <thead class="thead-dark text-center">
-      <th> UserId </th>
-      <th> Full Name </th>
-      <th> Email</th>
-      <th> Email Validated? </th>
-      <th> Phone Number </th>
-      <th> MFA enabled </th>
-      <th> Admin Level </th>
-      <th> Last Logged In </th>
-      <th> Impersonate User </th>
+      <% RailsBase.config.admin.admin_page_tiles.each do |tile| %>
+        <th <%= "style='min-width:300px'" if tile.min_width %>> <%= tile.col_name %> </th>
+      <% end %>
     </thead>
     <tbody class='text-center'>
+      <% admin_user = current_user %>
     <% User.all.each do |user| %>
       <% id_base = "#{user.id}_#{(100*rand).to_i}" %>
       <tr>
-        <td>
-          <%= user.id %>
-        </td>
-        <td id='<%= id_base %>_full_name' style="min-width:220px">
-          <%= render partial: 'rails_base/shared/admin_modify_text', locals: { type: 'full_name', current_value: user.full_name, user: user, parent: id_base, modal_partial: 'rails_base/shared/admin_modify_name' } %>
-        </td>
-        <td id='<%= id_base %>_email' style="min-width:220px">
-          <%= render partial: 'rails_base/shared/admin_risky_change', locals: { type: 'email', current_value: user.email, user: user, parent: id_base , modal_mapping: :email } %>
-        </td>
-        <td id='<%= id_base %>_email_validated'>
-          <%= render partial: 'rails_base/shared/admin_toggle_button', locals: { type: 'email_validated', checked: user.email_validated, user: user, data_on: 'valid', data_off: 'invalid', parent: id_base } %>
-        </td>
-        <td id='<%= id_base %>_phone_number' style="min-width:180px">
-          <%= render partial: 'rails_base/shared/admin_risky_change', locals: { type: 'email', current_value: user.phone_number, user: user, parent: id_base , modal_mapping: :phone_number } %>
-        </td>
-        <td id='<%= id_base %>_mfa_enabled' >
-          <%= render partial: 'rails_base/shared/admin_toggle_button', locals: { type: 'mfa_enabled', checked: user.mfa_enabled, user: user, data_on: 'enbaled', data_off: 'disabled', parent: id_base } %>
-        </td>
-        <td id='<%= id_base %>_admin' style="min-width:120px" >
-          <%= render partial: 'rails_base/shared/admin_selector_dropdown', locals: { type: 'admin', options: User::ADMIN_ENUMS, selector: user.admin.to_sym, user: user, parent: id_base } %>
-        </td>
-        <td id='<%= id_base %>_last_sign_in_at' style="min-width:220px">
-          <%= user.last_sign_in_at || 'never' %>
-        </td>
-        <td id='<%= id_base %>_impersonate' >
-          <%= button_to 'Impersonate', RailsBase.url_routes.switch_user_path(scope_identifier: "user_#{user.id}"), method: :post, class: 'btn btn-block btn-warning' %>
-        </td>
+        <% RailsBase.config.admin.admin_page_tiles.each do |tile| %>
+          <td id='<%= id_base %>_<%= tile.name %>' >
+            <% case tile.type %>
+            <% when :risky %>
+              <%= render partial: 'rails_base/shared/admin_risky_change', locals: { type:  tile.name, current_value: tile.value.call(user), user: user, parent: id_base , modal_mapping: tile.name, disable_action: tile.disabled&.call(user, admin_user), disable_msg: tile.disabled_msg&.call(user, admin_user) } %>
+            <% when :toggle %>
+              <%= render partial: 'rails_base/shared/admin_toggle_button', locals: { type: tile.name, checked: tile.value.call(user), user: user, data_on: tile.on, data_off: tile.off, parent: id_base, disable_action: tile.disabled&.call(user, admin_user), disable_msg: tile.disabled_msg&.call(user, admin_user) } %>
+            <% when :selector %>
+              <%= render partial: 'rails_base/shared/admin_selector_dropdown', locals: { type: tile.name, options: tile.selector.call(user), selector: tile.value.call(user), user: user, parent: id_base, disable_action: tile.disabled&.call(user, admin_user), disable_msg: tile.disabled_msg&.call(user, admin_user) } %>
+            <% when :text %>
+              <%= render partial: 'rails_base/shared/admin_modify_text', locals: { type: tile.name , current_value: tile.value.call(user), user: user, parent: id_base, modal_partial: tile.partial, disable_action: tile.disabled&.call(user, admin_user), disable_msg: tile.disabled_msg&.call(user, admin_user) } %>
+            <% when :button %>
+              <% if tile.disabled&.call(user, admin_user) %>
+              <div>
+                <span style="width: 88%; float: left;">
+                  <%= button_to tile.col_name,  tile.url.call(user), method: tile.method, class: "btn btn-block btn-#{tile.color}  stay-disabled", disabled: true %>
+                </span>
+                <span style="width: 8%; float: right;">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-circle" viewBox="0 0 16 16" data-toggle='tooltip' title='<%= tile.disabled_msg&.call(user, admin_user) %> '>
+                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                    <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286zm1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z"/>
+                  </svg>
+                </span>
+              </div>
+              <% else %>
+                <%= button_to tile.col_name,  tile.url.call(user), method: tile.method, class: "btn btn-block btn-#{tile.color}"%>
+              <% end %>
+            <% when :plain %>
+              <%= tile.value.call(user) %>
+            <% end %>
+          </td>
+        <% end %>
       </tr>
     <% end %>
     </tbody>
@@ -116,6 +116,10 @@
   function admin_risky_icon_proceed(){
     $('.risky-icon-og').show()
     $('.risky-icon-mask').hide()
+  }
+
+  function admin_ensure_disabled(){
+    $('.stay-disabled').bootstrapToggle('disable')
   }
 
   function admin_pause_concurrency(){
