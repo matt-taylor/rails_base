@@ -9,7 +9,7 @@ params = {
   col_name: 'User Id', # Expected to be the column header name
 }
 
-instance = RailsBase::Admin::IndexTile.new(params)
+instance = RailsBase::Admin::IndexTile.new(**params)
 RailsBase::Admin::IndexTile.add(instance)
 
 # Name Tile
@@ -24,7 +24,7 @@ params = {
   disabled: -> (user, admin_user) { !RailsBase.config.admin.name_tile_users.call(admin_user) },
   disabled_msg: -> (user, admin_user) { 'Your admin does not have permissions' }
 }
-instance = RailsBase::Admin::IndexTile.new(params)
+instance = RailsBase::Admin::IndexTile.new(**params)
 RailsBase::Admin::IndexTile.add(instance)
 
 # Active Tile
@@ -38,7 +38,7 @@ params = {
   disabled: -> (user, admin_user) { user == admin_user || !RailsBase.config.admin.email_tile_users.call(admin_user) },
   disabled_msg: -> (user, admin_user) { 'Your admin does not have permissions' }
 }
-instance = RailsBase::Admin::IndexTile.new(params)
+instance = RailsBase::Admin::IndexTile.new(**params)
 RailsBase::Admin::IndexTile.add(instance)
 
 # Email Tile
@@ -52,7 +52,7 @@ params = {
   disabled: -> (user, admin_user) { !RailsBase.config.admin.email_validate_tile_users.call(admin_user) },
   disabled_msg: -> (user, admin_user) { 'Your admin does not have permissions' }
 }
-instance = RailsBase::Admin::IndexTile.new(params)
+instance = RailsBase::Admin::IndexTile.new(**params)
 RailsBase::Admin::IndexTile.add(instance)
 
 # Email Validated Tile
@@ -66,7 +66,7 @@ params = {
   disabled: -> (user, admin_user) { !RailsBase.config.admin.email_tile_users.call(admin_user) },
   disabled_msg: -> (user, admin_user) { 'Your admin does not have permissions' }
 }
-instance = RailsBase::Admin::IndexTile.new(params)
+instance = RailsBase::Admin::IndexTile.new(**params)
 RailsBase::Admin::IndexTile.add(instance)
 
 # phone_number Tile
@@ -80,7 +80,7 @@ params = {
   disabled_msg: -> (user, admin_user) { 'Your admin does not have permissions' }
 
 }
-instance = RailsBase::Admin::IndexTile.new(params)
+instance = RailsBase::Admin::IndexTile.new(**params)
 RailsBase::Admin::IndexTile.add(instance)
 
 # Mfa Enabled Validated Tile
@@ -95,7 +95,7 @@ params = {
   disabled_msg: -> (user, admin_user) { 'Your admin user does not have permissions' },
   min_width: 220,
 }
-instance = RailsBase::Admin::IndexTile.new(params)
+instance = RailsBase::Admin::IndexTile.new(**params)
 RailsBase::Admin::IndexTile.add(instance)
 
 
@@ -109,7 +109,7 @@ params = {
   disabled: -> (user, admin_user) { user == admin_user || !RailsBase.config.admin.admin_type_tile_users.call(admin_user) },
   disabled_msg: -> (user, admin_user) { 'Unable to do action.' }
 }
-instance = RailsBase::Admin::IndexTile.new(params)
+instance = RailsBase::Admin::IndexTile.new(**params)
 RailsBase::Admin::IndexTile.add(instance)
 
 # Last logged in
@@ -119,7 +119,7 @@ params = {
   name: 'logged_in_last', # name to be amended to html id
   col_name: 'Last Logged In', # Expected to be the column header name
 }
-instance = RailsBase::Admin::IndexTile.new(params)
+instance = RailsBase::Admin::IndexTile.new(**params)
 RailsBase::Admin::IndexTile.add(instance)
 
 
@@ -135,7 +135,7 @@ params = {
   disabled_msg: ->(user, admin_user) { 'Your Admin User is not permitted to impersonate Users' },
   url: ->(user) { RailsBase.url_routes.switch_user_path(scope_identifier: "user_#{user.id}") }
 }
-instance = RailsBase::Admin::IndexTile.new(params)
+instance = RailsBase::Admin::IndexTile.new(**params)
 RailsBase::Admin::IndexTile.add(instance)
 
 # SSO send Tile
@@ -150,5 +150,5 @@ params = {
   disabled_msg: ->(user, admin_user) { 'Your Admin User is not permitted to send SSO' },
   url: ->(user) { RailsBase.url_routes.admin_sso_send_path(id: user.id) }
 }
-instance = RailsBase::Admin::IndexTile.new(params)
+instance = RailsBase::Admin::IndexTile.new(**params)
 RailsBase::Admin::IndexTile.add(instance)
