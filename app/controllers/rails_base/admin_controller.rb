@@ -1,7 +1,7 @@
 module RailsBase
   class AdminController < ApplicationController
     before_action :authenticate_user!, except: [:sso_retrieve]
-    before_action :admin_user?, only: [:index, :sso_send]
+    before_action :admin_user?, only: [:index, :config, :sso_send]
     before_action :validate_token!, only: [:update_email, :update_phone]
     skip_before_action :admin_reset_impersonation_session!
 
@@ -11,10 +11,17 @@ module RailsBase
     def index
     end
 
+    def show_config
+      unless RailsBase.config.admin.config_page?(current_user)
+        flash[:alert] = 'You do not have correct permissions to view admin config'
+        redirect_to RailsBase.url_routes.authenticated_root_path
+        return
+      end
+    end
 
     #POST admin/sso/:id
     def sso_send
-      if RailsBase.config.admin.sso_tile_users.call(admin_user)
+      unless RailsBase.config.admin.sso_tile_users.call(admin_user)
         flash[:alert] = 'You do not have correct permissions to Send an SSO'
         redirect_to RailsBase.url_routes.admin_base_path
         return

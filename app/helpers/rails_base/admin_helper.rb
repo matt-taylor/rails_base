@@ -9,6 +9,18 @@ module RailsBase
       email: 'rails_base/shared/admin_modify_email'
     }
 
+    def users_for_proc(proc)
+      User.all.select do |user|
+        proc.call(user)
+      end.map(&:inspect_name)
+    end
+
+    def array_for_proc(proc, array)
+      array.map do |instance|
+        proc.call(instance)
+      end
+    end
+
     def paginated_records
       AdminAction.paginate_records(page: @starting_page, count_on_page: @count_on_page, user_id: @starting_user[1], admin_id: @starting_admin[1])
     end

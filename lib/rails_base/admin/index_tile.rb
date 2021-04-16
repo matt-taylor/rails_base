@@ -109,6 +109,10 @@ module RailsBase::Admin
       validate_disabled_msg!
     end
 
+    def description
+      "#{type} for #{name}"
+    end
+
     def is_toggle?
       type == TOGGLE[:type]
     end

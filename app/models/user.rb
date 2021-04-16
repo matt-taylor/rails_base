@@ -100,6 +100,10 @@ class User < ApplicationRecord
     self.delete
   end
 
+  def inspect_name
+    "[#{id}]: #{full_name}"
+  end
+
   private
 
   def enforce_owner

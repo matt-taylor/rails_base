@@ -1,0 +1,41 @@
+<% humanize_var = var.to_s.delete('@') %>
+<h2> <%= klass.name.demodulize %> </h2>
+<div class='table-responsive' style="overflow-x:auto; width: inherit !important;" >
+  <table class="tableFixHead table table-striped table-bordered">
+    <thead class="thead-dark text-center">
+      <th style="width: 20%"> <%= humanize_var.titleize %> config </th>
+      <th style="width: 20%"> Value </th>
+      <th style="width: 60%"> Description </th>
+    </thead>
+    <tbody class='text-center'>
+      <% klass::DEFAULT_VALUES.each do |name, object| %>
+        <tr>
+          <td> <%= humanize_var %>.<%= name %> </td>
+          <% case object[:type] %>
+          <% when :proc %>
+            <td>
+              <% users = users_for_proc(instance.public_send(name)) %>
+              <a tabindex="0" class="btn btn-secondary" role="button" data-toggle="popover" data-trigger="focus" title="Users with ability" data-html=true data-content="<%=users.join('</br>')%>">View Users</a>
+            </td>
+          <% when :duration %>
+            <td> <%= instance.public_send(name).inspect %> </td>
+          <% when :array %>
+            <td>
+              <% array = array_for_proc(object[:decipher], instance.public_send(name)) %>
+              <a tabindex="0" class="btn btn-secondary" role="button" data-toggle="popover" data-trigger="focus" title="Configured List" data-html=true data-content="<%=array.join('<br class="border-top></br>')%>">View List</a>
+            </td>
+          <% else %>
+            <td>
+              <% if object[:secret] %>
+                < Secret Value >
+              <% else %>
+                <%= instance.public_send(name) %>
+              <% end %>
+            </td>
+          <% end %>
+          <td> <%= object[:description] %> </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

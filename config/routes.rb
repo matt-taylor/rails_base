@@ -99,6 +99,7 @@ Rails.application.routes.draw do
     post 'admin/validate_intent/verify', to: 'rails_base/admin#verify_2fa', as: :admin_verify_intent
 
     get 'admin', to: 'rails_base/admin#index', as: :admin_base
+    get 'admin/config', to: 'rails_base/admin#show_config', as: :admin_config
     get 'admin/history', to: 'rails_base/admin#history', as: :admin_history
     post 'admin/history', to: 'rails_base/admin#history_paginate', as: :admin_history_page
 
