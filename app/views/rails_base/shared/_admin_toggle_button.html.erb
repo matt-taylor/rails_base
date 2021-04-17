@@ -28,6 +28,10 @@
 
 
   <script type="text/javascript">
+    $(document).ready(function(){
+      $('#<%= input_id %>').bootstrapToggle();
+    });
+
     function <%=toggle_function%>(reveal){
       if(reveal){
         $('#<%= div_span %>').hide()
