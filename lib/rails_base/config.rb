@@ -3,16 +3,22 @@ require 'rails_base/configuration/mfa'
 require 'rails_base/configuration/authentication'
 require 'rails_base/configuration/redis'
 require 'rails_base/configuration/owner'
+require 'rails_base/configuration/mailer'
+require 'rails_base/configuration/exceptions_app'
+require 'rails_base/configuration/app_url'
 
 module RailsBase
   class Config
-    attr_reader :admin, :mfa, :auth, :redis, :owner
+    attr_reader :admin, :mfa, :auth, :redis, :owner, :mailer, :exceptions_app, :app_url
     def initialize
       @admin = Configuration::Admin.new
       @mfa = Configuration::Mfa.new
       @auth = Configuration::Authentication.new
       @redis = Configuration::Redis.new
       @owner = Configuration::Owner.new
+      @mailer = Configuration::Mailer.new
+      @exceptions_app = Configuration::ExceptionsApp.new
+      @app_url = Configuration::AppUrl.new
     end
 
     def validate_configs!
@@ -21,6 +27,9 @@ module RailsBase
       auth.validate!
       redis.validate!
       owner.validate!
+      mailer.validate!
+      exceptions_app.validate!
+      app_url.validate!
     end
 
     def reset_config!
@@ -29,6 +38,9 @@ module RailsBase
       auth.assign_default_values!
       redis.assign_default_values!
       owner.assign_default_values!
+      mailer.assign_default_values!
+      exceptions_app.assign_default_values!
+      app_url.assign_default_values!
     end
   end
 end
