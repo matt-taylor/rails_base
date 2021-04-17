@@ -11,7 +11,7 @@ module RailsBase
           description: 'Base url. Used for things like SSO.'
         },
         base_port: {
-          type: :string,
+          type: :string_nil,
           default: ENV.fetch('BASE_URL_PORT', nil),
           description: 'Base port. Used for things like SSO.'
         },
