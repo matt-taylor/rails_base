@@ -14,7 +14,7 @@
 #
 class AdminAction < ApplicationRecord
   DEFAULT_PAGE_COUNT = 5
-  DEFAULT_PAGE_COUNT_SELECT_RANGE = (0..100).select { |x| x%5 == 0 && x != 0 }
+  DEFAULT_PAGE_COUNT_SELECT_RANGE = (0..50).select { |x| x%5 == 0 && x != 0 }
   DEFAULT_PAGE_RANGE = 2
 
 

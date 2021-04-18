@@ -1,10 +1,44 @@
 require 'rails_base/configuration/base'
 require 'rails_base/admin/index_tile'
 require 'rails_base/admin/default_index_tile'
+require RailsBase::Engine.root.join('app', 'models', 'rails_base', 'user_constants.rb')
 
 module RailsBase
   module Configuration
     class Admin < Base
+      include UserConstants
+
+      DEFAULT_ADMIN_TYPE = RailsBase::Configuration::Admin::ADMIN_ENUMS.map do |enum|
+        name = "Admin Type: #{enum}"
+        proc = ->(user, admin_user) { user.public_send("admin_#{enum}?") }
+        {filter: name, id: "admin_#{enum}", proc: proc}
+      end
+
+      DEFAULT_ADMIN_SELF = {
+        filter: 'My User',
+        id: 'my_admin_user',
+        proc: ->(user, admin_user) { user == admin_user }
+      }
+
+      DEFAULT_ADMIN_ACTIVE = {
+        filter: 'Active Users',
+        id: 'active_users',
+        proc: ->(user, admin_user) { user.active? }
+      }
+
+      DEFAULT_EMAIL_VALIDATED = {
+        filter: 'Email Validated',
+        id: 'email_validated',
+        proc: ->(user, admin_user) { user.email_validated? }
+      }
+
+      DEFAULT_MFA_ENABLED = {
+        filter: 'MFA Enabled',
+        id: 'mfa_enabled',
+        proc: ->(user, admin_user) { user.mfa_enabled? }
+      }
+
+      DEFAULT_PAGE_FILTER = [DEFAULT_ADMIN_TYPE, DEFAULT_ADMIN_SELF, DEFAULT_ADMIN_ACTIVE, DEFAULT_EMAIL_VALIDATED, DEFAULT_MFA_ENABLED].flatten
       DEFAULT_VALUES = {
         enable: {
           type: :boolean,
@@ -41,6 +75,13 @@ module RailsBase
           default: RailsBase::Admin::IndexTile.defaults,
           decipher: ->(thing) { thing.description },
           description: 'List of tiles on admin page',
+        },
+        admin_page_filter: {
+          type: :array,
+          # klass_type: [Array],
+          default: DEFAULT_PAGE_FILTER,
+          description: 'List of filters on admin page',
+          decipher: ->(thing) { thing[:filter] },
         },
         enable_sso_tile: {
           type: :boolean,

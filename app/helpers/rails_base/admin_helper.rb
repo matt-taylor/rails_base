@@ -9,6 +9,12 @@ module RailsBase
       email: 'rails_base/shared/admin_modify_email'
     }
 
+    def filtered_classes(user, admin)
+      RailsBase.config.admin.admin_page_filter.map do |object|
+        object[:id] if object[:proc].call(user, admin)
+      end.compact.join(' ')
+    end
+
     def users_for_proc(proc)
       User.all.select do |user|
         proc.call(user)
