@@ -4,7 +4,7 @@ module RailsBase
   module Configuration
     class ExceptionsApp < Base
 
-      EXCEPTIONS_PROC = Proc.new do |val|
+      EXCEPTIONS_PROC = Proc.new do |val, _instance|
         Rails.configuration.exceptions_app = val
       end
 

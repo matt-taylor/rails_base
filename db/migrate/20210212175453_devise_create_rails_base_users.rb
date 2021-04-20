@@ -11,7 +11,7 @@ class DeviseCreateRailsBaseUsers < ActiveRecord::Migration[5.2]
       t.boolean :email_validated, default: false
       t.boolean :mfa_enabled, default: false, null: false
       t.boolean  :active, default: true, null: false
-      t.integer  :admin, default: 0, null: false
+      t.string  :admin
 
 
       ## Database authenticatable

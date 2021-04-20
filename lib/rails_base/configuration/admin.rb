@@ -1,15 +1,56 @@
 require 'rails_base/configuration/base'
 require 'rails_base/admin/index_tile'
 require 'rails_base/admin/default_index_tile'
+require RailsBase::Engine.root.join('app', 'models', 'rails_base', 'user_constants.rb')
 
 module RailsBase
   module Configuration
     class Admin < Base
+      include RailsBase::UserConstants
+
+      DEFAULT_ADMIN_TYPE = RailsBase::Configuration::Admin::ADMIN_ENUMS.map do |enum|
+        name = "Admin Type: #{enum}"
+        proc = ->(user, admin_user) { user.public_send("admin_#{enum}?") }
+        {filter: name, id: "admin_#{enum}", proc: proc}
+      end
+
+      DEFAULT_ADMIN_SELF = {
+        filter: 'My User',
+        id: 'my_admin_user',
+        proc: ->(user, admin_user) { user == admin_user }
+      }
+
+      DEFAULT_ADMIN_ACTIVE = {
+        filter: 'Active Users',
+        id: 'active_users',
+        proc: ->(user, admin_user) { user.active? }
+      }
+
+      DEFAULT_EMAIL_VALIDATED = {
+        filter: 'Email Validated',
+        id: 'email_validated',
+        proc: ->(user, admin_user) { user.email_validated? }
+      }
+
+      DEFAULT_MFA_ENABLED = {
+        filter: 'MFA Enabled',
+        id: 'mfa_enabled',
+        proc: ->(user, admin_user) { user.mfa_enabled? }
+      }
+
+      DEFAULT_PAGE_FILTER = [DEFAULT_ADMIN_TYPE, DEFAULT_ADMIN_SELF, DEFAULT_ADMIN_ACTIVE, DEFAULT_EMAIL_VALIDATED, DEFAULT_MFA_ENABLED].flatten
       DEFAULT_VALUES = {
         enable: {
           type: :boolean,
           default: true,
           description: 'Enable Admin capabilities'
+        },
+        admin_types: {
+          type: :array,
+          klass_type: [Symbol],
+          default: [:none, :view_only, :super],
+          on_assignment: ->(val, instance) { instance._assert_admin_type },
+          description: 'List of admin types. Assignment order is important. Note: :none gets prepended as this is default. Note: :owner, gets appended to this array as the last, highest priority',
         },
         enable_history: {
           type: :boolean,
@@ -118,6 +159,28 @@ module RailsBase
       }
 
       attr_accessor *DEFAULT_VALUES.keys
+
+      def _assert_admin_type
+        admin_types.delete(ADMIN_ROLE_OWNER)
+        admin_types.delete(ADMIN_ROLE_NONE)
+        admin_types << ADMIN_ROLE_OWNER
+        admin_types.prepend ADMIN_ROLE_NONE
+        convenience_methods
+      end
+
+      private
+
+      def convenience_methods
+        # defines instance methods like
+        # user.at_least_super?
+        # user.at_least_owner?
+        # user.admin_super!
+        # user.admin_owner!
+        # This is 100% dependent upon keeping ADMIN_ENUMS in order of precedence
+        admin_types.each do |type|
+          User._def_admin_convenience_method!(admin_method: type)
+        end
+      end
     end
   end
 end

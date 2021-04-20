@@ -37,8 +37,29 @@ class User < ApplicationRecord
     ADMIN_ROLE_OWNER = :owner,
   ]
   validate :enforce_owner, if: :will_save_change_to_admin?
+  validate :enforce_admin_type, if: :will_save_change_to_admin?
 
-  enum admin: ADMIN_ENUMS, _prefix: true
+  def self._def_admin_convenience_method!(admin_method:)
+    types = RailsBase.config.admin.admin_types
+    define_method("at_least_#{admin_method}?") do
+      i = types.find_index(admin.to_sym)
+      i >= types.find_index(admin_method.to_sym)
+    end
+    define_method("admin_#{admin_method}?") do
+      admin.to_sym == admin_method
+    end
+    define_method("admin_#{admin_method}!") do
+      update_attributes!(admin: admin_method)
+    end
+    define_singleton_method("admin_#{admin_method}s") do
+      where(admin: admin_method)
+    end
+    define_singleton_method("admin_#{admin_method}") do
+      arr = [admin_method]
+      arr = [admin_method, '', nil] if ADMIN_ROLE_NONE == admin_method
+      where(admin: admin_method)
+    end
+  end
 
   SOFT_DESTROY_PARAMS = {
     mfa_enabled: false,
@@ -61,15 +82,8 @@ class User < ApplicationRecord
     Time.zone.now - RailsBase.config.auth.mfa_time_duration
   end
 
-  # defines instance methods like
-  # user.at_least_super?
-  # user.at_least_owner?
-  # This is 100% dependent upon keeping ADMIN_ENUMS in order of precedence
-  ADMIN_ENUMS.each_with_index do |level, index|
-    define_method("at_least_#{level}?") do
-      i = ADMIN_ENUMS.find_index(admin.to_sym)
-      i >= index
-    end
+  def admin
+    (self[:admin] || ADMIN_ROLE_NONE).to_sym
   end
 
   def full_name
@@ -106,6 +120,13 @@ class User < ApplicationRecord
 
   private
 
+  def enforce_admin_type
+    from, to = admin_change_to_be_saved
+    return if RailsBase.config.admin.admin_types.include?(to.to_sym)
+
+    errors.add(:admin, "Undefined admin type. Expected #{RailsBase.config.admin.admin_types}. Given #{to}")
+  end
+
   def enforce_owner
     from, to = admin_change_to_be_saved
     # skip validation event if we are not updating to owner role
@@ -115,6 +136,6 @@ class User < ApplicationRecord
     count = User.where(admin: ADMIN_ROLE_OWNER).count + 1
     return if count <= RailsBase.config.owner.max
 
-    errors.add(:status, "unable to have more than #{RailsBase.config.owner.max} owner(s).")
+    errors.add(:admin, "unable to have more than #{RailsBase.config.owner.max} owner(s).")
   end
 end

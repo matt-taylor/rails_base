@@ -62,10 +62,10 @@ module RailsBase
           if object[:on_assignment]
             if object[:on_assignment].is_a? Array
               object[:on_assignment].each do |elem|
-                elem.call(value)
+                elem.call(value, self)
               end
             else
-              object[:on_assignment].call(value)
+              object[:on_assignment].call(value, self)
             end
           end
         end
