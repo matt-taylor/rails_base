@@ -30,12 +30,8 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable, :timeoutable, :trackable
 
-  ADMIN_ENUMS = [
-    ADMIN_ROLE_TIER_NONE = :none,
-    ADMIN_ROLE_TIER_1 = :view_only,
-    ADMIN_ROLE_SUPER = :super,
-    ADMIN_ROLE_OWNER = :owner,
-  ]
+  include RailsBase::UserConstants
+
   validate :enforce_owner, if: :will_save_change_to_admin?
   validate :enforce_admin_type, if: :will_save_change_to_admin?
 
@@ -57,7 +53,7 @@ class User < ApplicationRecord
     define_singleton_method("admin_#{admin_method}") do
       arr = [admin_method]
       arr = [admin_method, '', nil] if ADMIN_ROLE_NONE == admin_method
-      where(admin: admin_method)
+      where(admin: arr)
     end
   end
 
