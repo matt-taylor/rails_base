@@ -79,7 +79,7 @@ class User < ApplicationRecord
   end
 
   def admin
-    (self[:admin] || ADMIN_ROLE_NONE).to_sym
+    (self[:admin].presence || ADMIN_ROLE_NONE).to_sym
   end
 
   def full_name

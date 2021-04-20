@@ -52,7 +52,7 @@ RSpec.describe RailsBase::AdminUpdateAttribute do
     end
 
     context 'with admin_user lacking perms' do
-      let(:admin_user) { User.where(admin: :none).first }
+      let(:admin_user) { User.admin_none.first }
 
       it { expect(call.failure?).to be true }
       it { expect(call.message).to include("User does not have permissions to update") }
