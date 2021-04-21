@@ -9,11 +9,24 @@ module RailsBase
 
       include RailsBase::UserConstants
 
-      DEFAULT_ADMIN_TYPE = RailsBase::Configuration::Admin::ADMIN_ENUMS.map do |enum|
-        name = "Admin Type: #{enum}"
-        proc = ->(user, admin_user) { user.public_send("admin_#{enum}?") }
-        {filter: name, id: "admin_#{enum}", proc: proc}
+      ADMIN_TYPE_PROC = Proc.new do |hash|
+        RailsBase.config.admin.admin_types.map do |type|
+          {
+            filter: "Admin Type: #{type}",
+            proc: ->(user, admin_user) { user.public_send("admin_#{type}?") },
+            id: "#{hash[:id]}_#{type}",
+          }
+        end
       end
+
+      # private_constant(:ADMIN_TYPE_PROC)
+
+      DEFAULT_ADMIN_TYPE = {
+        filter: '',
+        id: "admin",
+        proc: ->(_user, _admin_user) { },
+        replace:  ADMIN_TYPE_PROC,
+      }
 
       DEFAULT_ADMIN_SELF = {
         filter: 'My User',
@@ -49,7 +62,7 @@ module RailsBase
         admin_types: {
           type: :array,
           klass_type: [Symbol],
-          default: [:none, :view_only, :super],
+          default: ADMIN_ENUMS,
           on_assignment: ->(val, instance) { instance._assert_admin_type },
           description: 'List of admin types. Assignment order is important. Note: :none gets prepended as this is default. Note: :owner, gets appended to this array as the last, highest priority',
         },
@@ -84,11 +97,13 @@ module RailsBase
           decipher: ->(thing) { thing.description },
           description: 'List of tiles on admin page',
         },
+        # Next value is dependent on admin_types. Must be defined after
         admin_page_filter: {
           type: :array,
           # klass_type: [Array],
+          on_assignment: ->(val, instance) { instance._admin_type_replace_proc },
           default: DEFAULT_PAGE_FILTER,
-          description: 'List of filters on admin page',
+          description: 'List of filters on admin page.',
           decipher: ->(thing) { thing[:filter] },
         },
         enable_sso_tile: {
@@ -174,6 +189,15 @@ module RailsBase
         admin_types << ADMIN_ROLE_OWNER
         admin_types.prepend ADMIN_ROLE_NONE
         convenience_methods
+      end
+
+      def _admin_type_replace_proc
+        admin_page_filter.each_with_index do |value, index|
+          next unless value[:replace].present?
+
+          admin_page_filter[index] = ADMIN_TYPE_PROC.call(value)
+        end
+        admin_page_filter.flatten!
       end
 
       private
