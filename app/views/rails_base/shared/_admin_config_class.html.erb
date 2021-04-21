@@ -22,7 +22,7 @@
           <% when :array %>
             <td>
               <% array = array_for_proc(object[:decipher], instance.public_send(name)) %>
-              <a tabindex="0" class="btn btn-secondary" role="button" data-toggle="popover" data-trigger="focus" title="Configured List" data-html=true data-content="<%=array.join('<br class="border-top></br>')%>">View List</a>
+              <a tabindex="0" class="btn btn-secondary" role="button" data-toggle="popover" data-trigger="focus" title="Configured List" data-html=true data-content="<%=array.join('</br>')%>">View List</a>
             </td>
           <% else %>
             <td>

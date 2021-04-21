@@ -65,6 +65,7 @@ module RailsBase
           default: ADMIN_ENUMS,
           on_assignment: ->(val, instance) { instance._assert_admin_type },
           description: 'List of admin types. Assignment order is important. Note: :none gets prepended as this is default. Note: :owner, gets appended to this array as the last, highest priority',
+          decipher: ->(thing) { thing },
         },
         enable_history: {
           type: :boolean,
