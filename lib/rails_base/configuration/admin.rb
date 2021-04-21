@@ -6,7 +6,8 @@ require RailsBase::Engine.root.join('app', 'models', 'rails_base', 'user_constan
 module RailsBase
   module Configuration
     class Admin < Base
-      include UserConstants
+
+      include RailsBase::UserConstants
 
       DEFAULT_ADMIN_TYPE = RailsBase::Configuration::Admin::ADMIN_ENUMS.map do |enum|
         name = "Admin Type: #{enum}"
@@ -44,6 +45,13 @@ module RailsBase
           type: :boolean,
           default: true,
           description: 'Enable Admin capabilities'
+        },
+        admin_types: {
+          type: :array,
+          klass_type: [Symbol],
+          default: [:none, :view_only, :super],
+          on_assignment: ->(val, instance) { instance._assert_admin_type },
+          description: 'List of admin types. Assignment order is important. Note: :none gets prepended as this is default. Note: :owner, gets appended to this array as the last, highest priority',
         },
         enable_history: {
           type: :boolean,
@@ -159,6 +167,28 @@ module RailsBase
       }
 
       attr_accessor *DEFAULT_VALUES.keys
+
+      def _assert_admin_type
+        admin_types.delete(ADMIN_ROLE_OWNER)
+        admin_types.delete(ADMIN_ROLE_NONE)
+        admin_types << ADMIN_ROLE_OWNER
+        admin_types.prepend ADMIN_ROLE_NONE
+        convenience_methods
+      end
+
+      private
+
+      def convenience_methods
+        # defines instance methods like
+        # user.at_least_super?
+        # user.at_least_owner?
+        # user.admin_super!
+        # user.admin_owner!
+        # This is 100% dependent upon keeping ADMIN_ENUMS in order of precedence
+        admin_types.each do |type|
+          User._def_admin_convenience_method!(admin_method: type)
+        end
+      end
     end
   end
 end

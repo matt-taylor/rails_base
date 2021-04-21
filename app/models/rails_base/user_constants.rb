@@ -1,12 +1,8 @@
 module RailsBase
   module UserConstants
     ADMIN_ENUMS = [
-      ADMIN_ROLE_TIER_NONE = :none,
-      ADMIN_ROLE_TIER_VIEW_ONLY = :view_only,
-      ADMIN_ROLE_TIER_1 = :tier1,
-      ADMIN_ROLE_TIER_2 = :tier2,
-      ADMIN_ROLE_TIER_3 = :tier3,
-      ADMIN_ROLE_SUPER = :super,
+      ADMIN_ROLE_NONE = :none,
+      ADMIN_ROLE_VIEW_ONLY = :view_only,
       ADMIN_ROLE_OWNER = :owner,
     ]
 

@@ -15,7 +15,7 @@ module RailsBase
           default: ENV.fetch('SESSION_TIMEOUT_IN_SECONDS', DEFAULT_SESSION).to_i.seconds,
           custom: ->(val) { val.to_i >= MIN_SESSION },
           msg: "session_timeout must be a duration. Greater than #{MIN_SESSION}",
-          on_assignment: ->(val) { Devise.timeout_in = val },
+          on_assignment: ->(val, _instance) { Devise.timeout_in = val },
           description: 'Debug purposes. How long to keep admin_velocity_max attempts',
         },
         session_timeout_warning: {

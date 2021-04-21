@@ -105,7 +105,7 @@ params = {
   value: ->(user) { user.admin },
   name: 'admin', # name to be amended to html id
   col_name: 'Admin Type', # Expected to be the column header name
-  selector: -> (user) { User::ADMIN_ENUMS },
+  selector: -> (user) { RailsBase.config.admin.admin_types },
   disabled: -> (user, admin_user) { user == admin_user || !RailsBase.config.admin.admin_type_tile_users.call(admin_user) },
   disabled_msg: -> (user, admin_user) { 'Unable to complete action.' }
 }

@@ -55,7 +55,7 @@ ActiveRecord::Schema.define(version: 2021_04_06_015744) do
     t.boolean "email_validated", default: false
     t.boolean "mfa_enabled", default: false, null: false
     t.boolean "active", default: true, null: false
-    t.integer "admin", default: 0, null: false
+    t.string "admin", default: ""
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
     t.string "reset_password_token"
