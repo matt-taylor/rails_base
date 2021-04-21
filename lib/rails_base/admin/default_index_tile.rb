@@ -22,7 +22,7 @@ params = {
   partial: 'rails_base/shared/admin_modify_name',
   min_width: 220,
   disabled: -> (user, admin_user) { !RailsBase.config.admin.name_tile_users.call(admin_user) },
-  disabled_msg: -> (user, admin_user) { 'Your admin does not have permissions' }
+  disabled_msg: -> (user, admin_user) { 'Your admin user does not have permissions' }
 }
 instance = RailsBase::Admin::IndexTile.new(**params)
 RailsBase::Admin::IndexTile.add(instance)
@@ -36,7 +36,7 @@ params = {
   name: 'active', # name to be amended to html id
   col_name: 'Active User', # Expected to be the column header name
   disabled: -> (user, admin_user) { user == admin_user || !RailsBase.config.admin.email_tile_users.call(admin_user) },
-  disabled_msg: -> (user, admin_user) { 'Your admin does not have permissions' }
+  disabled_msg: -> (user, admin_user) { 'Your admin user does not have permissions' }
 }
 instance = RailsBase::Admin::IndexTile.new(**params)
 RailsBase::Admin::IndexTile.add(instance)
@@ -50,7 +50,7 @@ params = {
   col_name: 'Email', # Expected to be the column header name
   min_width: 220,
   disabled: -> (user, admin_user) { !RailsBase.config.admin.email_validate_tile_users.call(admin_user) },
-  disabled_msg: -> (user, admin_user) { 'Your admin does not have permissions' }
+  disabled_msg: -> (user, admin_user) { 'Your admin user does not have permissions' }
 }
 instance = RailsBase::Admin::IndexTile.new(**params)
 RailsBase::Admin::IndexTile.add(instance)
@@ -64,7 +64,7 @@ params = {
   name: 'email_validated', # name to be amended to html id
   col_name: 'Email Validated?', # Expected to be the column header name
   disabled: -> (user, admin_user) { !RailsBase.config.admin.email_tile_users.call(admin_user) },
-  disabled_msg: -> (user, admin_user) { 'Your admin does not have permissions' }
+  disabled_msg: -> (user, admin_user) { 'Your admin user does not have permissions' }
 }
 instance = RailsBase::Admin::IndexTile.new(**params)
 RailsBase::Admin::IndexTile.add(instance)
@@ -77,7 +77,7 @@ params = {
   col_name: 'Phone Number', # Expected to be the column header name
   min_width: 180,
   disabled: -> (user, admin_user) { !RailsBase.config.admin.phone_tile_users.call(admin_user) },
-  disabled_msg: -> (user, admin_user) { 'Your admin does not have permissions' }
+  disabled_msg: -> (user, admin_user) { 'Your admin user does not have permissions' }
 
 }
 instance = RailsBase::Admin::IndexTile.new(**params)
@@ -107,7 +107,7 @@ params = {
   col_name: 'Admin Type', # Expected to be the column header name
   selector: -> (user) { RailsBase.config.admin.admin_types },
   disabled: -> (user, admin_user) { user == admin_user || !RailsBase.config.admin.admin_type_tile_users.call(admin_user) },
-  disabled_msg: -> (user, admin_user) { 'Unable to do action.' }
+  disabled_msg: -> (user, admin_user) { 'Unable to complete action.' }
 }
 instance = RailsBase::Admin::IndexTile.new(**params)
 RailsBase::Admin::IndexTile.add(instance)

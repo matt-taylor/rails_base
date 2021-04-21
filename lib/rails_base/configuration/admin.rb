@@ -6,6 +6,7 @@ require RailsBase::Engine.root.join('app', 'models', 'rails_base', 'user_constan
 module RailsBase
   module Configuration
     class Admin < Base
+
       include RailsBase::UserConstants
 
       DEFAULT_ADMIN_TYPE = RailsBase::Configuration::Admin::ADMIN_ENUMS.map do |enum|
@@ -82,6 +83,13 @@ module RailsBase
           default: RailsBase::Admin::IndexTile.defaults,
           decipher: ->(thing) { thing.description },
           description: 'List of tiles on admin page',
+        },
+        admin_page_filter: {
+          type: :array,
+          # klass_type: [Array],
+          default: DEFAULT_PAGE_FILTER,
+          description: 'List of filters on admin page',
+          decipher: ->(thing) { thing[:filter] },
         },
         enable_sso_tile: {
           type: :boolean,
