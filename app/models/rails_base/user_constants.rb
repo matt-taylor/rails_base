@@ -3,6 +3,7 @@ module RailsBase
     ADMIN_ENUMS = [
       ADMIN_ROLE_NONE = :none,
       ADMIN_ROLE_VIEW_ONLY = :view_only,
+      ADMIN_ROLE_SUPER = :super,
       ADMIN_ROLE_OWNER = :owner,
     ]
 
