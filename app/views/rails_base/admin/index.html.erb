@@ -1,3 +1,10 @@
+
+<% filters = RailsBase.config.admin.admin_page_filter.map { |f| [f[:filter], f[:id]] } %>
+<div class='row text-center justify-content-center'>
+  <div class='col-md-4 col-md-offset-4'>
+    <%= select_tag 'admin_filter_user_by', options_for_select(filters), include_blank: 'Filter Users', class: 'form-control', onchange: 'filter_admins()' %>
+  </div>
+</div>
 <div class='table-responsive-xl' >
   <table class="tableFixHead table table-striped table-bordered">
     <thead class="thead-dark text-center">
@@ -6,10 +13,10 @@
       <% end %>
     </thead>
     <tbody class='text-center'>
-      <% admin_user = current_user %>
+    <% admin_user = current_user %>
     <% User.all.each do |user| %>
       <% id_base = "#{user.id}_#{(100*rand).to_i}" %>
-      <tr>
+      <tr class='admin_filter_tr <%= filtered_classes(user, admin_user) %>'>
         <% RailsBase.config.admin.admin_page_tiles.each do |tile| %>
           <td id='<%= id_base %>_<%= tile.name %>' >
             <% case tile.type %>
@@ -52,6 +59,17 @@
 
 <script type="text/javascript">
   var shared_admin_modal = 'sharedAdminModal'
+
+  function filter_admins(){
+    var class_id = $('#admin_filter_user_by').val()
+    if(class_id == ''){
+      $('.admin_filter_tr').show()
+    } else {
+      $('.admin_filter_tr').hide()
+      $(`.${class_id}`).show()
+    }
+    console.log(`id: ${class_id}`)
+  }
 
   function show_shared_admin_modal(){
     $(`#${shared_admin_modal}`).appendTo('body').modal('show');
