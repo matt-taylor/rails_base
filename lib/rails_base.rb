@@ -38,6 +38,10 @@ module RailsBase
     @config ||= RailsBase::Config.new
   end
 
+  def self.appearance
+    @appearance ||= config.appearance
+  end
+
   def self.reset_config!
     config.reset_config!
   end

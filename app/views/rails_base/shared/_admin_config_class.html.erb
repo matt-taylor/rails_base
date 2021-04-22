@@ -1,16 +1,16 @@
 <% humanize_var = var.to_s.delete('@') %>
-<h2> <%= klass.name.demodulize %> </h2>
+<h2 class='<%= RailsBase::ApplicationController::APPEARANCE_TEXT_CLASS %>'> <%= klass.name.demodulize %> </h2>
 <div class='table-responsive' style="overflow-x:auto; width: inherit !important;" >
   <table class="tableFixHead table table-striped table-bordered">
     <thead class="thead-dark text-center">
-      <th style="width: 20%"> <%= humanize_var.titleize %> config </th>
+      <th style="width: 20%"> <%= rename&.name&.demodulize&.titleize || humanize_var.titleize %> config </th>
       <th style="width: 20%"> Value </th>
       <th style="width: 60%"> Description </th>
     </thead>
     <tbody class='text-center'>
       <% klass::DEFAULT_VALUES.each do |name, object| %>
         <tr>
-          <td> <%= humanize_var %>.<%= name %> </td>
+          <td> <%= "#{prepend_shit}." if prepend_shit %><%= humanize_var %>.<%= name %> </td>
           <% case object[:type] %>
           <% when :proc %>
             <td>

@@ -1,9 +1,15 @@
 <% RailsBase.config.instance_variables.each do |var| %>
   <% instance = RailsBase.config.instance_variable_get(var) %>
   <% klass = instance.class %>
-  <%= render partial: 'rails_base/shared/admin_config_class', locals: { instance: instance, klass: klass, var: var } %>
+  <%= render partial: 'rails_base/shared/admin_config_class', locals: { instance: instance, klass: klass, var: var, prepend_shit: nil, rename: nil } %>
 <% end %>
 
+<% RailsBase.appearance.class::DOWNSTREAM_CLASSES.each do |var| %>
+  <% var = "@#{var}" %>
+  <% instance = RailsBase.appearance.instance_variable_get(var) %>
+  <% klass = instance.class %>
+  <%= render partial: 'rails_base/shared/admin_config_class', locals: { instance: instance, klass: klass, var: var, prepend_shit: 'appearance', rename: klass } %>
+<% end %>
 
 <script type="text/javascript">
   $(function () {

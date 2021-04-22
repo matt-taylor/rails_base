@@ -26,6 +26,7 @@ module RailsBase
         array: -> (val) { [Array].include?(val.class) },
         path: -> (val) { [Pathname].include?(val.class) },
         klass: -> (_val) { true },
+        values: -> (_val) { true },
       }
 
       def initialize
@@ -45,7 +46,7 @@ module RailsBase
       def override_methods!
         self.class::DEFAULT_VALUES.each do |key, object|
           self.class.define_method(:"#{key}=") do |value|
-            raise ConfigurationAlreadyEstablished, "Unable to assign [#{key}] on. Assignment must happen on boot" unless self.class._allow_write_block?
+            raise ConfigurationAlreadyEstablished, "Unable to assign [#{_name}.#{key}]. Assignment must happen on boot" unless self.class._allow_write_block?
 
             instance_variable_set(:"@#{key}", value)
           end
@@ -59,6 +60,7 @@ module RailsBase
           validate_var!(key: key, var: value, type: object[:type])
           validate_custom_rule!(var: value, custom: object[:custom], key: key, msg: object[:msg])
           validate_klass_type!(key: key, var: value, type: object[:type], klass_type: object[:klass_type])
+          validate_values_included!(key: key, var: value, type: object[:type], expect_values: object[:expect_values])
           if object[:on_assignment]
             if object[:on_assignment].is_a? Array
               object[:on_assignment].each do |elem|
@@ -111,7 +113,7 @@ module RailsBase
         proc = ALLOWED_TYPES.fetch(type)
         return if proc.call(var)
 
-        raise InvalidConfiguration, "#{key} expects a #{type}."
+        raise InvalidConfiguration, "#{_name}.#{key} expects a #{type}."
       end
 
       def validate_klass_type!(var:, type:, key:, klass_type:)
@@ -126,6 +128,13 @@ module RailsBase
         return if boolean
 
         raise InvalidConfiguration, "#{_name}.#{key} expects all members to be a #{klass_type}. Received: [#{var.class}]"
+      end
+
+      def validate_values_included!(key:, var:, type:, expect_values:)
+        return if expect_values.nil?
+        return if expect_values.include?(var)
+
+        raise InvalidConfiguration, "#{_name}.#{key} expects value to be included in [#{expect_values}]. Received: [#{var}]"
       end
 
       def _name
