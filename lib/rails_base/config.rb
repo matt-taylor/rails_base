@@ -6,10 +6,11 @@ require 'rails_base/configuration/owner'
 require 'rails_base/configuration/mailer'
 require 'rails_base/configuration/exceptions_app'
 require 'rails_base/configuration/app_url'
+require 'rails_base/configuration/appearance'
 
 module RailsBase
   class Config
-    attr_reader :admin, :mfa, :auth, :redis, :owner, :mailer, :exceptions_app, :app_url
+    attr_reader :admin, :mfa, :auth, :redis, :owner, :mailer, :exceptions_app, :app_url, :appearance
     def initialize
       @admin = Configuration::Admin.new
       @mfa = Configuration::Mfa.new
@@ -19,6 +20,7 @@ module RailsBase
       @mailer = Configuration::Mailer.new
       @exceptions_app = Configuration::ExceptionsApp.new
       @app_url = Configuration::AppUrl.new
+      @appearance = Configuration::Appearance.new
     end
 
     def validate_configs!
@@ -30,6 +32,7 @@ module RailsBase
       mailer.validate!
       exceptions_app.validate!
       app_url.validate!
+      appearance.validate!
     end
 
     def reset_config!
@@ -41,6 +44,7 @@ module RailsBase
       mailer.assign_default_values!
       exceptions_app.assign_default_values!
       app_url.assign_default_values!
+      appearance.assign_default_values!
     end
   end
 end
