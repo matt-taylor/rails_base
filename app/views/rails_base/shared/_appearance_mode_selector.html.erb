@@ -97,14 +97,16 @@
       $('#appearance_mode_selector').appendTo('body');
       set_and_toggle_mode( `<%= cookies[RailsBase::ApplicationController::APPEARANCE_MODE_COOKIE] || RailsBase.appearance.default_mode %>`)
       $(document).ajaxComplete(function () {
-        toggle_dark_mode()
+        set_and_toggle_mode()
       });
     });
 
     function set_and_toggle_mode(value) {
-      $.cookie(cookie_name, value, { 'path': '/' });
+      if(value){
+        $.cookie(cookie_name, value, { 'path': '/' });
+      }
 
-      if(value=='<%= RailsBase::Configuration::Appearance::MATCH_OS%>'){
+      if($.cookie(cookie_name)=='<%= RailsBase::Configuration::Appearance::MATCH_OS%>'){
         if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
           toggle_dark_mode('<%= dark %>');
         } else {
