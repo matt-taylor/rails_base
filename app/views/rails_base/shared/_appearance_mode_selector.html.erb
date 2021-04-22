@@ -1,7 +1,7 @@
 <% if RailsBase.appearance.enabled %>
   <!-- Button trigger modal -->
-  <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#appearance_mode_selector">
-    Appearance Mode
+  <button type="button" class="btn btn-info <%= btn%>" data-toggle="modal" data-target="#appearance_mode_selector">
+    Modify Appearance
   </button>
 
   <!-- Modal -->
@@ -16,7 +16,7 @@
         </div>
         <div class="modal-body">
           <h5> Currently using <%= appearance_mode_drop_down[:current] %> </h5>
-          <%= select_tag 'appearance_mode_selector_id', options_for_select(appearance_mode_drop_down[:types]), class: 'form-control', include_blank: 'Select Appearance Mode' %>
+          <%= select_tag 'appearance_mode_selector_id', options_for_select(appearance_mode_drop_down[:types_a]), class: 'form-control', include_blank: 'Select Appearance Mode' %>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-block btn-secondary" data-dismiss="modal">Close</button>
@@ -25,7 +25,7 @@
     </div>
   </div>
   <script type="text/javascript">
-    <% types = RailsBase::Configuration::Appearance::APPEARANCE_TYPES.join(',') %>
+    <% types = RailsBase::Configuration::Appearance::APPEARANCE_TYPES.keys.join(',') %>
     <% dark = RailsBase::Configuration::Appearance::DARK_MODE %>
     <% light = RailsBase::Configuration::Appearance::LIGHT_MODE %>
     var cookie_name = `<%= RailsBase::ApplicationController::APPEARANCE_MODE_COOKIE %>`;
@@ -42,6 +42,11 @@
       },
       {
         'descriptor': 'body',
+        '<%= dark %>': '<%= RailsBase.appearance.bg_color.dark_mode %>',
+        '<%= light %>': '<%= RailsBase.appearance.bg_color.light_mode %>'
+      },
+      {
+        'descriptor': 'input:not(.btn)',
         '<%= dark %>': '<%= RailsBase.appearance.bg_color.dark_mode %>',
         '<%= light %>': '<%= RailsBase.appearance.bg_color.light_mode %>'
       },
@@ -119,6 +124,10 @@
       color: gray ;
     }
     select.bg-dark {
+      background-color: black !important;
+      color: white ;
+    }
+    input.bg-dark {
       background-color: black !important;
       color: white ;
     }
