@@ -16,11 +16,14 @@ module RailsBase
         :text,
       ]
 
-      APPEARANCE_TYPES = [
-        DARK_MODE = :dark,
-        LIGHT_MODE = :light,
-        MATCH_OS = :match_os,
-      ]
+      DARK_MODE = :dark
+      LIGHT_MODE = :light
+      MATCH_OS = :match_os
+      APPEARANCE_TYPES = {
+        DARK_MODE => 'Dark Mode',
+        LIGHT_MODE => 'Light Mode',
+        MATCH_OS => 'Match System',
+      }
 
       DEFAULT_VALUES = {
         enabled: {
@@ -30,7 +33,7 @@ module RailsBase
         },
         default_mode: {
           type: :values,
-          expect_values: APPEARANCE_TYPES,
+          expect_values: APPEARANCE_TYPES.keys,
           default: LIGHT_MODE,
           description: 'Default mode to set when mode not found in cookies/session'
         },
