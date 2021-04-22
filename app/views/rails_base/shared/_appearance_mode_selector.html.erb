@@ -1,8 +1,8 @@
 <% if RailsBase.appearance.enabled %>
   <% if display %>
   <!-- Button trigger modal -->
-  <button type="button" class="btn btn-info <%= btn%>" data-toggle="modal" data-target="#appearance_mode_selector">
-    Modify Appearance
+  <button type="button" class="btn btn-info <%= btn%> close-me" data-toggle="modal" data-target="#appearance_mode_selector">
+    Dark/Lite Mode
   </button>
 
   <!-- Modal -->
@@ -48,7 +48,7 @@
         '<%= light %>': '<%= RailsBase.appearance.bg_color.light_mode %>'
       },
       {
-        'descriptor': 'input:not(.btn)',
+        'descriptor': 'input:not(.btn)', // inputs but not button inputs
         '<%= dark %>': '<%= RailsBase.appearance.bg_color.dark_mode %>',
         '<%= light %>': '<%= RailsBase.appearance.bg_color.light_mode %>'
       },
@@ -95,7 +95,7 @@
 
     $(document).ready(function(){
       $('#appearance_mode_selector').appendTo('body');
-      toggle_dark_mode( `<%= cookies[RailsBase::ApplicationController::APPEARANCE_MODE_COOKIE] || RailsBase.appearance.default_mode %>`)
+      set_and_toggle_mode( `<%= cookies[RailsBase::ApplicationController::APPEARANCE_MODE_COOKIE] || RailsBase.appearance.default_mode %>`)
       $(document).ajaxComplete(function () {
         toggle_dark_mode()
       });
@@ -103,6 +103,7 @@
 
     function set_and_toggle_mode(value) {
       $.cookie(cookie_name, value, { 'path': '/' });
+
       if(value=='<%= RailsBase::Configuration::Appearance::MATCH_OS%>'){
         if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
           toggle_dark_mode('<%= dark %>');
