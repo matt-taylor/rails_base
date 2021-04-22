@@ -96,17 +96,6 @@
       function goBack() {
         window.history.back();
       }
-
-      function darkMode(){
-          $([".light [class*='-light']", ".dark [class*='-dark']"]).each((i,ele)=>{
-              $(ele).toggleClass('bg-light bg-dark')
-              $(ele).toggleClass('text-light text-dark')
-              $(ele).toggleClass('navbar-light navbar-dark')
-              console.log('toggling the shit')
-          })
-          // toggle body class selector
-          $('body').toggleClass('light dark')
-      }
     </script>
   </body>
 </html>

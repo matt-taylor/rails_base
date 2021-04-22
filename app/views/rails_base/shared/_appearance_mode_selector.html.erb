@@ -28,6 +28,7 @@
     <% types = RailsBase::Configuration::Appearance::APPEARANCE_TYPES.join(',') %>
     <% dark = RailsBase::Configuration::Appearance::DARK_MODE %>
     <% light = RailsBase::Configuration::Appearance::LIGHT_MODE %>
+    var cookie_name = `<%= RailsBase::ApplicationController::APPEARANCE_MODE_COOKIE %>`;
     var dark_mode_changes = [
       {
         'descriptor': 'thead',
@@ -66,8 +67,7 @@
       },
     ]
     function toggle_dark_mode(set_key){
-      console.log(`cookie is: ${$.cookie(`<%= RailsBase::ApplicationController::APPEARANCE_MODE_COOKIE %>`)}`)
-      set_key ||= $.cookie(`<%= RailsBase::ApplicationController::APPEARANCE_MODE_COOKIE %>`)
+      set_key ||= $.cookie(cookie_name)
       var remove_keys = '<%= types %>'.split(',')
       remove_keys.splice( $.inArray(set_key,remove_keys),1 );
       for (i = 0; i < dark_mode_changes.length; ++i) {
@@ -82,10 +82,8 @@
 
     $('#appearance_mode_selector_id').change(function() {
       var value = $("#appearance_mode_selector_id").val();
-      $.removeCookie(`<%= RailsBase::ApplicationController::APPEARANCE_MODE_COOKIE %>`)
-      $.cookie(`<%= RailsBase::ApplicationController::APPEARANCE_MODE_COOKIE %>`, value);
-      toggle_dark_mode(value)
-
+      $.removeCookie(cookie_name, { 'path': '/' })
+      set_and_toggle_mode(value)
     })
 
     $(document).ready(function(){
@@ -94,6 +92,24 @@
       $(document).ajaxComplete(function () {
         toggle_dark_mode()
       });
+    });
+
+    function set_and_toggle_mode(value) {
+      $.cookie(cookie_name, value, { 'path': '/' });
+      if(value=='<%= RailsBase::Configuration::Appearance::MATCH_OS%>'){
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          toggle_dark_mode('<%= dark %>');
+        } else {
+          toggle_dark_mode('<%= light %>');
+        }
+      } else {
+        toggle_dark_mode();
+
+      }
+    }
+
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+      set_and_toggle_mode($.cookie(cookie_name))
     });
   </script>
 

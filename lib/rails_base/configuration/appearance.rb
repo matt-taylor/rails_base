@@ -18,7 +18,8 @@ module RailsBase
 
       APPEARANCE_TYPES = [
         DARK_MODE = :dark,
-        LIGHT_MODE = :light
+        LIGHT_MODE = :light,
+        MATCH_OS = :match_os,
       ]
 
       DEFAULT_VALUES = {
