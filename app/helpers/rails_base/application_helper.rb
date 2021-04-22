@@ -13,7 +13,7 @@ module RailsBase::ApplicationHelper
     types_a = raw_types.map(&:to_a).map(&:flatten).map(&:reverse)
     types = raw_types.keys
     unless types.include?(current&.to_sym)
-      cookies[APPEARANCE_MODE_COOKIE] = current = raw_types[RailsBase.appearance.default_mode]
+      cookies[APPEARANCE_MODE_COOKIE] = current = RailsBase.appearance.default_mode
     end
     { types: types, current: current, types_a: types_a }
   end

@@ -95,7 +95,7 @@
 
     $(document).ready(function(){
       $('#appearance_mode_selector').appendTo('body');
-      toggle_dark_mode( `<%= cookies[RailsBase::ApplicationController::APPEARANCE_MODE_COOKIE] %>`)
+      toggle_dark_mode( `<%= cookies[RailsBase::ApplicationController::APPEARANCE_MODE_COOKIE] || RailsBase.appearance.default_mode %>`)
       $(document).ajaxComplete(function () {
         toggle_dark_mode()
       });
