@@ -4,7 +4,7 @@ module RailsBase
   module Configuration
     module Display
       class Text < Base
-
+        APPEARANCE_TEXT_CLASS = 'color-text-class'
         DEFAULT_VALUES = {
           dark_mode: {
             type: :string_nil,

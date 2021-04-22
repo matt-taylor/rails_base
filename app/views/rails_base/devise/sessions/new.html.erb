@@ -1,5 +1,4 @@
-<h2 class="text-center">Log in</h2>
-
+<h2 class="text-center <%= appearance_text_class%>">Log in</h2>
 
 
 <%= render partial: 'rails_base/shared/session_create_form', locals: { resource: @user, resource_name: :user, url: RailsBase.url_routes.new_user_session_path }%>

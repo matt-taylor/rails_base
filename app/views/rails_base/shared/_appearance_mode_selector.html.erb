@@ -1,4 +1,5 @@
 <% if RailsBase.appearance.enabled %>
+  <% if display %>
   <!-- Button trigger modal -->
   <button type="button" class="btn btn-info <%= btn%>" data-toggle="modal" data-target="#appearance_mode_selector">
     Modify Appearance
@@ -24,6 +25,7 @@
       </div>
     </div>
   </div>
+  <% end %>
   <script type="text/javascript">
     <% types = RailsBase::Configuration::Appearance::APPEARANCE_TYPES.keys.join(',') %>
     <% dark = RailsBase::Configuration::Appearance::DARK_MODE %>
@@ -127,7 +129,7 @@
       background-color: black !important;
       color: white ;
     }
-    input.bg-dark {
+    input.bg-dark:not([type='submit']) {
       background-color: black !important;
       color: white ;
     }
