@@ -13,6 +13,8 @@ class DeviseCreateRailsBaseUsers < ActiveRecord::Migration[5.2]
       t.boolean  :active, default: true, null: false
       t.string  :admin
 
+      t.string :last_known_timezone
+      t.timestamp :last_known_timezone_update
 
       ## Database authenticatable
       t.string :email,              null: false, default: ""

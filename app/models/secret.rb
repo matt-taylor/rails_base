@@ -10,7 +10,7 @@
 #  updated_at :datetime         not null
 #
 
-class Secret < ApplicationRecord
+class Secret < RailsBase::ApplicationRecord
   class << self
     def update(name:, secret:)
       next_version = get_secrets(name: name).select(:version).last&.version || 0

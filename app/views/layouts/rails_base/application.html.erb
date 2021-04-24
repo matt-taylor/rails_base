@@ -86,6 +86,9 @@
         $('.b-tooltip').tooltip();
         // https://github.com/jmosbech/StickyTableHeaders
         $('.tableFixHead').stickyTableHeaders();
+
+        // Attempt to set timezone on every request
+        set_cookie('<%= RailsBase::ApplicationController::TIMEZONE_OFFSET_COOKIE %>', new Date().getTimezoneOffset())
       });
       <% end %>
       <% if Rails.env == 'production' %>
@@ -95,6 +98,15 @@
 
       function goBack() {
         window.history.back();
+      }
+
+      function set_cookie(name, value) {
+        document.cookie = `${name}=${value}`
+      }
+
+      function get_cookie(name) {
+        var cookie = document.cookie
+        return cookie.split('; ').find(row => row.startsWith(`${name}=`)).split('=')[1];
       }
     </script>
   </body>

@@ -14,7 +14,7 @@
 #  exclusive_use_count_max :integer
 #
 
-class ShortLivedData < ApplicationRecord
+class ShortLivedData < RailsBase::ApplicationRecord
   self.table_name = 'short_lived_data'
 
   DEFAULT_TIME_TO_LIVE = 1.hour.freeze

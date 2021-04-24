@@ -19,8 +19,6 @@ module RailsBase
         end
       end
 
-      # private_constant(:ADMIN_TYPE_PROC)
-
       DEFAULT_ADMIN_TYPE = {
         filter: '',
         id: "admin",
@@ -209,9 +207,11 @@ module RailsBase
         # user.at_least_owner?
         # user.admin_super!
         # user.admin_owner!
-        # This is 100% dependent upon keeping ADMIN_ENUMS in order of precedence
+        # User.admin_owner
+        # User.admin_owners
+        # This is 100% dependent upon keeping `admin_types` in order of precedence
         admin_types.each do |type|
-          User._def_admin_convenience_method!(admin_method: type)
+          ::User._def_admin_convenience_method!(admin_method: type)
         end
       end
     end

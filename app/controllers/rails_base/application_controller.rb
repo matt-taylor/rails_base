@@ -1,6 +1,7 @@
 module RailsBase
   class ApplicationController < ActionController::Base
     before_action :configure_permitted_parameters, if: :devise_controller?
+    before_action :set_time_zone
     before_action :is_timeout_error?
     before_action :admin_reset_impersonation_session!
     before_action :populate_admin_actions, if: -> { RailsBase.config.admin.enable_actions? }
@@ -8,6 +9,30 @@ module RailsBase
     after_action :capture_admin_action, if: -> { RailsBase.config.admin.enable_actions? }
 
     include ApplicationHelper
+
+    def set_time_zone
+      return unless RailsBase.config.user.tz_user_defined?
+      return if current_user.nil?
+
+      # esape this since this is not signed
+      offset = cookies[TIMEZONE_OFFSET_COOKIE].to_i
+
+      cookie_tz = ActiveSupport::TimeZone[((offset * -1) / 60.0)]
+
+      if session_tz = session[TIMEZONE_SESSION_NAME]
+        # if session exists
+        if cookie_tz && session_tz != cookie_tz.name
+          # if cookie exists and cookie_tz does not match, update db and session
+          current_user.update_tz(tz_name: cookie_tz.name)
+          session[TIMEZONE_SESSION_NAME] = cookie_tz.name
+        end
+      else
+        # if session timezone does not exist, attempt to push to DB and set to session
+        current_user.update_tz(tz_name: cookie_tz.name)
+        session[TIMEZONE_SESSION_NAME] = cookie_tz.name
+      end
+      Thread.current[TIMEZONE_THREAD_NAME] = session[TIMEZONE_SESSION_NAME]
+    end
 
     def is_timeout_error?
       return if current_user || !params.keys.include?('timeout')

@@ -10,6 +10,24 @@ module RailsBase
       RailsBase::Configuration::Base._unset_allow_write!
     end
 
+    initializer 'define magic convenionce methods for converting team', after: 'active_record.initialize_database' do |app|
+      # Only execute when not doing DB actions
+      unless ARGV[0].include?('db')
+
+        # need to eager load Models
+        Rails.application.eager_load!
+
+        # create a connection
+        ActiveRecord::Base.retrieve_connection
+
+        #explicitly load engine routes
+        Dir.entries(RailsBase::Engine.root.join('app','models')).select{|s| s.ends_with?('.rb')}.each {|f| require f}
+        RailsBase::ApplicationRecord.descendants.each do |model|
+          model._magically_defined_time_objects
+        end
+      end
+    end
+
     initializer 'remove switch_user routes', after: 'add_routing_paths' do |app|
       app.routes_reloader.paths.delete_if{ |path| path.include?('switch_user') }
     end
