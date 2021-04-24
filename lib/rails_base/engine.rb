@@ -11,16 +11,20 @@ module RailsBase
     end
 
     initializer 'define magic convenionce methods for converting team', after: 'active_record.initialize_database' do |app|
-      # need to eager load Models
-      Rails.application.eager_load!
+      # Only execute when not doing DB actions
+      unless ARGV[0].include?('db')
 
-      # create a connection
-      ActiveRecord::Base.retrieve_connection
+        # need to eager load Models
+        Rails.application.eager_load!
 
-      #explicitly load engine routes
-      Dir.entries(RailsBase::Engine.root.join('app','models')).select{|s| s.ends_with?('.rb')}.each {|f| require f}
-      RailsBase::ApplicationRecord.descendants.each do |model|
-        model._magically_defined_time_objects
+        # create a connection
+        ActiveRecord::Base.retrieve_connection
+
+        #explicitly load engine routes
+        Dir.entries(RailsBase::Engine.root.join('app','models')).select{|s| s.ends_with?('.rb')}.each {|f| require f}
+        RailsBase::ApplicationRecord.descendants.each do |model|
+          model._magically_defined_time_objects
+        end
       end
     end
 
