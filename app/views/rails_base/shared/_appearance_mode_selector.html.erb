@@ -16,7 +16,7 @@
           </button>
         </div>
         <div class="modal-body">
-          <h5> Currently using <%= appearance_mode_drop_down[:current] %> </h5>
+          <h5> Currently using <span id='appearnace_mode_text'><%= appearance_mode_drop_down[:current] %> <span> </h5>
           <%= select_tag 'appearance_mode_selector_id', options_for_select(appearance_mode_drop_down[:types_a]), class: 'form-control', include_blank: 'Select Appearance Mode' %>
         </div>
         <div class="modal-footer">
@@ -27,9 +27,10 @@
   </div>
   <% end %>
   <script type="text/javascript">
-    <% types = RailsBase::Configuration::Appearance::APPEARANCE_TYPES.keys.join(',') %>
     <% dark = RailsBase::Configuration::Appearance::DARK_MODE %>
     <% light = RailsBase::Configuration::Appearance::LIGHT_MODE %>
+    var type_mapping = JSON.parse('<%= raw RailsBase::Configuration::Appearance::APPEARANCE_TYPES.to_json %>')
+
     var cookie_name = `<%= RailsBase::ApplicationController::APPEARANCE_MODE_COOKIE %>`;
     var dark_mode_changes = [
       {
@@ -74,9 +75,9 @@
       },
     ]
     function toggle_dark_mode(set_key){
-      set_key ||= $.cookie(cookie_name)
-      var remove_keys = '<%= types %>'.split(',')
-      remove_keys.splice( $.inArray(set_key,remove_keys),1 );
+      set_key ||= get_cookie(cookie_name)
+      var remove_keys = Object.keys(type_mapping)
+      remove_keys.splice( $.inArray(set_key, remove_keys),1 );
       for (i = 0; i < dark_mode_changes.length; ++i) {
         var descriptor = dark_mode_changes[i]['descriptor']
         for (s = 0; s < remove_keys.length; ++s) {
@@ -89,7 +90,10 @@
 
     $('#appearance_mode_selector_id').change(function() {
       var value = $("#appearance_mode_selector_id").val();
-      $.removeCookie(cookie_name, { 'path': '/' })
+      if(!value){
+        return
+      }
+      set_cookie(cookie_name, '')
       set_and_toggle_mode(value)
     })
 
@@ -103,10 +107,10 @@
 
     function set_and_toggle_mode(value) {
       if(value){
-        $.cookie(cookie_name, value, { 'path': '/' });
+        set_cookie(cookie_name, value);
       }
-
-      if($.cookie(cookie_name)=='<%= RailsBase::Configuration::Appearance::MATCH_OS%>'){
+      $('#appearnace_mode_text').text(type_mapping[value])
+      if(get_cookie(cookie_name)=='<%= RailsBase::Configuration::Appearance::MATCH_OS%>'){
         if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
           toggle_dark_mode('<%= dark %>');
         } else {
@@ -116,6 +120,15 @@
         toggle_dark_mode();
 
       }
+    }
+
+    function set_cookie(name, value) {
+      document.cookie = `${name}=${value}`
+    }
+
+    function get_cookie(name) {
+      var cookie = document.cookie
+      return cookie.split('; ').find(row => row.startsWith(`${name}=`)).split('=')[1];
     }
 
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
