@@ -1,6 +1,8 @@
 module RailsBase::ApplicationHelper
   APPEARANCE_MODE_COOKIE = "_#{Rails.application.class.parent_name}_appearance_mode".gsub(' ', '-').downcase
   APPEARANCE_TEXT_CLASS = RailsBase::Configuration::Display::Text::APPEARANCE_TEXT_CLASS
+  TIMEZONE_OFFSET_COOKIE = "_#{Rails.application.class.parent_name}_timeoffset"
+  TIMEZONE_SESSION_NAME = TIMEZONE_THREAD_NAME = :tz_info
 
   def appearance_text_class
     APPEARANCE_TEXT_CLASS

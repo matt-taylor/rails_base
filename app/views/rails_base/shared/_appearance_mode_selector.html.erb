@@ -132,15 +132,6 @@
       }
     }
 
-    function set_cookie(name, value) {
-      document.cookie = `${name}=${value}`
-    }
-
-    function get_cookie(name) {
-      var cookie = document.cookie
-      return cookie.split('; ').find(row => row.startsWith(`${name}=`)).split('=')[1];
-    }
-
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
       set_and_toggle_mode(get_cookie(cookie_name))
     });

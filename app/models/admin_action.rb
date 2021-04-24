@@ -12,7 +12,7 @@
 #  created_at    :datetime         not null
 #  updated_at    :datetime         not null
 #
-class AdminAction < ApplicationRecord
+class AdminAction < RailsBase::ApplicationRecord
   DEFAULT_PAGE_COUNT = 5
   DEFAULT_PAGE_COUNT_SELECT_RANGE = (0..50).select { |x| x%5 == 0 && x != 0 }
   DEFAULT_PAGE_RANGE = 2
@@ -89,7 +89,6 @@ class AdminAction < ApplicationRecord
       params[:user_id] = user_id if user_id && user_id.positive?
       params[:admin_user_id] = admin_id if admin_id && admin_id.positive?
       offset = (page - 1) * count_on_page
-      puts "using params: #{params}"
       if count
         where(params).count
       else

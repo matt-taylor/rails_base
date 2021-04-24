@@ -2,29 +2,31 @@
 #
 # Table name: users
 #
-#  id                     :bigint           not null, primary key
-#  first_name             :string(255)      default(""), not null
-#  last_name              :string(255)      default(""), not null
-#  phone_number           :string(255)
-#  last_mfa_login         :datetime
-#  email_validated        :boolean          default(FALSE)
-#  mfa_enabled            :boolean          default(FALSE), not null
-#  active                 :boolean          default(TRUE), not null
-#  admin                  :integer          default("none"), not null
-#  email                  :string(255)      default(""), not null
-#  encrypted_password     :string(255)      default(""), not null
-#  reset_password_token   :string(255)
-#  reset_password_sent_at :datetime
-#  remember_created_at    :datetime
-#  sign_in_count          :integer          default(0), not null
-#  current_sign_in_at     :datetime
-#  last_sign_in_at        :datetime
-#  current_sign_in_ip     :string(255)
-#  last_sign_in_ip        :string(255)
-#  created_at             :datetime         not null
-#  updated_at             :datetime         not null
+#  id                         :bigint           not null, primary key
+#  first_name                 :string(255)      default(""), not null
+#  last_name                  :string(255)      default(""), not null
+#  phone_number               :string(255)
+#  last_mfa_login             :datetime
+#  email_validated            :boolean          default(FALSE)
+#  mfa_enabled                :boolean          default(FALSE), not null
+#  active                     :boolean          default(TRUE), not null
+#  admin                      :string(255)
+#  last_known_timezone        :string(255)
+#  last_known_timezone_update :datetime
+#  email                      :string(255)      default(""), not null
+#  encrypted_password         :string(255)      default(""), not null
+#  reset_password_token       :string(255)
+#  reset_password_sent_at     :datetime
+#  remember_created_at        :datetime
+#  sign_in_count              :integer          default(0), not null
+#  current_sign_in_at         :datetime
+#  last_sign_in_at            :datetime
+#  current_sign_in_ip         :string(255)
+#  last_sign_in_ip            :string(255)
+#  created_at                 :datetime         not null
+#  updated_at                 :datetime         not null
 #
-class User < ApplicationRecord
+class User < RailsBase::ApplicationRecord
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :trackable and :omniauthable
   devise :database_authenticatable, :registerable,
@@ -37,19 +39,25 @@ class User < ApplicationRecord
 
   def self._def_admin_convenience_method!(admin_method:)
     types = RailsBase.config.admin.admin_types
+    #### metods on the instance
     define_method("at_least_#{admin_method}?") do
       i = types.find_index(admin.to_sym)
       i >= types.find_index(admin_method.to_sym)
     end
+
     define_method("admin_#{admin_method}?") do
       admin.to_sym == admin_method
     end
+
     define_method("admin_#{admin_method}!") do
       update_attributes!(admin: admin_method)
     end
+
+    #### metods on the class
     define_singleton_method("admin_#{admin_method}s") do
       where(admin: admin_method)
     end
+
     define_singleton_method("admin_#{admin_method}") do
       arr = [admin_method]
       arr = [admin_method, '', nil] if ADMIN_ROLE_NONE == admin_method
@@ -95,6 +103,21 @@ class User < ApplicationRecord
 
   def inspect_name
     "[#{id}]: #{full_name}"
+  end
+
+  def update_tz(tz_name:)
+    return if last_known_timezone == tz_name
+
+    Rails.logger.info { "#{id}: Setting tz_name: #{tz_name}"  }
+    update_attributes(last_known_timezone: tz_name, last_known_timezone_update: Time.now )
+  end
+
+  def timezone
+    RailsBase.config.user.user_timezone(self)
+  end
+
+  def convert_time(time:)
+    time.in_time_zone(timezone)
   end
 
   private
