@@ -12,8 +12,12 @@ module RailsBase
 
     initializer 'define magic convenionce methods for converting team', after: 'active_record.initialize_database' do |app|
       # Only execute when not doing DB actions
-      unless ARGV[0].include?('db')
-
+      boolean = defined?(ARGV) ? true : false
+      boolean = false if boolean && ARGV[0]&.include?('db')
+      boolean = false if boolean && ARGV[0]&.include?('asset')
+      boolean = false if boolean && ARGV[0]&.include?(':')
+      if boolean
+        puts ARGV
         # need to eager load Models
         Rails.application.eager_load!
 
