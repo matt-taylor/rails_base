@@ -17,7 +17,6 @@ module RailsBase
       boolean = false if boolean && ARGV[0]&.include?('asset') # when its an asset
       boolean = false if boolean && ARGV[0]&.include?(':') # else this delim should never be included
       if boolean
-        puts ARGV
         # need to eager load Models
         Rails.application.eager_load!
 

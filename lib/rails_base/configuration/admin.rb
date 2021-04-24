@@ -157,6 +157,11 @@ module RailsBase
           default: ->(user) { user.active && user.at_least_super? },
           description: 'List of users that can change active on admin page',
         },
+        modify_timezone_tile_users: {
+          type: :proc,
+          default: ->(user) { user.active && user.at_least_super? },
+          description: 'List of users that can change the timezone for a given user',
+        },
         config_page: {
           type: :proc,
           default: ->(user) { user.active && user.at_least_super? },

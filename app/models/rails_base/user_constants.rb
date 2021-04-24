@@ -22,6 +22,7 @@ module RailsBase
       email_validated: ->(user) { RailsBase.config.admin.email_validate_tile_users?(user) } ,
       mfa_enabled: ->(user) { RailsBase.config.admin.mfa_tile_users?(user) } ,
       phone_number: ->(user) { RailsBase.config.admin.phone_tile_users?(user) } ,
+      last_known_timezone: ->(user) { RailsBase.config.admin.modify_timezone_tile_users?(user) }
     }
   end
 end

@@ -6,12 +6,14 @@ module RailsBase
       USER_DEFINED_KEY = 'User Defined Zone'
       USER_DEFINED_ZONE = { USER_DEFINED_KEY => ->(user) { user.last_known_timezone } }
       ACTIVE_SUPPORT_MAPPING = ActiveSupport::TimeZone::MAPPING.map do |key, value|
-        [key, ->(_) { value }]
+        [key, ->(*) { value }]
       end.to_h
+
       DEFAULT_TIMEZONES = {
-        '' => ->(_) { ActiveSupport::TimeZone::MAPPING['UTC'] },
-        nil => ->(_) { ActiveSupport::TimeZone::MAPPING['UTC'] },
+        '' => ->(*) { ActiveSupport::TimeZone::MAPPING['UTC'] },
+        nil => ->(*) { ActiveSupport::TimeZone::MAPPING['UTC'] },
       }
+
       ACCEPTED_TIMEZONES = DEFAULT_TIMEZONES.merge(ACTIVE_SUPPORT_MAPPING).merge(USER_DEFINED_ZONE)
 
       DEFAULT_VALUES = {

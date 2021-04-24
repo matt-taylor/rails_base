@@ -112,6 +112,27 @@ params = {
 instance = RailsBase::Admin::IndexTile.new(**params)
 RailsBase::Admin::IndexTile.add(instance)
 
+
+selector_array = Proc.new do |user|
+  base = [RailsBase.config.user.class::USER_DEFINED_KEY, RailsBase.config.user.class::USER_DEFINED_ZONE[RailsBase.config.user.class::USER_DEFINED_KEY].call(user)]
+  RailsBase.config.user.class::ACTIVE_SUPPORT_MAPPING.each do |k,v|
+    base << [k, v.call]
+  end
+  base
+end
+# Users Timezone
+params = {
+  type: :selector,
+  value: ->(user) { user.last_known_timezone },
+  name: 'last_known_timezone', # name to be amended to html id
+  col_name: 'Timezone', # Expected to be the column header name
+  selector: -> (user) { selector_array.call(user) },
+  disabled: -> (user, admin_user) { !RailsBase.config.admin.modify_timezone_tile_users.call(admin_user) },
+  disabled_msg: -> (user, admin_user) { 'Unable to complete action.' }
+}
+instance = RailsBase::Admin::IndexTile.new(**params)
+RailsBase::Admin::IndexTile.add(instance)
+
 # Last logged in
 params = {
   type: :plain,
