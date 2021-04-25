@@ -9,6 +9,7 @@ module RailsBase
     after_action :capture_admin_action, if: -> { RailsBase.config.admin.enable_actions? }
 
     include ApplicationHelper
+    include AppearanceHelper
 
     def set_time_zone
       return unless RailsBase.config.user.tz_user_defined?
