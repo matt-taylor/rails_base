@@ -35,6 +35,25 @@ module RailsBase
         def_convenience_methods
       end
 
+      # on any object you Base inherited object yoyu can call
+      # `.dig(:chain1, :chain2, :chain3)
+      def dig(*args, default: nil, &block)
+        current = self.public_send(args[0])
+
+        args[1..-1].each do |key|
+          return current || default if current.nil?
+
+          current = current.public_send(key)
+        end
+        current
+      rescue StandardError
+        if block_given?
+          yield block
+        else
+          default
+        end
+      end
+
       def assign_default_values!
         self.class::DEFAULT_VALUES.each do |key, object|
           val = object[:default_assign_on_boot] ? object[:default_assign_on_boot].call : object[:default]

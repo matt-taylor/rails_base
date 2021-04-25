@@ -120,15 +120,16 @@ selector_array = Proc.new do |user|
   end
   base
 end
+
 # Users Timezone
 params = {
   type: :selector,
-  value: ->(user) { user.last_known_timezone },
+  value: ->(user) { user.last_known_timezone || RailsBase.config.user.user_timezone },
   name: 'last_known_timezone', # name to be amended to html id
   col_name: 'Timezone', # Expected to be the column header name
   selector: -> (user) { selector_array.call(user) },
-  disabled: -> (user, admin_user) { !RailsBase.config.admin.modify_timezone_tile_users.call(admin_user) },
-  disabled_msg: -> (user, admin_user) { 'Unable to complete action.' }
+  disabled: -> (user, admin_user) { RailsBase.config.user.tz_user_defined? || !RailsBase.config.admin.modify_timezone_tile_users.call(admin_user) },
+  disabled_msg: -> (user, admin_user) { RailsBase.config.user.tz_user_defined? ? 'User Defined TZ is enabled in config. Cant change TZ.' : 'Unable to perform action' }
 }
 instance = RailsBase::Admin::IndexTile.new(**params)
 RailsBase::Admin::IndexTile.add(instance)
@@ -136,7 +137,7 @@ RailsBase::Admin::IndexTile.add(instance)
 # Last logged in
 params = {
   type: :plain,
-  value: ->(user) { user.last_sign_in_at || 'Never' },
+  value: ->(user) { user.last_sign_in_at&.to_formatted_s(:rfc822) || 'Never' },
   name: 'logged_in_last', # name to be amended to html id
   col_name: 'Last Logged In', # Expected to be the column header name
 }
