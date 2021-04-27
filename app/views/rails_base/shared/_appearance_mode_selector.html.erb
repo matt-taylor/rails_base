@@ -31,19 +31,19 @@
       background: black;
       color: gray ;
     }
-    select.bg-dark {
+    select.bg-dark, select.bg-secondary {
       background-color: black !important;
       color: white ;
     }
-    input.bg-dark:not([type='submit']) {
+    input.bg-dark:not([type='submit']), input.bg-dark:not([type='submit']) {
       background-color: black !important;
       color: white ;
     }
-    nav li p.bg-dark {
+    nav li p.bg-dark, nav p.bg-secondary {
       background-color: black !important;
       color: white ;
     }
-    .input-group-text.bg-dark {
+    .input-group-text.bg-dark, .input-group-text.bg-secondary {
       background-color: black !important;
       color: white ;
     }
@@ -93,6 +93,11 @@
       },
       {
         'descriptor': '.navbar',
+        '<%= dark %>': '<%= RailsBase.appearance.navbar.dark_mode %>',
+        '<%= light %>': '<%= RailsBase.appearance.navbar.light_mode %>'
+      },
+      {
+        'descriptor': 'footer',
         '<%= dark %>': '<%= RailsBase.appearance.navbar.dark_mode %>',
         '<%= light %>': '<%= RailsBase.appearance.navbar.light_mode %>'
       },
