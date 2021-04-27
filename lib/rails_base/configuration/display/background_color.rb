@@ -8,7 +8,7 @@ module RailsBase
         DEFAULT_VALUES = {
           dark_mode: {
             type: :string_nil,
-            default: 'bg-dark',
+            default: 'bg-secondary',
             description: 'Background to use in Dark mode'
           },
           light_mode: {

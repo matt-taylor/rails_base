@@ -15,7 +15,7 @@ module RailsBase
         :navbar,
         :text,
       ]
-
+      DEFAULT_FOOTER_HTML = "© 2021 Copyright: Bad Ass Rails Starter <a href='https://github.com/matt-taylor/'>@matt-taylor</a>"
       DARK_MODE = :dark
       LIGHT_MODE = :light
       MATCH_OS = :match_os
@@ -35,7 +35,18 @@ module RailsBase
           type: :values,
           expect_values: APPEARANCE_TYPES.keys,
           default: LIGHT_MODE,
-          description: 'Default mode to set when mode not found in cookies/session'
+          description: 'Default mode to set when mode not found in cookies/session',
+        },
+        enable_footer: {
+          type: :boolean,
+          default: true,
+          description: 'Enable footer for the site',
+        },
+        footer_html: {
+          type: :string,
+          default: DEFAULT_FOOTER_HTML,
+          dependents: [ -> (i) { i.enable_footer? } ],
+          description: 'HTML text to be placed '
         },
       }
 

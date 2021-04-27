@@ -55,7 +55,19 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
+      <div class="p-1" >
         <%= yield %>
+      </div>
+
+      <% if RailsBase.appearance.enable_footer? %>
+        <footer class="text-center text-white">
+          <!-- Copyright -->
+          <div class="text-center p-2">
+            <%= raw RailsBase.appearance.footer_html %>
+          </div>
+          <!-- Copyright -->
+        </footer>
+      <% end %>
     </div>
 
     <script>
@@ -98,15 +110,6 @@
 
       function goBack() {
         window.history.back();
-      }
-
-      function set_cookie(name, value) {
-        document.cookie = `${name}=${value}`
-      }
-
-      function get_cookie(name) {
-        var cookie = document.cookie
-        return cookie.split('; ').find(row => row.startsWith(`${name}=`)).split('=')[1];
       }
     </script>
   </body>

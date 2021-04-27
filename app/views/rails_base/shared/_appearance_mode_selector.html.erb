@@ -1,37 +1,60 @@
 <% if RailsBase.appearance.enabled %>
   <% if display %>
-  <!-- Button trigger modal -->
-  <button type="button" class="btn btn-info <%= btn%> close-me" data-toggle="modal" data-target="#appearance_mode_selector">
-    Dark/Lite Mode
-  </button>
+    <!-- Button trigger modal -->
+    <button type="button" class="btn btn-info <%= btn%> close-me" data-toggle="modal" data-target="#appearance_mode_selector">
+      Dark/Lite Mode
+    </button>
 
-  <!-- Modal -->
-  <div class="modal fade" id="appearance_mode_selector" tabindex="-1" role="dialog" aria-labelledby="appearance_mode_selectorTitle" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="appearance_mode_selectorTitle">Select Appearance Mode</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-          <h5> Currently using <span id='appearnace_mode_text'><%= appearance_mode_drop_down[:current] %> <span> </h5>
-          <%= select_tag 'appearance_mode_selector_id', options_for_select(appearance_mode_drop_down[:types_a]), class: 'form-control', include_blank: 'Select Appearance Mode' %>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-block btn-secondary" data-dismiss="modal">Close</button>
+    <!-- Modal -->
+    <div class="modal fade" id="appearance_mode_selector" tabindex="-1" role="dialog" aria-labelledby="appearance_mode_selectorTitle" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="appearance_mode_selectorTitle">Select Appearance Mode</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <h5> Currently using <span id='appearance_mode_text'><%= appearance_mode_drop_down[:current] %> <span> </h5>
+            <%= select_tag 'appearance_mode_selector_id', options_for_select(appearance_mode_drop_down[:types_a]), class: 'form-control', include_blank: 'Select Appearance Mode' %>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-block btn-secondary" data-dismiss="modal">Close</button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
   <% end %>
+  <style type="text/css">
+    .modal .modal-content.bg-dark {
+      background: black;
+      color: gray ;
+    }
+    select.bg-dark, select.bg-secondary {
+      background-color: black !important;
+      color: white ;
+    }
+    input.bg-dark:not([type='submit']), input.bg-dark:not([type='submit']) {
+      background-color: black !important;
+      color: white ;
+    }
+    nav li p.bg-dark, nav p.bg-secondary {
+      background-color: black !important;
+      color: white ;
+    }
+    .input-group-text.bg-dark, .input-group-text.bg-secondary {
+      background-color: black !important;
+      color: white ;
+    }
+  </style>
   <script type="text/javascript">
     <% dark = RailsBase::Configuration::Appearance::DARK_MODE %>
     <% light = RailsBase::Configuration::Appearance::LIGHT_MODE %>
     var type_mapping = JSON.parse('<%= raw RailsBase::Configuration::Appearance::APPEARANCE_TYPES.to_json %>')
 
     var cookie_name = `<%= RailsBase::ApplicationController::APPEARANCE_MODE_COOKIE %>`;
+    var cookie_actual_name = `<%= RailsBase::ApplicationController::APPEARANCE_MODE_ACTUAL_COOKIE %>`;
     var dark_mode_changes = [
       {
         'descriptor': 'thead',
@@ -74,6 +97,11 @@
         '<%= light %>': '<%= RailsBase.appearance.navbar.light_mode %>'
       },
       {
+        'descriptor': 'footer',
+        '<%= dark %>': '<%= RailsBase.appearance.navbar.dark_mode %>',
+        '<%= light %>': '<%= RailsBase.appearance.navbar.light_mode %>'
+      },
+      {
         'descriptor': '.input-group-text',
         '<%= dark %>': '<%= RailsBase.appearance.navbar.dark_mode %>',
         '<%= light %>': '<%= RailsBase.appearance.navbar.light_mode %>'
@@ -84,6 +112,7 @@
         '<%= light %>': '<%= RailsBase.appearance.text.light_mode %>'
       },
     ]
+
     function toggle_dark_mode(set_key){
       set_key ||= get_cookie(cookie_name)
       var remove_keys = Object.keys(type_mapping)
@@ -106,9 +135,12 @@
       set_cookie(cookie_name, '')
       set_and_toggle_mode(value)
     })
-
+    // This function MUST be called outside of document ready
+    // to ensure dark mode does not activate after docuemnt is loaded
+    set_and_toggle_mode( `<%= cookies[RailsBase::ApplicationController::APPEARANCE_MODE_COOKIE] || RailsBase.appearance.default_mode %>`)
+    $('#appearance_mode_selector').appendTo('body');
     $(document).ready(function(){
-      $('#appearance_mode_selector').appendTo('body');
+      // differentiation of load order means we need to call this twice
       set_and_toggle_mode( `<%= cookies[RailsBase::ApplicationController::APPEARANCE_MODE_COOKIE] || RailsBase.appearance.default_mode %>`)
       $(document).ajaxComplete(function () {
         set_and_toggle_mode()
@@ -118,13 +150,16 @@
     function set_and_toggle_mode(value) {
       if(value){
         set_cookie(cookie_name, value);
+        set_cookie(cookie_actual_name, value);
       }
-      $('#appearnace_mode_text').text(type_mapping[value])
+      $('#appearance_mode_text').text(type_mapping[value])
       if(get_cookie(cookie_name)=='<%= RailsBase::Configuration::Appearance::MATCH_OS%>'){
         if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
           toggle_dark_mode('<%= dark %>');
+          set_cookie(cookie_actual_name, '<%= dark %>');
         } else {
           toggle_dark_mode('<%= light %>');
+          set_cookie(cookie_actual_name, '<%= light %>');
         }
       } else {
         toggle_dark_mode();
@@ -136,29 +171,4 @@
       set_and_toggle_mode(get_cookie(cookie_name))
     });
   </script>
-
-  <style type="text/css">
-    .modal .modal-content.bg-dark {
-      background: black;
-      color: gray ;
-    }
-    select.bg-dark {
-      background-color: black !important;
-      color: white ;
-    }
-    input.bg-dark:not([type='submit']) {
-      background-color: black !important;
-      color: white ;
-    }
-    nav li p.bg-dark {
-      background-color: black !important;
-      color: white ;
-    }
-    .input-group-text.bg-dark {
-      background-color: black !important;
-      color: white ;
-    }
-
-  </style>
-
 <% end %>
