@@ -124,7 +124,7 @@ end
 # Users Timezone
 params = {
   type: :selector,
-  value: ->(user) { user.last_known_timezone || RailsBase.config.user.user_timezone },
+  value: ->(user) { user.last_known_timezone || RailsBase.config.user.user_timezone(user) },
   name: 'last_known_timezone', # name to be amended to html id
   col_name: 'Timezone', # Expected to be the column header name
   selector: -> (user) { selector_array.call(user) },
