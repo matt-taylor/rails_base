@@ -31,7 +31,7 @@
         return cookie.split('; ').find(row => row.startsWith(`${name}=`)).split('=')[1];
       }
     </script>
-    <% rails_base_alert =  "alertid-#{(10**10*rand).to_i}" %>
+    <% rails_base_alert = "alertid-#{(10**10*rand).to_i}" %>
     <% rails_base_success = "successid-#{(10**10*rand).to_i}"%>
     <div class="container-fluid">
       <% if current_user %>

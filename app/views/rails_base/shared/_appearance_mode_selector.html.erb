@@ -35,7 +35,7 @@
       background-color: black !important;
       color: white ;
     }
-    input.bg-dark:not([type='submit']), input.bg-dark:not([type='submit']) {
+    input.bg-dark:not([type='submit']), input.bg-secondary:not([type='submit']) {
       background-color: black !important;
       color: white ;
     }
@@ -107,7 +107,7 @@
         '<%= light %>': '<%= RailsBase.appearance.navbar.light_mode %>'
       },
       {
-        'descriptor': '.<%= RailsBase::ApplicationController::APPEARANCE_TEXT_CLASS %>',
+        'descriptor': '.<%= appearance_text_class %>',
         '<%= dark %>': '<%= RailsBase.appearance.text.dark_mode %>',
         '<%= light %>': '<%= RailsBase.appearance.text.light_mode %>'
       },

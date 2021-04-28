@@ -1,5 +1,5 @@
 <% humanize_var = var.to_s.delete('@') %>
-<h2 class='<%= RailsBase::ApplicationController::APPEARANCE_TEXT_CLASS %>'> <%= klass.name.demodulize %> </h2>
+<h2 class='<%= appearance_text_class %>'> <%= klass.name.demodulize %> </h2>
 <div class='table-responsive' style="overflow-x:auto; width: inherit !important;" >
   <table class="tableFixHead table table-striped table-bordered">
     <thead class="thead-dark text-center">
