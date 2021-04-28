@@ -19,7 +19,19 @@
   </head>
 
   <body>
-    <% rails_base_alert =  "alertid-#{(10**10*rand).to_i}" %>
+    <script type="text/javascript">
+      // Load at top so available for rest of body oddy
+      function set_cookie(name, value, path ) {
+        path ||= '/'
+        document.cookie = `${name}=${value}; path=${path}`
+      }
+
+      function get_cookie(name) {
+        var cookie = document.cookie
+        return cookie.split('; ').find(row => row.startsWith(`${name}=`)).split('=')[1];
+      }
+    </script>
+    <% rails_base_alert = "alertid-#{(10**10*rand).to_i}" %>
     <% rails_base_success = "successid-#{(10**10*rand).to_i}"%>
     <div class="container-fluid">
       <% if current_user %>
@@ -55,14 +67,19 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-      <div class="p-1" >
+      <div class="p-1">
         <%= yield %>
       </div>
 
       <% if RailsBase.appearance.enable_footer? %>
+        <% if RailsBase.appearance.sticky_footer? %>
+        <div style="margin-top: 50px"></div>
+        <footer class="text-center fixed-bottom">
+        <% else %>
         <footer class="text-center">
+        <% end %>
           <!-- Copyright -->
-          <div class="text-center p-2">
+          <div class="text-center p-2 <%= appearance_text_class %>">
             <%= raw RailsBase.appearance.footer_html %>
           </div>
           <!-- Copyright -->
