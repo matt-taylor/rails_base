@@ -19,13 +19,3 @@
 // = require bootstrap-sprockets
 // = require allow_numeric
 // = require jquery.mask
-
-
-function set_cookie(name, value) {
-  document.cookie = `${name}=${value}`
-}
-
-function get_cookie(name) {
-  var cookie = document.cookie
-  return cookie.split('; ').find(row => row.startsWith(`${name}=`)).split('=')[1];
-}

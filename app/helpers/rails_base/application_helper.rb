@@ -3,8 +3,6 @@ module RailsBase::ApplicationHelper
   TIMEZONE_OFFSET_COOKIE = "_#{Rails.application.class.parent_name}_timeoffset"
   TIMEZONE_SESSION_NAME = TIMEZONE_THREAD_NAME = :tz_info
 
-
-
   def browser
     @browser ||= Browser.new(request.user_agent)
   end
