@@ -24,6 +24,7 @@ module RailsBase
         duration: -> (val) { [ActiveSupport::Duration].include?(val.class) },
         string_nil: -> (val) { [String, NilClass].include?(val.class) },
         array: -> (val) { [Array].include?(val.class) },
+        hash: -> (val) { [Hash].include?(val.class) },
         path: -> (val) { [Pathname].include?(val.class) },
         klass: -> (_val) { true },
         values: -> (_val) { true },
@@ -68,6 +69,24 @@ module RailsBase
             raise ConfigurationAlreadyEstablished, "Unable to assign [#{_name}.#{key}]. Assignment must happen on boot" unless self.class._allow_write_block?
 
             instance_variable_set(:"@#{key}", value)
+          end
+          if object[:type] == :array
+            self.class.define_method(:"#{key}<<") do |value|
+              raise ConfigurationAlreadyEstablished, "Unable to assign [#{_name}.#{key}]. Assignment must happen on boot" unless self.class._allow_write_block?
+
+              curr = instance_variable_get(:"@#{key}")
+              curr << value
+              instance_variable_set(:"@#{key}", curr)
+            end
+          end
+          if object[:type] == :hash
+            self.class.define_method(:"#{key}.merge") do |value|
+              raise ConfigurationAlreadyEstablished, "Unable to assign [#{_name}.#{key}]. Assignment must happen on boot" unless self.class._allow_write_block?
+
+              curr = instance_variable_get(:"@#{key}")
+              curr.merge(value)
+              instance_variable_set(:"@#{key}", curr)
+            end
           end
         end
       end

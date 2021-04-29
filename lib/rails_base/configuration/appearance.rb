@@ -4,6 +4,7 @@ require 'rails_base/configuration/display/table_body'
 require 'rails_base/configuration/display/background_color'
 require 'rails_base/configuration/display/navbar'
 require 'rails_base/configuration/display/text'
+require 'rails_base/configuration/display/footer'
 
 module RailsBase
   module Configuration
@@ -14,8 +15,9 @@ module RailsBase
         :bg_color,
         :navbar,
         :text,
+        :footer
       ]
-      DEFAULT_FOOTER_HTML = "© 2021 Year of the Rona: Bad Ass Rails Starter <a href='https://github.com/matt-taylor/' target='_blank'>@matt-taylor</a>"
+      SKIP_DOWNSTREAM_CLASSES = [:footer]
       DARK_MODE = :dark
       LIGHT_MODE = :light
       MATCH_OS = :match_os
@@ -46,23 +48,6 @@ module RailsBase
           default: DARK_MODE,
           description: 'Mode to set when OS returns dark mode (useful when more than light/dark mode',
         },
-
-        enable_footer: {
-          type: :boolean,
-          default: true,
-          description: 'Enable footer for the site',
-        },
-        sticky_footer: {
-          type: :boolean,
-          default: true,
-          description: 'Stick footer to the bottom of screen',
-        },
-        footer_html: {
-          type: :string,
-          default: DEFAULT_FOOTER_HTML,
-          dependents: [ -> (i) { i.enable_footer? } ],
-          description: 'HTML text to be placed at footer'
-        },
       }
 
       attr_accessor *DEFAULT_VALUES.keys
@@ -77,6 +62,7 @@ module RailsBase
         @bg_color = Configuration::Display::BackgroundColor.new
         @navbar = Configuration::Display::Navbar.new
         @text = Configuration::Display::Text.new
+        @footer = Configuration::Display::Footer.new
 
         _validate_values
         super()
@@ -99,6 +85,8 @@ module RailsBase
       private
       def _validate_values
         DOWNSTREAM_CLASSES.each do |var|
+          next if SKIP_DOWNSTREAM_CLASSES.include?(var)
+
           ALLOWABLE_TYPES.each do |k, v|
             next if public_send(var).respond_to?("#{k}_mode")
 
