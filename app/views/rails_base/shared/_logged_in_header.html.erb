@@ -113,6 +113,9 @@
   $('.close-me').on('click', function (e) {
     $("#settings_modal").modal('hide');
   })
+  $('#settings_modal').on('shown.bs.modal', function (e) {
+    $('.navbar-collapse').collapse('hide');
+  });
 </script>
 <% end%>
 
