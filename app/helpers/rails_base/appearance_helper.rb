@@ -19,6 +19,22 @@ module RailsBase::AppearanceHelper
     VIEWPORT_EXTRA_LARGE => nil,
   }
 
+  def sticky_footer_mode
+    return true if @_sticky_mode
+
+    sticky_pages = RailsBase.appearance.footer.sticky_pages
+    return false if sticky_pages.empty?
+
+    full_controller_path = "#{controller_path.camelize}Controller"
+    return unless pages = sticky_pages[full_controller_path]
+
+    pages.include?(action_name.to_sym)
+  end
+
+  def force_sticky_mode!
+    @_sticky_mode = true
+  end
+
   def appearance_text_class
     APPEARANCE_TEXT_CLASS
   end

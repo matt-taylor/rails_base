@@ -5,6 +5,7 @@ module RailsBase
     before_action :is_timeout_error?
     before_action :admin_reset_impersonation_session!
     before_action :populate_admin_actions, if: -> { RailsBase.config.admin.enable_actions? }
+    before_action :sticky_mode
 
     after_action :capture_admin_action, if: -> { RailsBase.config.admin.enable_actions? }
 

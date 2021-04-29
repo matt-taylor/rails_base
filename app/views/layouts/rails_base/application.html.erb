@@ -107,20 +107,18 @@
         <%= yield %>
       </div>
 
-      <% if RailsBase.appearance.enable_footer? %>
-        <% if RailsBase.appearance.sticky_footer? %>
-        <div style="margin-top: 50px"></div>
-        <footer class="text-center fixed-bottom">
-        <% else %>
-        <footer class="text-center">
-        <% end %>
-          <!-- Copyright -->
-          <div class="text-center p-2 <%= appearance_text_class %>">
-            <%= raw RailsBase.appearance.footer_html %>
-          </div>
-          <!-- Copyright -->
-        </footer>
+          <% if RailsBase.appearance.footer.enable? %>
+      <% if sticky_footer_mode %>
+      <div style="margin-top: 70px"></div>
+      <footer class="text-center fixed-bottom">
+      <% else %>
+      <footer class="text-center" style="left: 0,right:0">
       <% end %>
+        <div class="text-center p-2 <%= appearance_text_class %>">
+          <%= raw RailsBase.appearance.footer.html %>
+        </div>
+      </footer>
+    <% end %>
     </div>
 
     <script>
