@@ -30,10 +30,46 @@
         var cookie = document.cookie
         return cookie.split('; ').find(row => row.startsWith(`${name}=`)).split('=')[1];
       }
+
+      function modify_layout(){
+        if(viewport_probable_mobile()){
+          $('#_body_base_container').addClass('p-0')
+        } else {
+          $('#_body_base_container').removeClass('p-0')
+        }
+      }
+
+      <% RailsBase::ApplicationController::VIEWPORT_SIZES.each do |name, max_width| %>
+        function viewport_at_least_<%= name %>(){
+          return getViewportWidth() >= <%= max_width || 99_999 %>
+
+        }
+        <% if name == RailsBase::ApplicationController::VIEWPORT_MOBILE_MAX %>
+        <% puts "Rendering #{name} for viewport_probable_mobile" %>
+
+        <% end %>
+      <% end %>
+
+      <%
+        k = RailsBase::ApplicationController::VIEWPORT_MOBILE_MAX
+        size = RailsBase::ApplicationController::VIEWPORT_SIZES[k] || 99_999
+      %>
+      function viewport_probable_mobile(){
+        return getViewportWidth() <= <%= size  %>
+      }
+
+      function getViewportWidth() {
+        // https://stackoverflow.com/a/8876069
+        return Math.max(
+          document.documentElement.clientWidth,
+          window.innerWidth || 0
+        )
+      }
     </script>
+
     <% rails_base_alert = "alertid-#{(10**10*rand).to_i}" %>
     <% rails_base_success = "successid-#{(10**10*rand).to_i}"%>
-    <div class="container-fluid">
+    <div id='_body_base_container' class="container-fluid">
       <% if current_user %>
         <%= render partial: 'rails_base/shared/logged_in_header'%>
       <% else %>
@@ -88,6 +124,7 @@
     </div>
 
     <script>
+      modify_layout();
       function _rails_base_display_success(msg){
         $('#<%= rails_base_alert %>').hide()
         $('#<%= rails_base_success %> .text').text(msg)
@@ -128,6 +165,8 @@
       function goBack() {
         window.history.back();
       }
+
+      $("table select").addClass('w-auto')
     </script>
   </body>
 </html>
