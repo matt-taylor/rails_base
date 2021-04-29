@@ -19,7 +19,7 @@ module RailsBase::AppearanceHelper
     VIEWPORT_EXTRA_LARGE => nil,
   }
 
-  def sticky_footer_mode
+  def sticky_footer_mode?
     return true if @_sticky_mode
 
     sticky_pages = RailsBase.appearance.footer.sticky_pages
