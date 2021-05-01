@@ -1,7 +1,7 @@
 module RailsBase
   MAJOR = '0'
-  MINOR = '45'
-  PATCH = '2'
+  MINOR = '46'
+  PATCH = '0'
   VERSION = "#{MAJOR}.#{MINOR}.#{PATCH}"
 
   def self.print_version

@@ -170,9 +170,16 @@ module RailsBase
 
       def validate_values_included!(key:, var:, type:, expect_values:)
         return if expect_values.nil?
-        return if expect_values.include?(var)
+        values =
+          if expect_values.is_a? Proc
+            expect_values.call(self)
+          else
+            expect_values
+          end
 
-        raise InvalidConfiguration, "#{_name}.#{key} expects value to be included in [#{expect_values}]. Received: [#{var}]"
+        return if values.include?(var)
+
+        raise InvalidConfiguration, "#{_name}.#{key} expects value to be included in [#{values}]. Received: [#{var}]"
       end
 
       def _name
