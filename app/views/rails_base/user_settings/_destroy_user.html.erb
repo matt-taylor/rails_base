@@ -22,10 +22,10 @@
           </div>
           <div class="actions row">
             <div class="col-md-10 offset-md-1 text-center">
-              <button type="button" class="btn btn-success" id="confirm-destroy-current-password">
+              <button type="button" class="btn btn_success" id="confirm-destroy-current-password">
               Confirm Password
               </button>
-              <button class="btn btn-success" id='confirm-destroy-current-password-wait' type="button" disabled style="display: none">
+              <button class="btn btn_success" id='confirm-destroy-current-password-wait' type="button" disabled style="display: none">
                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true">
                 </span>
                 Please wait...
@@ -36,9 +36,9 @@
       </div>
       <div class="modal-footer">
         <fieldset class="w-100">
-          <button type="button" class="btn btn-secondary float-left" data-dismiss="modal" >Close</button>
+          <button type="button" class="btn btn_secondary float-left" data-dismiss="modal" >Close</button>
 
-          <%= button_to "Destroy User", RailsBase.url_routes.destroy_user_path, class: "destroy_user_btn btn btn-danger disabled float-right disabled", params: { data: nil }%>
+          <%= button_to "Destroy User", RailsBase.url_routes.destroy_user_path, class: "destroy_user_btn btn btn_danger disabled float-right disabled", params: { data: nil }%>
         </fieldset>
       </div>
     </div>

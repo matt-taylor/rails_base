@@ -15,23 +15,26 @@
           <% when :proc %>
             <td>
               <% users = users_for_proc(instance.public_send(name)) %>
-              <a tabindex="0" class="btn btn-secondary" role="button" data-toggle="popover" data-trigger="focus" title="Users with ability" data-html=true data-content="<%=users.join('</br>')%>">View Users</a>
+              <a tabindex="0" class="btn btn_secondary" role="button" data-toggle="popover" data-trigger="focus" title="Users with ability" data-html=true data-content="<%=users.join('</br>')%>">View Users</a>
             </td>
           <% when :duration %>
             <td> <%= instance.public_send(name).inspect %> </td>
           <% when :array %>
             <td>
               <% array = array_for_proc(object[:decipher], instance.public_send(name)) %>
-              <a tabindex="0" class="btn btn-secondary" role="button" data-toggle="popover" data-trigger="focus" title="Configured List" data-html=true data-content="<%=array.join('</br>')%>">View List</a>
+              <a tabindex="0" class="btn btn_secondary" role="button" data-toggle="popover" data-trigger="focus" title="Configured List" data-html=true data-content="<%=array.join('</br>')%>">View List</a>
             </td>
           <% else %>
             <td>
               <% if object[:secret] %>
                 < Secret Value >
+              <% elsif object[:popover] %>
+                <% array = object[:decipher].call(instance.public_send(name)) %>
+                <a tabindex="0" class="btn btn_secondary" role="button" data-toggle="popover" data-trigger="focus" title="Configured List" data-html=true data-content="<%=array.join('</br>')%>">View List</a>
               <% elsif object[:decipher] %>
                 <%= object[:decipher].call(instance.public_send(name)).to_s %>
               <% else %>
-                <%= instance.public_send(name) %>
+                <%= raw instance.public_send(name) %>
               <% end %>
             </td>
           <% end %>

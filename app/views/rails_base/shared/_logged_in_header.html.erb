@@ -19,11 +19,11 @@
       <% end %>
     </ul>
     <% if defined?(@error_page)%>
-      <button onclick="goBack()" class="btn btn-warning">
+      <button onclick="goBack()" class="btn btn_warning">
         &#8592; Return to Previous page
       </button>
     <%else%>
-    <button type="button" class="btn btn-light" data-toggle="modal" data-target="#settings_modal">
+    <button type="button" class="btn btn_secondary" data-toggle="modal" data-target="#settings_modal">
       My Settings
     </button>
     <%end%>
@@ -45,11 +45,11 @@
           <div class='col'>
             <% if RailsBase.config.mfa.enable? %>
               <% if current_user.mfa_enabled %>
-                <button type="button" class="btn-block btn-info close-me" data-toggle="modal" data-target="#modifyMfamodal">
+                <button type="button" class="btn btn-block btn_info close-me" data-toggle="modal" data-target="#modifyMfamodal">
                     Modify 2fa Auth
                 </button>
               <% else %>
-                <button type="button" class="btn btn-block btn-info close-me" data-toggle="modal" data-target="#enableMfamodal">
+                <button type="button" class="btn btn-block btn_info close-me" data-toggle="modal" data-target="#enableMfamodal">
                   Enable 2fa Auth
                 </button>
               <% end %>
@@ -59,7 +59,7 @@
         </br>
         <div class='row'>
           <div class='col'>
-            <a class="btn btn-info btn-block" href="<%=RailsBase.url_routes.user_settings_path%>" role="button">Modify User</a>
+            <a class="btn btn_info btn-block" href="<%=RailsBase.url_routes.user_settings_path%>" role="button">Modify User</a>
           </div>
         </div>
         </br>
@@ -72,7 +72,7 @@
           <div class="dropdown-divider"></div>
         <div class='row'>
           <div class='col'>
-          <%= button_to 'Logout', RailsBase.url_routes.signout_path, method: :delete, class: 'btn btn-danger btn-block'  %>
+          <%= button_to 'Logout', RailsBase.url_routes.signout_path, method: :delete, class: 'btn btn_danger btn-block'  %>
           </div>
         </div>
       </div>

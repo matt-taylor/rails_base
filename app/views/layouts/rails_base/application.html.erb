@@ -69,7 +69,7 @@
 
     <% rails_base_alert = "alertid-#{(10**10*rand).to_i}" %>
     <% rails_base_success = "successid-#{(10**10*rand).to_i}"%>
-    <div id='_body_base_container' class="container-fluid">
+    <div id='_body_base_container' class="container-fluid" style="overflow-x: hidden !important;">
       <% if current_user %>
         <%= render partial: 'rails_base/shared/logged_in_header'%>
       <% else %>
@@ -107,13 +107,8 @@
         <%= yield %>
       </div>
 
-          <% if RailsBase.appearance.footer.enable? %>
-      <% if sticky_footer_mode? %>
-      <div style="margin-top: 70px"></div>
-      <footer class="text-center fixed-bottom">
-      <% else %>
-      <footer class="text-center" style="left: 0,right:0">
-      <% end %>
+      <% if RailsBase.appearance.footer.enable? %>
+      <footer id="base-footer" class="text-center">
         <div class="text-center p-2 <%= appearance_text_class %>">
           <%= raw RailsBase.appearance.footer.html %>
         </div>
@@ -138,12 +133,22 @@
       function _rails_base_hide_displays(){
         $('#<%= rails_base_alert %>').hide()
         $('#<%= rails_base_success %>').hide()
-      }
+      };
 
       <%
         # dont load these when error page happens. The full stack of librarires are not
         # rendered and jquery/bootstrap are missing
       %>
+      <% case footer_mode_case %>
+      <% when :sticky %>
+      $('#base-footer').addClass('fixed-bottom')
+      <% when :bottom %>
+      if($('#_body_base_container').height() <= window.innerHeight){
+        $('#base-footer').addClass('fixed-bottom')
+      }
+      <% else %>
+      <% end %>
+
       <% unless defined?(@error_page) %>
       $(document).ready(function(){
         $('[data-toggle="tooltip"]').tooltip();

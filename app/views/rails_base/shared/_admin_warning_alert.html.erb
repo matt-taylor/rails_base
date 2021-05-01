@@ -4,4 +4,4 @@
 <p class="mb-0 text-center">
   You are using admin privaleges (id: <%= session[RailsBase::Authentication::Constants::ADMIN_REMEMBER_USERID_KEY] %>) to impersonate a user. You are curently logged in as [<%= current_user.full_name%>] (user id:<%= current_user.id%>)
 </p>
-<%= button_to 'Return to my account', RailsBase.url_routes.admin_stop_impersonation_path, method: :post, class: 'btn btn-warning btn-block'  %>
+<%= button_to 'Return to my account', RailsBase.url_routes.admin_stop_impersonation_path, method: :post, class: 'btn btn_warning btn-block'  %>
