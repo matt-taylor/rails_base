@@ -69,7 +69,7 @@ module RailsBase
     end
 
     def validate_phone!
-      context.fail!("No phone for user [#{user.id}] [#{user.phone_number}]") if user.phone_number.nil?
+      context.fail!(message: "No phone for user [#{user.id}] [#{user.phone_number}]") if user.phone_number.nil?
     end
 
     def validate!
