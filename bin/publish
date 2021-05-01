@@ -18,10 +18,10 @@ fi
 # Build and publish to Gemfury
 gem build rails_base.gemspec
 FILE=$(pwd)/${PACKAGE}
-
 echo "Finished building $FILE"
+
 # push to gemfury
-curl -F package=@${FILE} https://${GEMFURY_TOKEN}@push.fury.io/${GEMFURY_USER}/
+curl --fail -F package=@${FILE} https://${GEMFURY_TOKEN}@push.fury.io/${GEMFURY_USER}/
 echo "Finished Pushing to Gemfury"
 
 # create tag in repo
