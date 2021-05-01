@@ -13,7 +13,8 @@ jobs:
     steps:
       - checkout # pull down our git code.
       - ruby/install-deps # use the ruby orb to install dependencies
-
+    environment:
+      SKIP_CUSTOM_INIT: 'true'
   publish:
     docker:
       - image: cimg/ruby:2.7-node # this is our primary docker image, where step commands run.
@@ -22,6 +23,7 @@ jobs:
       BUNDLE_JOBS: "3"
       BUNDLE_RETRY: "3"
       RAILS_ENV: test
+      SKIP_CUSTOM_INIT: 'true'
     # A series of steps to run, some are similar to those in "build".
     steps:
       - checkout
@@ -59,6 +61,7 @@ jobs:
           MYSQL_USER: user
           MYSQL_PASSWORD: passw0rd
     environment:
+      SKIP_CUSTOM_INIT: 'false'
       BUNDLE_JOBS: "3"
       BUNDLE_RETRY: "3"
       MYSQL_HOST: 127.0.0.1

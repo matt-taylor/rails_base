@@ -16,6 +16,8 @@ module RailsBase
       boolean = false if boolean && ARGV[0]&.include?('db') # when its the DB rake tasks
       boolean = false if boolean && ARGV[0]&.include?('asset') # when its an asset
       boolean = false if boolean && ARGV[0]&.include?(':') # else this delim should never be included
+      boolean = false if boolean && ENV['SKIP_CUSTOM_INIT']=='true' # explicitly set the variable to skip shit
+
       if boolean
         # need to eager load Models
         Rails.application.eager_load!
