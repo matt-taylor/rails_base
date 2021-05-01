@@ -65,6 +65,13 @@ module RailsBase
           description: 'List of admin types. Assignment order is important. Note: :none gets prepended as this is default. Note: :owner, gets appended to this array as the last, highest priority',
           decipher: ->(thing) { thing },
         },
+        default_admin_type: {
+          type: :values,
+          expect_values: ->(instance) { instance.admin_types },
+          default: ADMIN_ROLE_NONE,
+          description: 'Starting value for new users. Dependent on `admin_types` values',
+          decipher: ->(thing) { thing },
+        },
         enable_history: {
           type: :boolean,
           default: true,
