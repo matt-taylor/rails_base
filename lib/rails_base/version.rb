@@ -1,6 +1,6 @@
 module RailsBase
   MAJOR = '0'
-  MINOR = '43'
+  MINOR = '44'
   PATCH = '0'
   VERSION = "#{MAJOR}.#{MINOR}.#{PATCH}"
 
