@@ -108,9 +108,8 @@ workflows:
       - test:
           requires:
             - build
-      - publish
-      # - publish:
-      #     filters:
-      #       branches:
-      #         only:
-      #           - main
+      - publish:
+          filters:
+            branches:
+              only:
+                - main
