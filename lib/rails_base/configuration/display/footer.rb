@@ -12,7 +12,9 @@ module RailsBase
           'RailsBase::MfaAuthController' => [:mfa_code],
           'RailsBase::SecondaryAuthenticationController' => [:static, :after_email_login_session_new, :forgot_password],
         }
-        DEFAULT_FOOTER_HTML = "© 2021 Year of the Rona: Bad Ass Rails Starter <a href='https://github.com/matt-taylor/' target='_blank'>@matt-taylor</a>"
+        DEFAULT_FOOTER_HTML = "© 2021 Year of the Rona: Bad Ass Rails Starter " \
+                              "<a href='https://github.com/matt-taylor/rails_base/tree/#{RailsBase::VERSION}' target='_blank'>v#{RailsBase::VERSION}</a> :: " \
+                              "<a href='https://github.com/matt-taylor/' target='_blank'>@matt-taylor</a>"
 
         DEFAULT_VALUES = {
           enable: {
