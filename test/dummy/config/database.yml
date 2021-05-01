@@ -52,4 +52,5 @@ test:
 #
 
 production:
-  url: <%= ENV['DATABASE_URL'] %>
+  <<: *default
+  database: <%= ENV.fetch('MYSQL_DATABASE','') %>
