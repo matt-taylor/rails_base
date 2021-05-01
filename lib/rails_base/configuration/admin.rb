@@ -207,6 +207,7 @@ module RailsBase
       private
 
       def convenience_methods
+        return unless RailsBase::Engine.___execute_initializer___?
         # defines instance methods like
         # user.at_least_super?
         # user.at_least_owner?
