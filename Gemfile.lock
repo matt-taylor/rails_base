@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    rails_base (0.44.4)
+    rails_base (0.45.2)
       allow_numeric
       bootstrap
       browser
@@ -152,10 +152,14 @@ GEM
     marcel (1.0.1)
     method_source (1.0.0)
     mini_mime (1.1.0)
+    mini_portile2 (2.5.1)
     minitest (5.14.4)
     multipart-post (2.1.1)
     mysql2 (0.5.3)
     nio4r (2.5.7)
+    nokogiri (1.11.3)
+      mini_portile2 (~> 2.5.0)
+      racc (~> 1.4)
     nokogiri (1.11.3-x86_64-linux)
       racc (~> 1.4)
     null-logger (0.1.7)

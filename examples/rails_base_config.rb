@@ -4,6 +4,7 @@
 # This is a file full of defaults.
 # The values commented out are already defaults. Uncomment and change the values if you would like
 # If no changes are requested, this file is not needed
+# This is not a full list of configs. `/admin/config` will show a full list and descriptors
 ##
 
 RailsBase.configure do |config|
