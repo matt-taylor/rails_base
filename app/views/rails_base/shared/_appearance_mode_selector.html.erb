@@ -1,7 +1,7 @@
 <% if RailsBase.appearance.enabled %>
   <% if display %>
     <!-- Button trigger modal -->
-    <button type="button" class="btn btn-info <%= btn%> close-me" data-toggle="modal" data-target="#appearance_mode_selector">
+    <button type="button" class="btn btn_info <%= btn%> close-me" data-toggle="modal" data-target="#appearance_mode_selector">
       Dark/Lite Mode
     </button>
 
@@ -20,7 +20,7 @@
             <%= select_tag 'appearance_mode_selector_id', options_for_select(appearance_mode_drop_down[:types_a]), class: 'form-control', include_blank: 'Select Appearance Mode' %>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-block btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-block btn_secondary" data-dismiss="modal">Close</button>
           </div>
         </div>
       </div>
@@ -111,6 +111,15 @@
         '<%= dark %>': '<%= RailsBase.appearance.text.dark_mode %>',
         '<%= light %>': '<%= RailsBase.appearance.text.light_mode %>'
       },
+      // buttons
+      <% RailsBase.appearance.class::BUTTONS.each do |klass| %>
+      {
+        'descriptor': '.<%= klass %>',
+        '<%= dark %>': '<%= RailsBase.appearance.dig(klass, :dark_mode) %>',
+        '<%= light %>': '<%= RailsBase.appearance.dig(klass, :light_mode) %>'
+      },
+      <% end %>
+
     ]
 
     function toggle_dark_mode(set_key){
@@ -119,11 +128,12 @@
       remove_keys.splice( $.inArray(set_key, remove_keys),1 );
       for (i = 0; i < dark_mode_changes.length; ++i) {
         var descriptor = dark_mode_changes[i]['descriptor']
+        elements = $(`${descriptor}`)
         for (s = 0; s < remove_keys.length; ++s) {
-          $(`${descriptor}`).removeClass(dark_mode_changes[i][remove_keys[s]])
+          elements.removeClass(dark_mode_changes[i][remove_keys[s]])
         }
         var insert = dark_mode_changes[i][set_key]
-        $(`${descriptor}`).addClass(insert)
+        elements.addClass(insert)
       }
     }
 

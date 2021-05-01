@@ -5,7 +5,7 @@
     <%= select_tag 'admin_filter_user_by', options_for_select(filters), include_blank: 'Filter Users', class: 'form-control', onchange: 'filter_admins()' %>
   </div>
 </div>
-<div class='table-responsive-xl' >
+<div class='table-responsive' style="overflow-x:auto; width: inherit !important;">
   <table class="tableFixHead table table-striped table-bordered">
     <thead class="thead-dark text-center">
       <% RailsBase.config.admin.admin_page_tiles.each do |tile| %>

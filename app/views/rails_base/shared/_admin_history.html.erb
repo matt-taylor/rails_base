@@ -34,7 +34,7 @@
 <nav aria-label="Page navigation">
   <ul class="pagination justify-content-center">
     <li class="page-item <%= 'disabled' unless paginate_admin_can_prev?(page_number: @starting_page, count_on_page: @count_on_page) %>">
-      <p class="page-link" onClick="submit_paginate(<%= @starting_page - 1%>, <%= @starting_page %>, <%= @count_on_page %>)" style='cursor: pointer;'>Previous</p>
+      <p class="page-link" onClick="submit_paginate(<%= @starting_page - 1%>, <%= @starting_page %>, <%= @count_on_page %>)" style='cursor: pointer;'>Prev</p>
     </li>
     <% paginate_admin_history_range(start: @starting_page).each do |page| %>
     <% next unless page > 0 %>

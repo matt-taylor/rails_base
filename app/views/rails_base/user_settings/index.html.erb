@@ -11,7 +11,7 @@
               <%= current_user.full_name %>
             </td>
             <td style="width: 20%">
-              <button class="btn btn-primary btn-block show-create-modal" data-toggle="modal" data-target="#modifyNameModal" type="button">Modify</button>
+              <button class="btn btn_primary btn-block show-create-modal" data-toggle="modal" data-target="#modifyNameModal" type="button">Modify</button>
             </td>
           </tr>
           <tr>
@@ -22,7 +22,7 @@
               <%= current_user.mfa_enabled %>
             </td>
             <td style="width: 20%">
-              <button class="btn btn-primary btn-block show-create-modal" type="button">Modify</button>
+              <button class="btn btn_primary btn-block show-create-modal" type="button">Modify</button>
             </td>
           </tr>
           <tr>
@@ -33,14 +33,14 @@
               <%= "<redacted>" %>
             </td>
             <td style="width: 20%">
-              <button class="btn btn-primary btn-block show-create-modal" type="button" data-toggle="modal" data-target="#modifyPasswordModal">Modify</button>
+              <button class="btn btn_primary btn-block show-create-modal" type="button" data-toggle="modal" data-target="#modifyPasswordModal">Modify</button>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
     <div class="row" style="position: relative; top:30%">
-      <button type="button" class="btn btn-danger btn-block" data-toggle="modal" data-target="#destroyUserModal">
+      <button type="button" class="btn btn_danger btn-block" data-toggle="modal" data-target="#destroyUserModal">
         Destroy account
       </button>
     </div>

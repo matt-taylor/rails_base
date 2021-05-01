@@ -5,18 +5,39 @@ require 'rails_base/configuration/display/background_color'
 require 'rails_base/configuration/display/navbar'
 require 'rails_base/configuration/display/text'
 require 'rails_base/configuration/display/footer'
+require 'rails_base/configuration/display/btn_primary'
+require 'rails_base/configuration/display/btn_secondary'
+require 'rails_base/configuration/display/btn_success'
+require 'rails_base/configuration/display/btn_danger'
+require 'rails_base/configuration/display/btn_warning'
+require 'rails_base/configuration/display/btn_info'
+require 'rails_base/configuration/display/btn_light'
+require 'rails_base/configuration/display/btn_dark'
 
 module RailsBase
   module Configuration
     class Appearance < Base
+      BUTTONS = [
+        :btn_primary,
+        :btn_secondary,
+        :btn_success,
+        :btn_danger,
+        :btn_warning,
+        :btn_info,
+        :btn_light,
+        :btn_dark,
+      ]
+
       DOWNSTREAM_CLASSES = [
         :t_header,
         :t_body,
         :bg_color,
         :navbar,
         :text,
-        :footer
-      ]
+        :footer,
+
+      ] + BUTTONS
+
       SKIP_DOWNSTREAM_CLASSES = [:footer]
       DARK_MODE = :dark
       LIGHT_MODE = :light
@@ -63,6 +84,15 @@ module RailsBase
         @navbar = Configuration::Display::Navbar.new
         @text = Configuration::Display::Text.new
         @footer = Configuration::Display::Footer.new
+
+        @btn_primary = Configuration::Display::BtnPrimary.new
+        @btn_secondary = Configuration::Display::BtnSecondary.new
+        @btn_success = Configuration::Display::BtnSuccess.new
+        @btn_danger = Configuration::Display::BtnDanger.new
+        @btn_warning = Configuration::Display::BtnWarning.new
+        @btn_info = Configuration::Display::BtnInfo.new
+        @btn_light = Configuration::Display::BtnLight.new
+        @btn_dark = Configuration::Display::BtnDark.new
 
         _validate_values
         super()
