@@ -35,6 +35,7 @@ class RailsBase::Users::RegistrationsController < Devise::RegistrationsControlle
       return
     end
 
+    resource.admin = RailsBase.config.admin.default_admin_type
     resource.assign_attributes(sign_up_params)
 
     if resource.save
