@@ -4,13 +4,14 @@ module RailsBase
     before_action :set_time_zone
     before_action :is_timeout_error?
     before_action :admin_reset_impersonation_session!
-    before_action :populate_admin_actions, if: -> { RailsBase.config.admin.enable_actions? }
     before_action :footer_mode_case
 
-    after_action :capture_admin_action, if: -> { RailsBase.config.admin.enable_actions? }
+    before_action :populate_admin_actions, if: -> { RailsBase.config.admin.enable_actions? }
+    after_action :capture_admin_action
 
     include ApplicationHelper
     include AppearanceHelper
+    include CaptureReferenceHelper
 
     def set_time_zone
       return unless RailsBase.config.user.tz_user_defined?

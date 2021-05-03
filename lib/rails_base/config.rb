@@ -8,10 +8,25 @@ require 'rails_base/configuration/exceptions_app'
 require 'rails_base/configuration/app_url'
 require 'rails_base/configuration/appearance'
 require 'rails_base/configuration/user'
+require 'rails_base/configuration/login_behavior'
 
 module RailsBase
   class Config
-    attr_reader :admin, :mfa, :auth, :redis, :owner, :mailer, :exceptions_app, :app_url, :appearance, :user
+    VARIABLES = [
+      :admin,
+      :mfa,
+      :auth,
+      :redis,
+      :owner,
+      :mailer,
+      :exceptions_app,
+      :app_url,
+      :appearance,
+      :user,
+      :login_behavior
+    ]
+    attr_reader *VARIABLES
+
     def initialize
       @admin = Configuration::Admin.new
       @mfa = Configuration::Mfa.new
@@ -23,32 +38,19 @@ module RailsBase
       @app_url = Configuration::AppUrl.new
       @appearance = Configuration::Appearance.new
       @user = Configuration::User.new
+      @login_behavior = Configuration::LoginBehavior.new
     end
 
     def validate_configs!
-      admin.validate!
-      mfa.validate!
-      auth.validate!
-      redis.validate!
-      owner.validate!
-      mailer.validate!
-      exceptions_app.validate!
-      app_url.validate!
-      appearance.validate!
-      user.validate!
+      VARIABLES.each do |var|
+        send(var).validate!
+      end
     end
 
     def reset_config!
-      admin.assign_default_values!
-      mfa.assign_default_values!
-      auth.assign_default_values!
-      redis.assign_default_values!
-      owner.assign_default_values!
-      mailer.assign_default_values!
-      exceptions_app.assign_default_values!
-      app_url.assign_default_values!
-      appearance.assign_default_values!
-      user.assign_default_values!
+      VARIABLES.each do |var|
+        send(var).assign_default_values!
+      end
     end
   end
 end

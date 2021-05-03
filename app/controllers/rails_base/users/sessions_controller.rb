@@ -42,7 +42,10 @@ class RailsBase::Users::SessionsController < Devise::SessionsController
 
     sign_in(authenticate.user) if mfa_decision.sign_in_user
 
-    redirect_to mfa_decision.redirect_url, mfa_decision.flash
+    redirect = redirect_from_reference || mfa_decision.redirect_url
+    logger.info { "Successful sign in: Redirecting to #{redirect}" }
+
+    redirect_to(redirect, mfa_decision.flash)
   end
 
   # DELETE /user/sign_out
