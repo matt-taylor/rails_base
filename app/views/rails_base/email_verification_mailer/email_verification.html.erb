@@ -1,7 +1,7 @@
 <p>Hello <%= @user.full_name %>!</p>
 
 <p>
-  Welcome to <%= Rails.application.class.parent_name %>. Where you have the ability to keep track of all of your optiosn accross different companies and life events
+  Welcome to <%= RailsBase.config.app.communication_name %>. Where you have the ability to keep track of all of your optiosn accross different companies and life events
   </br>
   Please finish your registration by following this <a href="<%=@sso_url_for_user%>" target="_blank"> Registration Link </a>
   </br>
@@ -20,6 +20,6 @@ Cant click the link? <a href="<%=@sso_url_for_user%>" target="_blank"> <%=@sso_u
 </br>
 </br>
 Best wishes,</br>
-<%= Rails.application.class.parent_name %> team</br>
+<%= RailsBase.config.app.communication_name %> team </br>
 Visit us at <a href="<%= RailsBase::EmailVerificationMailer::CONTACT_URL %>" target="_blank">
   <%= RailsBase::EmailVerificationMailer::CONTACT_URL  %>
