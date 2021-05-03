@@ -23,6 +23,7 @@ module RailsBase
         symbol: -> (val) { [Symbol].include?(val.class) },
         duration: -> (val) { [ActiveSupport::Duration].include?(val.class) },
         string_nil: -> (val) { [String, NilClass].include?(val.class) },
+        string_proc: -> (val) { [String, Proc].include?(val.class) },
         array: -> (val) { [Array].include?(val.class) },
         hash: -> (val) { [Hash].include?(val.class) },
         path: -> (val) { [Pathname].include?(val.class) },
@@ -131,6 +132,16 @@ module RailsBase
 
               public_send(key).call(current_user)
             end
+          elsif object[:type] == :string_proc
+            self.class.define_method("#{key}") do |*args|
+              return false unless dependents_true?(key)
+
+              if instance_variable_get("@#{key}".to_sym).is_a? Proc
+                instance_variable_get("@#{key}".to_sym).call(args[0])
+              else
+                instance_variable_get("@#{key}".to_sym)
+              end
+            end
           else
             self.class.define_method("#{key}") do
               return false unless dependents_true?(key)
@@ -151,6 +162,7 @@ module RailsBase
         proc = ALLOWED_TYPES.fetch(type)
         return if proc.call(var)
 
+        byebug
         raise InvalidConfiguration, "#{_name}.#{key} expects a #{type}."
       end
 
