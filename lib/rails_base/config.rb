@@ -5,7 +5,7 @@ require 'rails_base/configuration/redis'
 require 'rails_base/configuration/owner'
 require 'rails_base/configuration/mailer'
 require 'rails_base/configuration/exceptions_app'
-require 'rails_base/configuration/app_url'
+require 'rails_base/configuration/app'
 require 'rails_base/configuration/appearance'
 require 'rails_base/configuration/user'
 require 'rails_base/configuration/login_behavior'
@@ -20,7 +20,7 @@ module RailsBase
       :owner,
       :mailer,
       :exceptions_app,
-      :app_url,
+      :app,
       :appearance,
       :user,
       :login_behavior
@@ -35,7 +35,7 @@ module RailsBase
       @owner = Configuration::Owner.new
       @mailer = Configuration::Mailer.new
       @exceptions_app = Configuration::ExceptionsApp.new
-      @app_url = Configuration::AppUrl.new
+      @app = Configuration::App.new
       @appearance = Configuration::Appearance.new
       @user = Configuration::User.new
       @login_behavior = Configuration::LoginBehavior.new

@@ -1,7 +1,11 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%= Rails.application.class.parent_name %></title>
+    <% if user_signed_in? %>
+    <title><%= RailsBase.config.app.web_name_logged_in(current_user) %></title>
+    <% else %>
+    <title><%= RailsBase.config.app.web_name_logged_out %></title>
+    <% end %>
     <% unless defined?(@error_page) %>
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>

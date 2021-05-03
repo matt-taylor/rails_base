@@ -2,8 +2,8 @@ module RailsBase::Authentication
 	module Constants
 		# Shared
 		URL_HELPER = RailsBase.url_routes
-		BASE_URL = RailsBase.config.app_url.base_url
-		BASE_URL_PORT = RailsBase.config.app_url.base_port
+		BASE_URL = RailsBase.config.app.base_url
+		BASE_URL_PORT = RailsBase.config.app.base_port
 		MFA_REASON = :two_factor_mfa_code
 		MFA_LENGTH = RailsBase.config.mfa.mfa_length
 		EMAIL_LENGTH = 255 # MAX LENGTH we can insert into mysql
