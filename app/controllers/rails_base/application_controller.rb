@@ -9,8 +9,6 @@ module RailsBase
     before_action :populate_admin_actions, if: -> { RailsBase.config.admin.enable_actions? }
     after_action :capture_admin_action
 
-    # prepend_before_action :capture_reference
-
     include ApplicationHelper
     include AppearanceHelper
     include CaptureReferenceHelper
