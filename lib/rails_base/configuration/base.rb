@@ -162,7 +162,6 @@ module RailsBase
         proc = ALLOWED_TYPES.fetch(type)
         return if proc.call(var)
 
-        byebug
         raise InvalidConfiguration, "#{_name}.#{key} expects a #{type}."
       end
 
