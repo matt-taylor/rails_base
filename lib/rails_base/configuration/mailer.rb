@@ -99,7 +99,7 @@ module RailsBase
         },
         delivery: {
           type: :symbol,
-          default: 'deliver_now',
+          default: :deliver_now,
           on_assignment: MAILER_METHOD,
           description: "Mailers have a custom delivery method of #{CUSTOM_MAILER_METHOD}. Override this to deliver_later if you have the active_job_adapter running"
         },
