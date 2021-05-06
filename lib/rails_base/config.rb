@@ -9,6 +9,7 @@ require 'rails_base/configuration/app'
 require 'rails_base/configuration/appearance'
 require 'rails_base/configuration/user'
 require 'rails_base/configuration/login_behavior'
+require 'rails_base/configuration/sidekiq'
 
 module RailsBase
   class Config
@@ -23,6 +24,7 @@ module RailsBase
       :app,
       :appearance,
       :user,
+      :sidekiq,
       :login_behavior
     ]
     attr_reader *VARIABLES
@@ -38,6 +40,7 @@ module RailsBase
       @app = Configuration::App.new
       @appearance = Configuration::Appearance.new
       @user = Configuration::User.new
+      @sidekiq = Configuration::Sidekiq.new
       @login_behavior = Configuration::LoginBehavior.new
     end
 

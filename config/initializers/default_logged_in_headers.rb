@@ -21,3 +21,12 @@ params = {
   type: LinkDecisionHelper::NAVBAR_LOGGED_IN,
 }
 LinkDecisionHelper.new(**params).assign!
+
+params = {
+  title: 'Sidekiq',
+  url: -> {  Rails.application.routes.url_helpers.sidekiq_web_path },
+  display: -> (current_user) { RailsBase.config.sidekiq.view_ui?(current_user) } ,
+  type: LinkDecisionHelper::NAVBAR_LOGGED_IN,
+  _blank: true,
+}
+LinkDecisionHelper.new(**params).assign!

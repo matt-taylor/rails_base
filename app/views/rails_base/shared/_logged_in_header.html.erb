@@ -9,7 +9,7 @@
       <% Rails.application.config.n_logged_in.each_with_index do |link_helper, index| %>
       <% next unless link_helper.display?(current_user) %>
       <li class="nav-item  <%= 'active' if index==0 %>">
-        <a class="nav-link" href="<%= link_helper.url %>">
+        <a class="nav-link" href="<%= link_helper.url %>" <%= "target='_blank'" if link_helper.blank? %> >
           <%= link_helper.title %>
           <% if index==0 %>
           <span class="sr-only">(current)</span>

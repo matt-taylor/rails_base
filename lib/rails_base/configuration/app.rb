@@ -4,6 +4,15 @@ module RailsBase
   module Configuration
     class App < Base
 
+      ACTIVE_JOB_PROC = Proc.new do |val, instance|
+        begin
+          ActiveJob::QueueAdapters.lookup(val)
+          Rails.configuration.active_job.queue_adapter = val.to_sym
+        rescue
+          raise ArgumentError, "config.app.active_job_adapter=#{val} is not a defined active job"
+        end
+      end
+
       DEFAULT_VALUES = {
         base_url: {
           type: :string,
@@ -39,6 +48,17 @@ module RailsBase
           type: :string_proc,
           default: ->(*) { Rails.application.class.parent_name },
           description: 'Name used when communicating with users.'
+        },
+        favicon_path: {
+          type: :string_nil,
+          default: 'rails_base/favicon.ico',
+          description: 'Favicon path'
+        },
+        active_job_adapter: {
+          type: :string,
+          default: 'sidekiq',
+          on_assignment: ACTIVE_JOB_PROC,
+          description: 'Active job adapter. This should most lkely be sidekiq.'
         },
       }
 

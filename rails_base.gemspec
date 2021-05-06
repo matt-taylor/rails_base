@@ -24,6 +24,7 @@ Gem::Specification.new do |spec|
   spec.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.md"]
 
   spec.add_dependency "rails", "~> 5"
+  spec.add_dependency "sidekiq", '>= 6'
   spec.add_dependency 'mysql2'
   spec.add_dependency 'sass-rails'
   spec.add_dependency 'uglifier'
