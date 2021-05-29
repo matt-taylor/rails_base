@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    rails_base (0.49.0)
+    rails_base (0.50.0)
       allow_numeric
       bootstrap (~> 4.6.0)
       browser
@@ -78,9 +78,9 @@ GEM
       execjs (> 0)
     bcrypt (3.1.16)
     bindex (0.8.1)
-    bootstrap (5.0.1)
+    bootstrap (4.6.0)
       autoprefixer-rails (>= 9.1.0)
-      popper_js (>= 2.9.2, < 3)
+      popper_js (>= 1.14.3, < 2)
       sassc-rails (>= 2.0.0)
     browser (5.3.1)
     builder (3.2.4)
@@ -168,7 +168,7 @@ GEM
       racc (~> 1.4)
     null-logger (0.1.7)
     orm_adapter (0.5.0)
-    popper_js (2.9.2)
+    popper_js (1.16.0)
     public_suffix (4.0.6)
     racc (1.5.2)
     rack (2.2.3)
