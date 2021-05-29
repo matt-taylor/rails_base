@@ -5,6 +5,8 @@ require 'rails_base/admin/default_index_tile'
 module RailsBase
   module Configuration
     class Mailer < Base
+      CUSTOM_MAILER_METHOD = :deliver_me
+
       FROM_PROC = Proc.new do |val, _instance|
         hash = Rails.configuration.action_mailer.default_options || {}
         ACTION_MAILER_PROC.call(:default_options, hash.merge(from: val))
@@ -22,6 +24,16 @@ module RailsBase
       ACTION_MAILER_PROC = Proc.new do |name, val|
         Rails.configuration.action_mailer.public_send(:"#{name}=", val)
       end
+
+      MAILER_METHOD = Proc.new do |val, instance|
+        unless ActionMailer::MessageDelivery.instance_methods.include?(val.to_sym)
+          raise ArgumentError, "config.mailer.delivery = :#{val} is not a defined method on ActionMailer::MessageDelivery"
+        end
+        ActionMailer::MessageDelivery.define_method(CUSTOM_MAILER_METHOD) do
+          public_send(val)
+        end
+      end
+
 
       DEFAULT_VALUES = {
         from: {
@@ -85,6 +97,18 @@ module RailsBase
           on_assignment: ->(val, _instance) { ACTION_MAILER_PROC.call(:preview_path, val) },
           description: 'Path for mailer previews'
         },
+        delivery: {
+          type: :symbol,
+          default: :deliver_now,
+          on_assignment: MAILER_METHOD,
+          description: "Mailers have a custom delivery method of #{CUSTOM_MAILER_METHOD}. Override this to deliver_later if you have the active_job_adapter running"
+        },
+        active_job_queue: {
+          type: :string,
+          default: 'mailers',
+          on_assignment: ->(val, _instance) { ACTION_MAILER_PROC.call(:deliver_later_queue_name, val) },
+          description: 'The active job queue to send twilio messages from. Ensure that adapter is bound to the queue',
+        }
       }
 
       attr_accessor *DEFAULT_VALUES.keys

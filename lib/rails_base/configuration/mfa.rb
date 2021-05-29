@@ -51,6 +51,11 @@ module RailsBase
           default: ENV.fetch('TWILIO_VELOCITY_FRAME', 5).to_i.hours,
           description: 'Debug purposes. How long to keep admin_velocity_max attempts',
         },
+        active_job_queue: {
+          type: :string,
+          default: 'twilio_sms',
+          description: 'The active job queue to send twilio messages from. Ensure that adapter is bound to the queue',
+        }
       }
 
       attr_accessor *DEFAULT_VALUES.keys

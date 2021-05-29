@@ -25,7 +25,17 @@ module RailsBase
     end
 
     def use_capture_reference?
+      return false if skip_capture_reference?
+
       RailsBase.config.login_behavior.fallback_to_referred
+    end
+
+    def skip_capture_reference!
+      @__skip_capture_reference = true
+    end
+
+    def skip_capture_reference?
+      @__skip_capture_reference.presence
     end
 
     def reference_redirect
