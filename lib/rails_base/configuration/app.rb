@@ -3,18 +3,6 @@ require 'rails_base/configuration/base'
 module RailsBase
   module Configuration
     class App < Base
-      ACTIVE_JOB_PROC = Proc.new do |val, instance|
-        if val.is_a?(Symbol)
-          begin
-            ::ActiveJob::QueueAdapters.lookup(val)
-            Rails.configuration.active_job.queue_adapter = val.to_sym
-          rescue StandardError => e
-            puts e.message
-            raise ArgumentError, "config.app.active_job_adapter=#{val} is not a defined active job"
-          end
-        end
-      end
-
       DEFAULT_VALUES = {
         base_url: {
           type: :string,
@@ -55,12 +43,6 @@ module RailsBase
           type: :string_nil,
           default: 'rails_base/favicon.ico',
           description: 'Favicon path'
-        },
-        active_job_adapter: {
-          type: :symbol_class,
-          default: :async,
-          on_assignment: ACTIVE_JOB_PROC,
-          description: 'Active job adapter. This expects a symbol or a class that inherits from ActiveJob::QueueAdapters'
         },
       }
 
