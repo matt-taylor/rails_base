@@ -31,7 +31,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'coffee-rails'
   spec.add_dependency 'jquery-rails', '~> 4.3', '>= 4.3.3'
   spec.add_dependency 'rails-ujs', '~> 0.1.0'
-  spec.add_dependency 'bootstrap'
+  spec.add_dependency 'bootstrap', '~> 4.6.0'
   spec.add_dependency 'devise'
   spec.add_dependency 'twilio-ruby'
   spec.add_dependency 'interactor'
