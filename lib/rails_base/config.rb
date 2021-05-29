@@ -35,18 +35,6 @@ module RailsBase
         klass = "RailsBase::Configuration::#{klass_name}".constantize
         instance_variable_set(:"@#{variable}", klass.new)
       end
-      @admin = Configuration::Admin.new
-      @mfa = Configuration::Mfa.new
-      @auth = Configuration::Authentication.new
-      @redis = Configuration::Redis.new
-      @owner = Configuration::Owner.new
-      @mailer = Configuration::Mailer.new
-      @exceptions_app = Configuration::ExceptionsApp.new
-      @app = Configuration::App.new
-      @appearance = Configuration::Appearance.new
-      @user = Configuration::User.new
-      @active_job = Configuration::ActiveJob.new
-      @login_behavior = Configuration::LoginBehavior.new
     end
 
     def validate_configs!
