@@ -66,7 +66,7 @@ module RailsBase::Authentication
     end
 
     def send_to_twilio!(message:)
-      TwilioHelper.send_sms(message: message, to: user.phone_number)
+      TwilioJob.perform_later(message: message, to: user.phone_number)
       log(level: :info, msg: "Sent twilio message to #{user.phone_number}")
     rescue StandardError => e
       log(level: :error, msg: "Error caught #{e.class.name}")
@@ -76,7 +76,7 @@ module RailsBase::Authentication
     end
 
     def send_to_email!(message:)
-      RailsBase::EventMailer.send_sso(user: user, message: message).deliver_now
+      RailsBase::EventMailer.send_sso(user: user, message: message).deliver_me
     rescue StandardError => e
       log(level: :error, msg: "Error caught #{e.class.name}")
       log(level: :error, msg: "Failed to send email to #{user.email}")

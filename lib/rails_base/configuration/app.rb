@@ -3,7 +3,6 @@ require 'rails_base/configuration/base'
 module RailsBase
   module Configuration
     class App < Base
-
       DEFAULT_VALUES = {
         base_url: {
           type: :string,
@@ -39,6 +38,11 @@ module RailsBase
           type: :string_proc,
           default: ->(*) { Rails.application.class.parent_name },
           description: 'Name used when communicating with users.'
+        },
+        favicon_path: {
+          type: :string_nil,
+          default: 'rails_base/favicon.ico',
+          description: 'Favicon path'
         },
       }
 

@@ -21,6 +21,7 @@ module RailsBase
         integer: -> (val) { [Integer].include?(val.class) },
         string: -> (val) { [String].include?(val.class) },
         symbol: -> (val) { [Symbol].include?(val.class) },
+        symbol_class: -> (val) { [Symbol].include?(val.class) || val.superclass === ActiveJob::QueueAdapters },
         duration: -> (val) { [ActiveSupport::Duration].include?(val.class) },
         string_nil: -> (val) { [String, NilClass].include?(val.class) },
         string_proc: -> (val) { [String, Proc].include?(val.class) },
@@ -162,7 +163,6 @@ module RailsBase
         proc = ALLOWED_TYPES.fetch(type)
         return if proc.call(var)
 
-        byebug
         raise InvalidConfiguration, "#{_name}.#{key} expects a #{type}."
       end
 
