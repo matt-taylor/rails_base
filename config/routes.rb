@@ -1,5 +1,3 @@
-require 'sidekiq/web'
-
 Rails.application.routes.draw do
   ##################################
   # Start of error handling routes #
@@ -109,10 +107,6 @@ Rails.application.routes.draw do
   end
   # route is part of admin control, but does not need admin enabled
   get 'auth/sso/:data', to: 'rails_base/admin#sso_retrieve', as: :sso_retrieve
-
-  authenticate :user, lambda { |user| RailsBase.config.sidekiq.view_ui?(user) } do
-    mount Sidekiq::Web => '/sidekiq'
-  end
 
   #######################
   # End of Admin routes #

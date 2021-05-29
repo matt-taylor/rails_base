@@ -103,6 +103,12 @@ module RailsBase
           on_assignment: MAILER_METHOD,
           description: "Mailers have a custom delivery method of #{CUSTOM_MAILER_METHOD}. Override this to deliver_later if you have the active_job_adapter running"
         },
+        active_job_queue: {
+          type: :string,
+          default: 'mailers',
+          on_assignment: ->(val, _instance) { ACTION_MAILER_PROC.call(:deliver_later_queue_name, val) },
+          description: 'The active job queue to send twilio messages from. Ensure that adapter is bound to the queue',
+        }
       }
 
       attr_accessor *DEFAULT_VALUES.keys

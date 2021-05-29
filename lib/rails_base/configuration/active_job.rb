@@ -1,17 +1,17 @@
 module RailsBase
   module Configuration
-    class Sidekiq < Base
+    class ActiveJob < Base
       DEFAULT_VALUES = {
         enable_ui: {
           type: :boolean,
           default: true,
-          description: 'Enable Sidekiq UI capabilities'
+          description: 'All ActiveJob UI. To be used downstream'
         },
         view_ui: {
           type: :proc,
           default: ->(user) { user.at_least_owner? },
           dependents: [ -> (i) { i.enable_ui? }],
-          description: 'Enable Sidekiq UI capabilities'
+          description: 'All users to view ActiveJob UI. To be used downstream'
         },
       }
 

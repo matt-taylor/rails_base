@@ -9,27 +9,32 @@ require 'rails_base/configuration/app'
 require 'rails_base/configuration/appearance'
 require 'rails_base/configuration/user'
 require 'rails_base/configuration/login_behavior'
-require 'rails_base/configuration/sidekiq'
+require 'rails_base/configuration/active_job'
 
 module RailsBase
   class Config
-    VARIABLES = [
-      :admin,
-      :mfa,
-      :auth,
-      :redis,
-      :owner,
-      :mailer,
-      :exceptions_app,
-      :app,
-      :appearance,
-      :user,
-      :sidekiq,
-      :login_behavior
-    ]
-    attr_reader *VARIABLES
+    VARIABLES = {
+      admin: nil,
+      mfa: nil,
+      auth: :authentication,
+      redis: nil,
+      owner: nil,
+      mailer: nil,
+      exceptions_app: nil,
+      app: nil,
+      appearance: nil,
+      user: nil,
+      active_job: nil,
+      login_behavior: nil
+    }
+    attr_reader *VARIABLES.keys
 
     def initialize
+      VARIABLES.each do |variable, override|
+        klass_name = (override || variable).to_s.camelize
+        klass = "RailsBase::Configuration::#{klass_name}".constantize
+        instance_variable_set(:"@#{variable}", klass.new)
+      end
       @admin = Configuration::Admin.new
       @mfa = Configuration::Mfa.new
       @auth = Configuration::Authentication.new
@@ -40,18 +45,18 @@ module RailsBase
       @app = Configuration::App.new
       @appearance = Configuration::Appearance.new
       @user = Configuration::User.new
-      @sidekiq = Configuration::Sidekiq.new
+      @active_job = Configuration::ActiveJob.new
       @login_behavior = Configuration::LoginBehavior.new
     end
 
     def validate_configs!
-      VARIABLES.each do |var|
+      VARIABLES.keys.each do |var|
         send(var).validate!
       end
     end
 
     def reset_config!
-      VARIABLES.each do |var|
+      VARIABLES.keys.each do |var|
         send(var).assign_default_values!
       end
     end
