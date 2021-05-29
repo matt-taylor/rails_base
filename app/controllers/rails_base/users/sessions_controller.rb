@@ -64,6 +64,7 @@ class RailsBase::Users::SessionsController < Devise::SessionsController
 
   # GET /heartbeat
   def hearbeat_without_auth
+    skip_capture_reference!
     heartbeat
   end
 

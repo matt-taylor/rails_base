@@ -28,7 +28,7 @@ module RailsBase
     end
 
     def send_twilio!(code)
-      TwilioHelper.send_sms(message: message(code), to: user.phone_number)
+      TwilioJob.perform_later(message: message(code), to: user.phone_number)
       log(level: :info, msg: "Sent twilio message to #{user.phone_number}")
     rescue StandardError => e
       log(level: :error, msg: "Error caught #{e.class.name}")

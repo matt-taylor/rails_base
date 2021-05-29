@@ -39,7 +39,7 @@ module RailsBase::Authentication
 			log(level: :info, msg: "SSO url for user #{user.id}: #{url}")
 
 			begin
-				RailsBase::EmailVerificationMailer.public_send(method, user: user, url: url).deliver_now
+				RailsBase::EmailVerificationMailer.public_send(method, user: user, url: url).deliver_me
 			rescue StandardError => e
 				log(level: :error, msg: "Unkown error occured when sending EmailVerificationMailer.#{method}")
 				log(level: :error, msg: "Params: #{method}, #{reason}, user: #{user.id}")
