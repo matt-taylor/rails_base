@@ -1,0 +1,13 @@
+<% if Sidekiq.pro? %>
+  <% if queue.paused? %>
+    <form action="<%=root_path %>queues/<%= CGI.escape(queue.name) %>/unpause" method="post" style="display: inline">
+      <%= csrf_tag %>
+      <input class="btn btn-success btn-xs" type="submit" name="unpause" value="<%= t('Unpause') %>" style="background-image: none" />
+    </form>
+  <% else %>
+    <form action="<%=root_path %>queues/<%= CGI.escape(queue.name) %>/pause" method="post" style="display: inline">
+      <%= csrf_tag %>
+      <input class="btn btn-warning btn-xs" type="submit" name="pause" value="<%= t('Pause') %>" style="background-image: none" />
+    </form>
+  <% end %>
+<% end %>

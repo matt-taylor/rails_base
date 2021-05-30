@@ -1,0 +1,4 @@
+<form action="<%=root_path %>queues/<%= CGI.escape(queue.name) %>" method="post" style="display: inline">
+  <%= csrf_tag %>
+  <input class="btn btn-warn btn-xs" type="submit" name="drain" value='Drain Queue' />
+</form>
