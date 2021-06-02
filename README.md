@@ -9,7 +9,7 @@ TODO: Delete this and the text above, and describe your gem
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'sidekiq-web-custom'
+gem 'sidekiq-web_custom'
 ```
 
 And then execute:
@@ -18,7 +18,7 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install sidekiq-web-custom
+    $ gem install sidekiq-web_custom
 
 ## Usage
 
