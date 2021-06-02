@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'sidekiq/web_custom/timeout'
-
 module Sidekiq
   module WebCustom
     class WebApp

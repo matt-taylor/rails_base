@@ -78,3 +78,5 @@ module Sidekiq
     end
   end
 end
+
+require 'sidekiq/web_custom/timeout'
