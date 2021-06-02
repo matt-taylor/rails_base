@@ -1,5 +1,3 @@
-require 'byebug'
-
 module Sidekiq
   module WebCustom
     class Configuration
