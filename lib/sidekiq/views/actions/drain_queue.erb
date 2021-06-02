@@ -1,4 +1,42 @@
-<form action="<%=root_path %>queues/<%= CGI.escape(queue.name) %>" method="post" style="display: inline">
+<% id = "sidekiq_web_custom_drain_#{queue.name}" %>
+<% text = "#{id}_text" %>
+
+<form onclick="<%= id %>()" action="<%=root_path %>queues/drain/<%= CGI.escape(queue.name) %>" method="post" style="display: inline">
   <%= csrf_tag %>
-  <input class="btn btn-warn btn-xs" type="submit" name="drain" value='Drain Queue' />
+  <input class="btn btn-warn btn-xs" type="submit" name="drain_queue" value="Drain <%= Sidekiq::WebCustom.config.drain_rate %>" />
 </form>
+
+<div id="<%= id %>" style='display: none'>
+  <div id="<%= text %>">Draining queue. Please wait...</div>
+</div>
+
+<script type="text/javascript">
+  function <%= id %>() {
+    document.getElementById("<%= id %>").style.display = "block";
+  }
+</script>
+
+<style>
+#<%= id %> {
+  position: fixed;
+  display: none;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0,0,0,0.8);
+  z-index: 2;
+}
+
+#<%= text %>{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  font-size: 50px;
+  color: white;
+  transform: translate(-50%,-50%);
+  -ms-transform: translate(-50%,-50%);
+}
+</style>
