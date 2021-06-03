@@ -2,10 +2,9 @@ require 'sidekiq/web_custom/processor'
 
 module Sidekiq
   module WebCustom
-    module Queue
-      def drain(max:)
-        count = [size, max].min
-        Sidekiq::WebCustom::Processor.execute(max: count, queue: self)
+    module Job
+      def execute
+        Sidekiq::WebCustom::Processor.execute_job(job: self)
       end
     end
   end

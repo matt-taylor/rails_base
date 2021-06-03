@@ -26,3 +26,39 @@
     <% end %>
   </table>
 </div>
+
+<div id="_sidekiq_web_block_screen_div_" style='display: none'>
+  <div id="_sidekiq_web_block_screen_text_"></div>
+</div>
+
+<script type="text/javascript">
+  function _sidekiq_web_block_screen(text) {
+    document.getElementById('_sidekiq_web_block_screen_text_').innerHTML = text
+    document.getElementById('_sidekiq_web_block_screen_div_').style.display = "block";
+  }
+</script>
+
+<style>
+#_sidekiq_web_block_screen_div_ {
+  position: fixed;
+  display: none;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0,0,0,0.8);
+  z-index: 2;
+}
+
+#_sidekiq_web_block_screen_text_{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  font-size: 50px;
+  color: white;
+  transform: translate(-50%,-50%);
+  -ms-transform: translate(-50%,-50%);
+}
+</style>
