@@ -24,7 +24,12 @@ module Sidekiq
       def src_file_replacement(content)
         file_name = Sidekiq::WebCustom.local_erb_mapping[content]
         contents = File.read(file_name)
-        actions = Sidekiq::WebCustom.available_actions_mapping.map do |action, action_path|
+        begin
+          available_actions = Sidekiq::WebCustom.config.public_send("actions_for_#{content}")
+        rescue NoMethodError
+          available_actions = []
+        end
+        actions = available_actions.map do |action, action_path|
           File.read(action_path)
         end.join(" ")
         contents.gsub(OVERWRITE_VALUE, actions)

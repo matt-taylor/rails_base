@@ -18,6 +18,20 @@ module Sidekiq
         rescue Sidekiq::WebCustom::ExecutionTimeExceeded => e
           redirect_with_query("#{root_path}queues")
         end
+
+        app.post '/job/delete' do
+          parsed = parse_params(params['entry.score'])
+          job = Sidekiq::ScheduledSet.new.fetch(*parsed).first
+          job&.delete
+          redirect_with_query("#{root_path}scheduled")
+        end
+
+        app.post '/job/execute' do
+          parsed = parse_params(params['entry.score'])
+          job = Sidekiq::ScheduledSet.new.fetch(*parsed)&.first
+          status = job&.execute
+          redirect_with_query("#{root_path}scheduled")
+        end
       end
     end
   end

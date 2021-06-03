@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'byebug'
 require_relative 'web_custom/version'
 
 # require sidekiq/web first to ensure web_Action will prepend correctly
@@ -7,6 +8,7 @@ require 'sidekiq/web'
 require 'sidekiq/web_custom/configuration'
 require 'sidekiq/web_custom/web_action'
 require 'sidekiq/web_custom/queue'
+require 'sidekiq/web_custom/job'
 require 'sidekiq/web_custom/web_app'
 
 module Sidekiq
@@ -17,12 +19,21 @@ module Sidekiq
     class StopExecution < Error; end
     class ExecutionTimeExceeded < Error; end
 
-    BREAK_BIT = '__sidekiq-web_custom-berakbit__'
+    BREAK_BIT = '__sidekiq-web_custom-breakbit__'
 
     def self.default_available_actions_mapping
-      @available_actions_mapping ||= Dir["#{actions_root}/*.erb"].map do |erb_path|
-        [File.basename(erb_path).split('.')[0].to_sym, erb_path]
-      end.to_h
+      @available_actions_mapping ||= begin
+        temp = {}
+        Dir["#{actions_root}/**/*.erb"].map do |erb_path|
+          base_path = File.basename(erb_path).split('.')[0]
+          second_half = erb_path.split(actions_root)[1]
+          action_type = second_half.split(base_path)[0]
+          action_type = action_type.delete('/').to_sym
+          temp[action_type] ||= {}
+          temp[action_type][base_path.to_sym] = erb_path
+        end
+        temp
+      end
     end
 
     def self.default_local_erb_mapping
@@ -57,11 +68,6 @@ module Sidekiq
       __inject_dependencies
     end
 
-    def self.available_actions_mapping
-      config.actions
-    end
-
-
     def self.local_erb_mapping
       config.local_erbs
     end
@@ -74,9 +80,11 @@ module Sidekiq
       @__already_called = true
       ::Sidekiq::WebAction.prepend WebAction
       ::Sidekiq::Queue.prepend Queue
+      ::Sidekiq::Job.prepend Job
       ::Sidekiq::Web.register WebApp
     end
   end
 end
 
+# dependent the error classes loaded on boot, requie after code is loaded
 require 'sidekiq/web_custom/timeout'

@@ -38,18 +38,19 @@ module Sidekiq
         end
       end
 
-      def drain_rate=(int)
-
-
-        super(int)
-      end
-
-      def merge(base:, params:)
+      def merge(base:, params:, action_type: nil)
         raise Sidekiq::WebCustom::ArgumentError, "Unexpected base: #{base}" unless ALLOWED_BASED.include?(base)
         raise Sidekiq::WebCustom::ArgumentError, "Expected object for #{base} to be a Hash" unless params.is_a?(Hash)
 
         value = instance_variable_get(:"@#{base}")
-        instance_variable_set(:"@#{base}", value.merge(params))
+        value =
+          if action_type
+            value[action_type.to_sym] ||= {}
+            value[action_type.to_sym].merge(params)
+          else
+            value.merge(params)
+          end
+        instance_variable_set(:"@#{base}", value)
       end
 
       def validate!
@@ -58,19 +59,35 @@ module Sidekiq
           _validate!(value, key)
         end
 
-        return true if @warn_execution_time <= @max_execution_time
+        unless @warn_execution_time <= @max_execution_time
+          raise Sidekiq::WebCustom::ArgumentError, "Expected warn_execution_time to be less than max_execution_time"
+        end
 
-        raise Sidekiq::WebCustom::ArgumentError, "Expected warn_execution_time to be less than max_execution_time"
+        unless actions.keys.all? { |k| local_erbs.keys.include?(k) }
+          raise Sidekiq::WebCustom::ArgumentError, "Unexpected actions keys#{actions.keys} -- Expected to be part of #{local_erbs.keys}"
+        end
+
+        define_convenienve_methods!
       end
 
       private
 
-      def _validate!(params, key)
+      def define_convenienve_methods!
+        actions.keys.each do |key|
+          define_singleton_method("actions_for_#{key.to_s}") do
+            actions[key]
+          end
+        end
+      end
+
+      def _validate!(params, key, add: [])
         params.each do |k, file|
-          next if File.exist?(file)
+          return _validate!(file, k, add: add << key) if file.is_a? Hash
+          passed = [add, k].flatten.compact.join(':')
+          next puts "#{key} -- valid:#{passed} " if File.exist?(file)
 
           raise Sidekiq::WebCustom::FileNotFound,
-            "#{key}.merge passed #{k}: #{file}.\n" \
+             "#{key}.merge passed #{passed}: #{file}.\n" \
             "The absolute file path does not exist."
         end
       end
