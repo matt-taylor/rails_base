@@ -1,1 +1,5 @@
-lib/sidekiq/views/actions/scheduled/delete.erb
+<form onclick="_sidekiq_web_block_screen('Deleting Job. Please Wait...')" action="<%=root_path %>job/delete" method="post" style="display: inline">
+  <%= csrf_tag %>
+  <input type="hidden" id="individual_job" name="entry.score" value='<%= job_params(entry.item, entry.score) %>' >
+  <input class="btn btn-danger btn-xs" type="submit" name='delete_job' value='Delete Job' />
+</form>

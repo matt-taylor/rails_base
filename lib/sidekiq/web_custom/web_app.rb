@@ -3,6 +3,10 @@
 module Sidekiq
   module WebCustom
     class WebApp
+      MAPPED_TYPE = {
+        retries: RetrySet,
+        scheduled: ScheduledSet,
+      }
       def self.registered(app)
         app.post '/queues/drain/:name' do
           timeout_params = {
@@ -21,16 +25,22 @@ module Sidekiq
 
         app.post '/job/delete' do
           parsed = parse_params(params['entry.score'])
-          job = Sidekiq::ScheduledSet.new.fetch(*parsed).first
+
+          klass = MAPPED_TYPE[params['entry.type'].to_sym]
+          job = klass.new.fetch(*parsed)&.first
+
           job&.delete
           redirect_with_query("#{root_path}scheduled")
         end
 
         app.post '/job/execute' do
           parsed = parse_params(params['entry.score'])
-          job = Sidekiq::ScheduledSet.new.fetch(*parsed)&.first
+
+          klass = MAPPED_TYPE[params['entry.type'].to_sym]
+          job = klass.new.fetch(*parsed)&.first
+
           status = job&.execute
-          redirect_with_query("#{root_path}scheduled")
+          redirect_with_query("#{root_path}#{params['entry.type']}")
         end
       end
     end

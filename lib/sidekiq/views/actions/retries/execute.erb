@@ -1,1 +1,7 @@
-lib/sidekiq/views/actions/scheduled/execute.erb
+<form onclick="_sidekiq_web_block_screen('Executing Job. Please Wait...')" action="<%=root_path %>job/execute" method="post" style="display: inline">
+  <%= csrf_tag %>
+  <input type="hidden" id="execute_job" name="entry.score" value='<%= job_params(entry.item, entry.score) %>' >
+  <input type="hidden" id="execute_job_type" name="entry.type" value='<%= request.url.split('/')[-1] %>' >
+  <input class="btn btn-warn btn-xs" type="submit" name='execute_job' value='Execute Job' />
+</form>
+
