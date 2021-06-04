@@ -29,3 +29,6 @@ down: #: Bring down the service -- Destroys everything
 
 clean: #: Clean up stopped/exited containers
 	docker-compose rm -f
+
+add_jobs: #: Randomly add jobs to every queue defined in dummy app
+	docker-compose run --rm $(APP_NAME) bin/rails runner 'lib/load_random_workers.rb'

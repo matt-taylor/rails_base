@@ -22,7 +22,7 @@ def assign_configs!
     options = {
       require: APP_PATH,
       environment: ENV['RAILS_ENV'] || 'development',
-      queues: bind_queues,
+      queues: bind_queues.select { |c| !c.include?('exclude') },
       strict: false,
       concurrency: 10,
     }
