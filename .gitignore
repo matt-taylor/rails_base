@@ -9,3 +9,10 @@
 
 # rspec failure tracking
 .rspec_status
+
+
+# dummy app
+.byebug_history
+coverage/
+dummy_rails/tmp/
+dummy_rails/log/

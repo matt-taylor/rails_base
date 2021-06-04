@@ -1,0 +1,43 @@
+version: '3'
+
+services:
+  redis:
+    image: redis
+    expose:
+      - 6379
+  app:
+    command: bin/rails s -p 1111 -e development -b '0.0.0.0'
+    stdin_open: true
+    tty: true
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    ports:
+      - "1111:1111"
+    environment:
+      REDIS_URL: redis://redis
+    volumes:
+      - .:/gem
+      - bundle-cache:/usr/local/bundle
+      - ..:/local
+    links:
+      - redis
+      - sidekiq
+  sidekiq:
+    command: bin/all_workers
+    stdin_open: true
+    tty: true
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    environment:
+      RAILS_ENV: development
+      REDIS_URL: redis://redis
+    volumes:
+      - .:/gem
+      - bundle-cache:/usr/local/bundle
+      - ..:/local
+    links:
+      - redis
+volumes:
+  bundle-cache:
