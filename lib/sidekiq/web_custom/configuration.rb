@@ -2,7 +2,7 @@ module Sidekiq
   module WebCustom
     class Configuration
 
-      ALLOWED_BASED = [:actions, :local_erbs]
+      ALLOWED_BASED = [ACTIONS = :actions, LOCAL_ERBS = :local_erbs]
       INTEGERS = [:drain_rate, :max_execution_time, :warn_execution_time]
 
       DEFAULT_DRAIN_RATE = 10
@@ -10,7 +10,7 @@ module Sidekiq
       DEFAULT_WARN_TIME = 5
       attr_reader *ALLOWED_BASED
 
-      attr_accessor *INTEGERS
+      attr_reader *INTEGERS
 
       def initialize
         ALLOWED_BASED.each do |var|
@@ -22,19 +22,11 @@ module Sidekiq
         @warn_execution_time = DEFAULT_WARN_TIME
       end
 
-      def actions
-        @actions
-      end
-
-      def local_erbs
-        @local_erbs
-      end
-
       INTEGERS.each do |int|
-        define_singleton_method("#{int}=") do |val|
+         self.define_method("#{int}=") do |val|
           raise Sidekiq::WebCustom::ArgumentError, "Expected #{int} to be an integer" unless val.is_a?(Integer)
 
-          super(val)
+          instance_variable_set(:"@#{int}", val)
         end
       end
 
@@ -44,9 +36,10 @@ module Sidekiq
 
         value = instance_variable_get(:"@#{base}")
         value =
-          if action_type
+          if action_type && base == ACTIONS
             value[action_type.to_sym] ||= {}
-            value[action_type.to_sym].merge(params)
+            value[action_type.to_sym].merge!(params)
+            value
           else
             value.merge(params)
           end
@@ -56,6 +49,7 @@ module Sidekiq
       def validate!
         ALLOWED_BASED.each do |key|
           value = instance_variable_get(:"@#{key}")
+
           _validate!(value, key)
         end
 
@@ -84,7 +78,9 @@ module Sidekiq
         params.each do |k, file|
           return _validate!(file, k, add: add << key) if file.is_a? Hash
           passed = [add, k].flatten.compact.join(':')
-          next puts "#{key} -- valid:#{passed} " if File.exist?(file)
+
+
+          next if File.exist?(file)
 
           raise Sidekiq::WebCustom::FileNotFound,
              "#{key}.merge passed #{passed}: #{file}.\n" \

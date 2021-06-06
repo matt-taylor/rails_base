@@ -12,7 +12,7 @@ bash: #: Get a bash prompt on the core container
 bash_test: #: Get a test bash prompt on the core container
 	docker-compose run --rm -e RAILS_ENV=test $(APP_NAME) bash
 
-s develop server start: clear_pid kill_sidekiq #: Start the web app server
+s develop server start: clear_pid kill_sidekiq #: Start the web app server and restart the sidekiq session
 	docker-compose -f docker-compose.yml run --rm --service-ports $(APP_NAME)
 
 clear_pid: #: clear pid in the event of a crash
@@ -21,10 +21,10 @@ clear_pid: #: clear pid in the event of a crash
 kill_sidekiq:
 	docker-compose stop $(SIDEKIQ_NAME)
 
-roll_sidekiq: kill_sidekiq
+sidekiq: kill_sidekiq # start a detached version of sidekiq
 	docker-compose -f docker-compose.yml run -d --rm $(SIDEKIQ_NAME)
 
-down: #: Bring down the service -- Destroys everything
+down: #: Bring down the service -- Destroys everything in redis and all containers
 	docker-compose down
 
 clean: #: Clean up stopped/exited containers
@@ -32,3 +32,6 @@ clean: #: Clean up stopped/exited containers
 
 add_jobs: #: Randomly add jobs to every queue defined in dummy app
 	docker-compose run --rm $(APP_NAME) bin/rails runner 'lib/load_random_workers.rb'
+
+bundle: #: install gems for Dummy App with
+	docker-compose run --rm $(APP_NAME) bundle install

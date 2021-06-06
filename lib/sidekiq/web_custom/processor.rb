@@ -56,10 +56,12 @@ module Sidekiq
         count = 0
         max.times do
           break if @__queue.size <= 0
+
           if Thread.current[Sidekiq::WebCustom::BREAK_BIT]
             Sidekiq.logger.warn { "Yikes -- Break bit has been set. Attempting to return in time. Completed #{count} of attempted #{max}" }
             break
           end
+
           count += 1
           Sidekiq.logger.info { "Manually processing next item in queue:[#{@__queue.name}]" }
           process_one
@@ -69,7 +71,8 @@ module Sidekiq
         if @job && @__basic_fetch
           Sidekiq.logger.fatal "Processor Execution interrupted. Lost Job #{@job.job}"
         end
-        raise ex
+        Sidekiq.logger.warn "Manual execution has terminated. Received error [#{ex.message}]"
+        return count
       end
     end
   end

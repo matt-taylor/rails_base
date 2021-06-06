@@ -9,5 +9,9 @@ gemspec
 gem 'rails'
 gem 'byebug'
 gem "rake", "~> 13.0"
-
 gem "rspec", "~> 3.0"
+
+gem 'spring-watcher-listen'
+gem 'spring'
+gem 'listen'
+gem 'web-console'

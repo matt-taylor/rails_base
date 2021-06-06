@@ -37,7 +37,7 @@ module Sidekiq
     end
 
     def self.default_local_erb_mapping
-      @local_erb_mapping ||=  Dir["#{local_erbs_root}/*.erb"].map do |erb_path|
+      @local_erb_mapping ||= Dir["#{local_erbs_root}/*.erb"].map do |erb_path|
         [File.basename(erb_path).split('.')[0].to_sym, erb_path]
       end.to_h
     end
@@ -70,6 +70,10 @@ module Sidekiq
 
     def self.local_erb_mapping
       config.local_erbs
+    end
+
+    def self.reset!
+      @config = nil
     end
 
     private
