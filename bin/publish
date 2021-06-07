@@ -6,7 +6,7 @@ if [ -z "$GEMFURY_TOKEN" ]; then
 fi
 
 
-VERSION=$(bin/rails runner 'Sidekiq::WebCustom::VERSION')
+VERSION=$(bin/rails runner 'Sidekiq::WebCustom.get_version')
 PACKAGE=sidekiq-web_custom-${VERSION}.gem
 
 if [ $(git tag -l "$VERSION") ]; then
