@@ -15,6 +15,9 @@ bash_test: #: Get a test bash prompt on the core container
 s develop server start: clear_pid kill_sidekiq #: Start the web app server and restart the sidekiq session
 	docker-compose -f docker-compose.yml run --rm --service-ports $(APP_NAME)
 
+c: #: Get a bash prompt on the core container
+	docker-compose run --rm -e RAILS_ENV=development $(APP_NAME) bin/rails c
+
 clear_pid: #: clear pid in the event of a crash
 	rm -f dummy_rails/tmp/pids/server.pid
 
