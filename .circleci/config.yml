@@ -80,8 +80,8 @@ workflows:
       - test:
           requires:
             - build
-      - publish:
-          filters:
-            branches:
-              only:
-                - main
+      - publish
+          # filters:
+          #   branches:
+          #     only:
+          #       - main
