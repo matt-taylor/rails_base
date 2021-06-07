@@ -17,10 +17,11 @@ module Sidekiq
       def self.__processor__(queue:, options: Sidekiq.options)
         options_temp = options.clone
         queue = queue.is_a?(String) ? Sidekiq::Queue.new(queue) : queue
+
         options_temp[:queues] = [queue.name]
         klass = options_temp[:fetch]&.class || BasicFetch
         options_temp[:fetch] = klass.new(options_temp)
-        processor = new(manager: nil, options: options_temp, queue: queue)
+        new(manager: nil, options: options_temp, queue: queue)
       end
 
       def initialize(manager:, options:, queue:)
@@ -34,18 +35,18 @@ module Sidekiq
         queue_name = "queue:#{job.queue}"
         work_unit = Sidekiq::BasicFetch::UnitOfWork.new(queue_name, job.item.to_json)
         begin
-          Sidekiq.logger.info { "Manually processing individual work unit for #{work_unit.queue_name}" }
+          Sidekiq.logger.info "Manually processing individual work unit for #{work_unit.queue_name}"
           process(work_unit)
         rescue StandardError => e
-          Sidekiq.logger.error { "Manually processed work unit failed with #{e.message}. Work unit will not be dequeued" }
+          Sidekiq.logger.error "Manually processed work unit failed with #{e.message}. Work unit will not be dequeued"
           raise e
         end
 
         begin
-          Sidekiq.logger.error { "Manually processed work unit sucessfully dequeued." }
           job.delete
+          Sidekiq.logger.info { "Manually processed work unit sucessfully dequeued." }
         rescue StandardError => e
-          Sidekiq.logger.error { "Manually processed work unit failed to be dequeued. #{e.message}." }
+          Sidekiq.logger.fatal "Manually processed work unit failed to be dequeued. #{e.message}."
           raise e
         end
 
@@ -56,20 +57,24 @@ module Sidekiq
         count = 0
         max.times do
           break if @__queue.size <= 0
+
           if Thread.current[Sidekiq::WebCustom::BREAK_BIT]
-            Sidekiq.logger.warn { "Yikes -- Break bit has been set. Attempting to return in time. Completed #{count} of attempted #{max}" }
+            Sidekiq.logger.warn "Yikes -- Break bit has been set. Attempting to return in time. Completed #{count} of attempted #{max}"
             break
           end
-          count += 1
+
           Sidekiq.logger.info { "Manually processing next item in queue:[#{@__queue.name}]" }
           process_one
+          count += 1
+
         end
         count
       rescue Exception => ex
         if @job && @__basic_fetch
           Sidekiq.logger.fatal "Processor Execution interrupted. Lost Job #{@job.job}"
         end
-        raise ex
+        Sidekiq.logger.warn "Manual execution has terminated. Received error [#{ex.message}]"
+        return count
       end
     end
   end

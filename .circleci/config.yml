@@ -1,13 +1,87 @@
-version: 2.1
+version: 2.1 # Use 2.1 to enable using orbs and other features.
+
+# Declare the orbs that we'll use in our config.
+# read more about orbs: https://circleci.com/docs/2.0/using-orbs/
+orbs:
+  ruby: circleci/ruby@1.0
+
 jobs:
-  build:
+  build: # our first job, named "build"
     docker:
-      - image: ruby:2.6.3
+      - image: cimg/ruby:2.7-node # use a tailored CircleCI docker image.
+    steps:
+      - checkout # pull down our git code.
+      - ruby/install-deps # use the ruby orb to install dependencies
+    environment:
+  publish:
+    docker:
+      - image: cimg/ruby:2.7-node # this is our primary docker image, where step commands run.
+    # environment variables specific to Ruby/Rails, applied to the primary container.
+    environment:
+      BUNDLE_JOBS: "3"
+      BUNDLE_RETRY: "3"
+      RAILS_ENV: test
+    # A series of steps to run, some are similar to those in "build".
     steps:
       - checkout
+      - ruby/install-deps
       - run:
-          name: Run the default task
+          name: 'Get Go'
           command: |
-            gem install bundler -v 2.2.15
-            bundle install
-            bundle exec rake
+            sudo apt-get update -qq
+            sudo apt-get -y --no-install-recommends install golang-go
+      - run:
+          name: 'Set Git stats'
+          command: |
+            git config user.name $GITHUB_USER
+            git config user.email $GITHUB_EMAIL
+      - run:
+          name: 'Download GHR'
+          command: |
+            curl -sSL https://github.com/tcnksm/ghr/releases/download/v0.13.0/ghr_v0.13.0_linux_amd64.tar.gz | tar xz -f - -C . ghr_v0.13.0_linux_amd64/ghr
+            mv ghr_v0.13.0_linux_amd64/ghr .
+            rm -rf ghr_v0.13.0_linux_amd64
+            chmod 0755 ghr
+      - run:
+          name: Publish
+          command: |
+            export GHRLOCATION=ghr
+            bin/publish
+
+  test:
+    docker:
+      - image: cimg/ruby:2.7-node
+      - image: circleci/redis:latest
+    environment:
+      BUNDLE_JOBS: "3"
+      BUNDLE_RETRY: "3"
+      RAILS_ENV: test
+    # A series of steps to run, some are similar to those in "build".
+    steps:
+      - checkout
+      - ruby/install-deps
+      - run:
+          name: Setup Climate Control test-reporter
+          command: |
+            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+            chmod +x ./cc-test-reporter
+      - run:
+          name: Run le tests
+          command: |
+            ./cc-test-reporter before-build
+            SIMPLE_COV_RUN=true bundle exec rspec --format RspecJunitFormatter --out test-results/rspec/rspec.xml --format progress --color
+            ./cc-test-reporter after-build format-coverage -t simplecov
+
+workflows:
+  version: 2
+  yeet-le-jobs:
+    jobs:
+      - build
+      - test:
+          requires:
+            - build
+      - publish:
+          filters:
+            branches:
+              only:
+                - main
