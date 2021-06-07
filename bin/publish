@@ -1,0 +1,40 @@
+#!/bin/bash -e
+
+if [ -z "$GEMFURY_TOKEN" ]; then
+  echo 'Environment variable GEMFURY_TOKEN is not present'
+  exit 1
+fi
+
+
+VERSION=$(bin/rails runner 'Sidekiq::WebCustom::VERSION')
+PACKAGE=sidekiq-web_custom-${VERSION}.gem
+
+if [ $(git tag -l "$VERSION") ]; then
+  echo "Pre existing version $VERSION, not tagging."
+  echo "Pre existing version $VERSION, not pushing to gemfury."
+  exit 0
+fi
+
+# Build and publish to Gemfury
+gem build sidekiq-web_custom.gemspec
+FILE=$(pwd)/${PACKAGE}
+echo "Finished building $FILE"
+
+# push to gemfury
+curl --fail -F package=@${FILE} https://${GEMFURY_TOKEN}@push.fury.io/${GEMFURY_USER}/
+echo "Finished Pushing to Gemfury"
+
+# create tag in repo
+git tag -a $VERSION -m "$VERSION"
+git push https://${GITHUB_TOKEN}@github.com/${GITHUB_USER}/rails_base.git $VERSION
+echo "Finished Tagging to git"
+
+
+# send artifacts to git
+SHA=$(git rev-parse HEAD)
+./$GHRLOCATION -soft -t ${GITHUB_TOKEN} -u ${GITHUB_USER} -r rails_base -c ${SHA} ${VERSION} *.gem
+
+echo "Finished Pushing artificat to Git"
+
+# start fresh
+rm rails_base*.gem
