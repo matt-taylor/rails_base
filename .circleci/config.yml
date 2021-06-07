@@ -51,6 +51,7 @@ jobs:
   test:
     docker:
       - image: cimg/ruby:2.7-node
+      - image: circleci/redis:latest
     environment:
       BUNDLE_JOBS: "3"
       BUNDLE_RETRY: "3"
