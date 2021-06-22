@@ -36,20 +36,14 @@ services:
       target: base
       context: .
     command: test/dummy/bin/rails s -p 5555 -e development -b '0.0.0.0'
-    image: "authentication-engine:0.1"
     # so things like pry work
     tty: true
     stdin_open: true
     volumes:
-      # bind-mount your working directory of code
       - .:/home/app
-      # attach a volume at /bundle to keep gems outside of the container image
       - bundle:/bundle
-      # attach a volume at ./node_modules to keep node modules cached in a volume
       - node-modules:/home/app/node_modules
-      # attach a volume at ./tmp to cache asset compilation, rails cache files
       - tmp:/home/app/tmp
-      # attach all dirs in the parents dir
       - ..:/local
     env_file:
       - .env
@@ -73,3 +67,82 @@ services:
     links:
       - mysql
       - redis
+  engine_with_sidekiq:
+    build:
+      args:
+        BUNDLE_WITHOUT: "darwin"
+        RAILS_ENV: development
+      target: base
+      context: .
+    command: test/dummy/bin/rails s -p 5555 -e development -b '0.0.0.0'
+    # so things like pry work
+    tty: true
+    stdin_open: true
+    volumes:
+      - .:/home/app
+      - bundle:/bundle
+      - node-modules:/home/app/node_modules
+      - tmp:/home/app/tmp
+      - ..:/local
+    env_file:
+      - .env
+    environment:
+      - RAILS_ENV=development
+      - MYSQL_HOST=mysql
+      - MYSQL_USER=root
+      - MYSQL_PORT=3306
+      - MYSQL_PASSWORD=root
+      - BUNDLE_PATH=/bundle
+      - BUNDLE_JOBS=2
+      - BUNDLE_RETRY=3
+      - BASE_URL=http://localhost
+      - BASE_URL_PORT=5555
+      - SESSION_TIMEOUT_IN_SECONDS=900
+      - SESSION_TIMEOUT_WARNING=true
+      - RAILS_MAX_THREADS=1
+      - REDIS_URL=redis://redis
+      - USE_SIDEKIQ=true
+    ports:
+      - "5555:5555"
+    links:
+      - mysql
+      - redis
+      - sidekiq
+  sidekiq:
+    build:
+      args:
+        BUNDLE_WITHOUT: "darwin"
+        RAILS_ENV: development
+      target: base
+      context: .
+    command: test/dummy/bin/sidekiq -e development -q twilio_sms,1 -q default,1 -q mailers,1
+    # so things like pry work
+    tty: true
+    stdin_open: true
+    volumes:
+      - .:/home/app
+      - bundle:/bundle
+      - node-modules:/home/app/node_modules
+      - tmp:/home/app/tmp
+      - ..:/local
+    env_file:
+      - .env
+    environment:
+      - RAILS_ENV=development
+      - MYSQL_HOST=mysql
+      - MYSQL_USER=root
+      - MYSQL_PORT=3306
+      - MYSQL_PASSWORD=root
+      - BUNDLE_PATH=/bundle
+      - BUNDLE_JOBS=2
+      - BUNDLE_RETRY=3
+      - BASE_URL=http://localhost
+      - BASE_URL_PORT=5555
+      - SESSION_TIMEOUT_IN_SECONDS=900
+      - SESSION_TIMEOUT_WARNING=true
+      - RAILS_MAX_THREADS=1
+      - REDIS_URL=redis://redis
+    links:
+      - mysql
+      - redis
+

@@ -26,7 +26,7 @@ module RailsBase
         },
         adapter: {
           type: :symbol_class,
-          default: :inline,
+          default: ENV['USE_SIDEKIQ']=='true' ? :sidekiq : :inline,
           on_assignment: ACTIVE_JOB_PROC,
           description: 'Active job adapter. This expects a symbol or a class that inherits from ActiveJob::QueueAdapters'
         },

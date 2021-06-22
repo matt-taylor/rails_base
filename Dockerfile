@@ -59,14 +59,7 @@ RUN gem install bundler -v "${BUNDLER_VERSION}"
 RUN gem install annotate
 RUN gem install bundler
 
-
-COPY . ./
-
+COPY . $APP_HOME
 
 RUN gem build rails_base
-
-EXPOSE 5555
-
-# use dumb-init as an init system for our process
-ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 
