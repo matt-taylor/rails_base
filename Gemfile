@@ -6,6 +6,8 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 # development dependencies will be added by default to the :development group.
 gemspec
 
+gem 'sidekiq'
+
 group :test do
   gem 'database_cleaner-active_record'
   gem 'null-logger', require: 'null_logger'
