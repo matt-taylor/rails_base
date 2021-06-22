@@ -1,3 +1,7 @@
+<a href="https://fury.co/f/partner">
+  <img src="//badge.fury.io/fp/gemfury.svg" alt="Private Repository">
+</a>
+
 # RailsBase
 Short description and motivation.
 
