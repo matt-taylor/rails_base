@@ -40,9 +40,15 @@ class RailsBase::Users::SessionsController < Devise::SessionsController
         ).encrypted_val
     end
 
-    sign_in(authenticate.user) if mfa_decision.sign_in_user
+    redirect =
+      if mfa_decision.sign_in_user
+        sign_in(authenticate.user)
+        # only referentially redirect when we know the user should sign in
+        redirect_from_reference
+      end
 
-    redirect = redirect_from_reference || mfa_decision.redirect_url
+    redirect ||= mfa_decision.redirect_url
+
     logger.info { "Successful sign in: Redirecting to #{redirect}" }
 
     redirect_to(redirect, mfa_decision.flash)
