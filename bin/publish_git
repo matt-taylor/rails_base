@@ -1,0 +1,38 @@
+#!/bin/bash -e
+
+if [ -z "$GITHUB_TOKEN" ]; then
+  echo 'Environment variable GITHUB_TOKEN is not present'
+  exit 1
+fi
+
+if [ -z "$GITHUB_USER" ]; then
+  echo 'Environment variable GITHUB_USER is not present'
+  exit 1
+fi
+
+
+VERSION=$(bin/rails runner 'RailsBase.print_version')
+PACKAGE=rails_base-${VERSION}.gem
+
+if [ $(git tag -l "$VERSION") ]; then
+  echo "Pre existing version $VERSION, not tagging."
+  exit 0
+fi
+
+# Build Gem
+gem build rails_base.gemspec
+FILE=$(pwd)/${PACKAGE}
+echo "Finished building $FILE"
+
+# create tag in repo
+git tag -a $VERSION -m "$VERSION"
+git push https://${GITHUB_TOKEN}@github.com/${GITHUB_USER}/timeoutable.git $VERSION
+echo "Finished Tagging to git"
+
+
+# send artifacts to git
+SHA=$(git rev-parse HEAD)
+./$GHRLOCATION -soft -t ${GITHUB_TOKEN} -u ${GITHUB_USER} -r timeoutable -c ${SHA} ${VERSION} *.gem
+echo "Finished Pushing artificat to Git"
+
+rm ${FILE}
