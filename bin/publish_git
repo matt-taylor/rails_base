@@ -26,13 +26,13 @@ echo "Finished building $FILE"
 
 # create tag in repo
 git tag -a $VERSION -m "$VERSION"
-git push https://${GITHUB_TOKEN}@github.com/${GITHUB_USER}/timeoutable.git $VERSION
+git push https://${GITHUB_TOKEN}@github.com/${GITHUB_USER}/rails_base.git $VERSION
 echo "Finished Tagging to git"
 
 
 # send artifacts to git
 SHA=$(git rev-parse HEAD)
-./$GHRLOCATION -soft -t ${GITHUB_TOKEN} -u ${GITHUB_USER} -r timeoutable -c ${SHA} ${VERSION} *.gem
+./$GHRLOCATION -soft -t ${GITHUB_TOKEN} -u ${GITHUB_USER} -r rails_base -c ${SHA} ${VERSION} *.gem
 echo "Finished Pushing artificat to Git"
 
 rm ${FILE}
