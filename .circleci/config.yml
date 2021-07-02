@@ -1,30 +1,39 @@
 version: 2.1 # Use 2.1 to enable using orbs and other features.
 
-# Declare the orbs that we'll use in our config.
-# read more about orbs: https://circleci.com/docs/2.0/using-orbs/
 orbs:
   ruby: circleci/ruby@1.0
   node: circleci/node@2
 
 jobs:
-  build: # our first job, named "build"
+  build:
     docker:
-      - image: cimg/ruby:2.7-node # use a tailored CircleCI docker image.
+      - image: cimg/ruby:2.7-node
     steps:
-      - checkout # pull down our git code.
-      - ruby/install-deps # use the ruby orb to install dependencies
+      - checkout
+      - ruby/install-deps
     environment:
       SKIP_CUSTOM_INIT: 'true'
-  publish:
+  publish-rubygems:
     docker:
       - image: cimg/ruby:2.7-node # this is our primary docker image, where step commands run.
-    # environment variables specific to Ruby/Rails, applied to the primary container.
     environment:
       BUNDLE_JOBS: "3"
       BUNDLE_RETRY: "3"
       RAILS_ENV: test
-      SKIP_CUSTOM_INIT: 'true'
-    # A series of steps to run, some are similar to those in "build".
+    steps:
+      - checkout
+      - ruby/install-deps
+      - run:
+          name: Publish Ruby Gems
+          command: |
+            bin/publish_ruby_gems
+  publish-github:
+    docker:
+      - image: cimg/ruby:2.7-node # this is our primary docker image, where step commands run.
+    environment:
+      BUNDLE_JOBS: "3"
+      BUNDLE_RETRY: "3"
+      RAILS_ENV: test
     steps:
       - checkout
       - ruby/install-deps
@@ -46,11 +55,10 @@ jobs:
             rm -rf ghr_v0.13.0_linux_amd64
             chmod 0755 ghr
       - run:
-          name: Publish
+          name: Publish Git
           command: |
             export GHRLOCATION=ghr
-            bin/publish
-
+            bin/publish_git
   test:
     docker:
       - image: cimg/ruby:2.7-node
@@ -108,8 +116,20 @@ workflows:
       - test:
           requires:
             - build
-      - publish:
-          filters:
-            branches:
-              only:
-                - main
+      - publish-github
+      # - publish-github:
+      #     requires:
+      #       - test
+      #     filters:
+      #       branches:
+      #         only:
+      #           - main
+
+      - publish-rubygems
+      # - publish-gemfury:
+      #     requires:
+      #       - test
+      #     filters:
+      #       branches:
+      #         only:
+      #           - main
