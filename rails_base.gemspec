@@ -9,18 +9,10 @@ Gem::Specification.new do |spec|
   spec.version     = RailsBase::VERSION
   spec.authors     = ["Matt Taylor"]
   spec.email       = ["mattius.taylor@gmail.com"]
-  spec.summary     = "This is a summary"
-  spec.description = "This is a description"
+  spec.summary     = "Rails engine that takes care of the stuff you dont want to!"
+  spec.description = "Rails Engine that handles authentication, admin, 2fa, audit tracking, with insane configuration abilites"
   spec.license     = "MIT"
 
-  # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
-  # to allow pushing to a single host or delete this section to allow pushing to any host.
-  if spec.respond_to?(:metadata)
-    spec.metadata['allowed_push_host'] = 'https://gemfury.com'
-  else
-    raise 'RubyGems 2.0 or newer is required to protect against ' \
-      'public gem pushes.'
-  end
   spec.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.md"]
 
   spec.add_dependency "rails", "~> 5"
