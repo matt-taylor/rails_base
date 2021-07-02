@@ -79,7 +79,6 @@ jobs:
       MYSQL_PORT: 3306
       MYSQL_PASSWORD: passw0rd
       RAILS_ENV: test
-    # A series of steps to run, some are similar to those in "build".
     steps:
       - checkout
       - ruby/install-deps
@@ -116,20 +115,17 @@ workflows:
       - test:
           requires:
             - build
-      - publish-github
-      # - publish-github:
-      #     requires:
-      #       - test
-      #     filters:
-      #       branches:
-      #         only:
-      #           - main
-
-      - publish-rubygems
-      # - publish-gemfury:
-      #     requires:
-      #       - test
-      #     filters:
-      #       branches:
-      #         only:
-      #           - main
+      - publish-github:
+          requires:
+            - test
+          filters:
+            branches:
+              only:
+                - main
+      - publish-rubygems:
+          requires:
+            - test
+          filters:
+            branches:
+              only:
+                - main
