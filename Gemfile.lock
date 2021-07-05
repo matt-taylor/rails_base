@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    rails_base (0.52.2)
+    rails_base (0.52.3)
       allow_numeric
       bootstrap (~> 4.6.0)
       browser
