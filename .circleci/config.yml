@@ -126,6 +126,9 @@ workflows:
   yeet-le-jobs:
     jobs:
       - build
+      - validate-bundler:
+        requires:
+            - build
       - test:
           requires:
             - build
