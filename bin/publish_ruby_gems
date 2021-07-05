@@ -1,15 +1,16 @@
 #!/bin/bash -e
 
+BASE="rails_base"
 if [ -z "$GEM_HOST_API_KEY" ]; then
   echo 'Environment variable GEM_HOST_API_KEY is not present'
   exit 1
 fi
 
 VERSION=$(bin/rails runner 'RailsBase.print_version')
-PACKAGE=rails_base-${VERSION}.gem
+PACKAGE=${BASE}-${VERSION}.gem
 
 # Build Gem
-gem build rails_base.gemspec
+gem build ${BASE}.gemspec
 FILE=$(pwd)/${PACKAGE}
 echo "Finished building $FILE"
 
