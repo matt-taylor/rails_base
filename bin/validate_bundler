@@ -1,0 +1,18 @@
+#!/bin/bash -e
+
+BASE="rails_base"
+VERSION=$(bin/rails runner 'RailsBase.print_version')
+
+FILE="Gemfile.lock"
+
+EXPECTED="${BASE} (${VERSION})"
+
+echo "Looking for ${EXPECTED} in ${FILE}"
+if grep "${EXPECTED}" ${FILE} > /dev/null
+then
+  echo "Found expected ${EXPECTED} in ${FILE}"
+  exit 0
+else
+  echo "Did not find expected ${EXPECTED} in ${FILE}. Ensure to run [bundle i]"
+  exit 1
+fi
