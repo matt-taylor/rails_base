@@ -127,7 +127,7 @@ workflows:
     jobs:
       - build
       - validate-bundler:
-        requires:
+          requires:
             - build
       - test:
           requires:
