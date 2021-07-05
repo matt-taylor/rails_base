@@ -6,7 +6,7 @@ if [ -z "$GEM_HOST_API_KEY" ]; then
   exit 1
 fi
 
-VERSION=$(bin/rails runner 'RailsBase.print_version')
+VERSION=$(bin/version)
 PACKAGE=${BASE}-${VERSION}.gem
 
 # Build Gem

@@ -22,7 +22,6 @@ jobs:
       RAILS_ENV: test
     steps:
       - checkout
-      - ruby/install-deps
       - run:
           name: Validate Version Matches Gemfile.lock
           command: |

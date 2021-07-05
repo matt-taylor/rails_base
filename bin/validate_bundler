@@ -1,21 +1,19 @@
 #!/bin/bash -e
 
+CHECK_FILE="Gemfile.lock"
+VERSION=$(./bin/version)
+
 BASE="rails_base"
 FILE="Gemfile.lock"
-FILE_COPY=${FILE}.cp
-cp ${FILE} ${FILE_COPY}
 
-VERSION=$(bin/rails runner 'RailsBase.print_version')
 EXPECTED="${BASE} (${VERSION})"
 
 echo "Looking for ${EXPECTED} in ${FILE}"
-if grep "${EXPECTED}" ${FILE_COPY} > /dev/null
+if grep "${EXPECTED}" ${FILE} > /dev/null
 then
   echo "Found expected ${EXPECTED} in ${FILE}"
-  rm ${FILE_COPY}
   exit 0
 else
   echo "Did not find expected ${EXPECTED} in original ${FILE}. Ensure to run [bundle i]"
-  rm ${FILE_COPY}
   exit 1
 fi
