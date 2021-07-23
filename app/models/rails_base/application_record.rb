@@ -6,7 +6,7 @@ module RailsBase
       columns.each do |column|
         next unless [:datetime].include?(column.type)
 
-        # This is actually pretty cool. If you set the thrad corectly, you can
+        # This is actually pretty cool. If you set the thread corectly, you can
         define_method("#{column.name}") do
           thread_tz = Thread.current[RailsBase::ApplicationController::TIMEZONE_THREAD_NAME]
           return super() if thread_tz.nil?

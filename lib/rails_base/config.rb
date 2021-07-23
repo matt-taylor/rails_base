@@ -1,3 +1,4 @@
+require 'singleton'
 require 'rails_base/configuration/admin'
 require 'rails_base/configuration/mfa'
 require 'rails_base/configuration/authentication'
@@ -13,6 +14,8 @@ require 'rails_base/configuration/active_job'
 
 module RailsBase
   class Config
+    include Singleton
+
     VARIABLES = {
       admin: nil,
       mfa: nil,

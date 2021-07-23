@@ -1,6 +1,13 @@
 module RailsBase
   class Engine < ::Rails::Engine
     isolate_namespace RailsBase
+    ActiveSupport::Reloader.to_prepare do
+      RailsBase.config.admin.convenience_methods
+
+      RailsBase::ApplicationRecord.descendants.each do |model|
+        model._magically_defined_time_objects
+      end
+    end
 
     initializer 'instantiate RailsBase configs' do |_app|
       RailsBase.config if ___execute_initializer___?
@@ -12,7 +19,6 @@ module RailsBase
 
     initializer 'define magic convenionce methods for converting team', after: 'active_record.initialize_database' do |app|
       if ___execute_initializer___?
-        raise
         # need to eager load Models
         Rails.application.eager_load!
 

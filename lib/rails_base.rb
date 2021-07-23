@@ -35,7 +35,7 @@ module RailsBase
   end
 
   def self.config
-    @config ||= RailsBase::Config.new
+    @config ||= RailsBase::Config.instance
   end
 
   def self.appearance
