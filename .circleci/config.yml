@@ -107,7 +107,7 @@ jobs:
             echo Failed waiting for MySQL && exit 1
       - run:
           name: Database setup
-          command: bundle exec rails db:schema:load --trace
+          command: SKIP_CUSTOM_INIT=true bundle exec rails db:schema:load --trace
       - run:
           name: Setup Climate Control test-reporter
           command: |
