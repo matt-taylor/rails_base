@@ -82,7 +82,6 @@ jobs:
           MYSQL_USER: user
           MYSQL_PASSWORD: passw0rd
     environment:
-      SKIP_CUSTOM_INIT: 'false'
       BUNDLE_JOBS: "3"
       BUNDLE_RETRY: "3"
       MYSQL_HOST: 127.0.0.1
@@ -117,7 +116,7 @@ jobs:
           name: Run le tests
           command: |
             ./cc-test-reporter before-build
-            SIMPLE_COV_RUN=true bundle exec rspec --format RspecJunitFormatter --out test-results/rspec/rspec.xml --format progress --color
+            SKIP_CUSTOM_INIT=false SIMPLE_COV_RUN=true bundle exec rspec --format RspecJunitFormatter --out test-results/rspec/rspec.xml --format progress --color
             ./cc-test-reporter after-build format-coverage -t simplecov
 
 workflows:
