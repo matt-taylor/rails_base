@@ -45,6 +45,7 @@ module RailsBase
       end
     end
 
+    # Rails 6 does not play nice with this function -- Find a different work around
     def ___execute_initializer___?
       # Only execute when not doing DB actions
       boolean = defined?(ARGV) ? true : false  # for when no ARGVs are provided, we know its a railsc or rails s explicit
@@ -52,6 +53,7 @@ module RailsBase
       boolean = false if boolean && ARGV[0]&.include?('asset') # when its an asset
       boolean = false if boolean && ARGV[0]&.include?(':') # else this delim should never be included
       boolean = false if ENV['SKIP_CUSTOM_INIT']=='true' # explicitly set the variable to skip shit
+
       boolean
     end
   end
