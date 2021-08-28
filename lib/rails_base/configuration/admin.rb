@@ -211,8 +211,6 @@ module RailsBase
         admin_page_filter.flatten!
       end
 
-      private
-
       def convenience_methods
         # defines instance methods like
         # user.at_least_super?

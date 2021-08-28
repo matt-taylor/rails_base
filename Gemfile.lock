@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    rails_base (0.53.0)
+    rails_base (0.53.1)
       allow_numeric
       bootstrap (~> 4.6.0)
       browser
@@ -67,7 +67,7 @@ GEM
       i18n (>= 0.7, < 2)
       minitest (~> 5.1)
       tzinfo (~> 1.1)
-    addressable (2.7.0)
+    addressable (2.8.0)
       public_suffix (>= 2.0.2, < 5.0)
     allow_numeric (0.1.0)
     annotate (3.1.1)
@@ -152,7 +152,7 @@ GEM
       thor (>= 0.14, < 2.0)
     jquery_mask_rails (0.1.0)
     jwt (2.2.3)
-    listen (3.5.1)
+    listen (3.6.0)
       rb-fsevent (~> 0.10, >= 0.10.3)
       rb-inotify (~> 0.9, >= 0.9.10)
     loofah (2.10.0)
@@ -163,10 +163,14 @@ GEM
     marcel (1.0.1)
     method_source (1.0.0)
     mini_mime (1.1.0)
+    mini_portile2 (2.5.3)
     minitest (5.14.4)
     multipart-post (2.1.1)
     mysql2 (0.5.3)
     nio4r (2.5.8)
+    nokogiri (1.11.7)
+      mini_portile2 (~> 2.5.0)
+      racc (~> 1.4)
     nokogiri (1.11.7-x86_64-linux)
       racc (~> 1.4)
     null-logger (0.1.7)
@@ -207,7 +211,7 @@ GEM
       method_source
       rake (>= 0.8.7)
       thor (>= 0.19.0, < 2.0)
-    rake (13.0.3)
+    rake (13.0.6)
     rb-fsevent (0.11.0)
     rb-inotify (0.10.1)
       ffi (~> 1.0)
@@ -299,6 +303,7 @@ GEM
       nokogiri (~> 1.8)
 
 PLATFORMS
+  ruby
   x86_64-linux
 
 DEPENDENCIES

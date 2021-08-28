@@ -17,8 +17,29 @@ require 'rails_base/admin/action_cache'
 require 'rails_base/config'
 
 module RailsBase
+
+  # Rails 6 does not play nice with this function -- Find a different work around
+  def self.___execute_initializer___?
+    # Only execute when not doing DB actions
+    boolean = defined?(ARGV) ? true : false  # for when no ARGVs are provided, we know its a railsc or rails s explicit
+    boolean = false if boolean && ARGV[0]&.include?('db') # when its the DB rake tasks
+    boolean = false if boolean && ARGV[0]&.include?('asset') # when its an asset
+    boolean = false if boolean && ARGV[0]&.include?(':') # else this delim should never be included
+    boolean = false if ENV['SKIP_CUSTOM_INIT']=='true' # explicitly set the variable to skip shit
+
+    boolean
+  end
+
   def self.url_routes
     Rails.application.routes.url_helpers
+  end
+
+  def self.app_name
+    if ::Rails::VERSION::MAJOR >= 6
+      ::Rails.application.class.module_parent_name
+    else
+      ::Rails.application.class.parent_name
+    end
   end
 
   def self.route_exist?(path)
@@ -35,7 +56,7 @@ module RailsBase
   end
 
   def self.config
-    @config ||= RailsBase::Config.new
+    @config ||= RailsBase::Config.instance
   end
 
   def self.appearance

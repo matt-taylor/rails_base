@@ -1,18 +1,26 @@
 module RailsBase
   class Engine < ::Rails::Engine
     isolate_namespace RailsBase
+    ActiveSupport::Reloader.to_prepare do
+      if RailsBase.___execute_initializer___?
+        RailsBase.config.admin.convenience_methods
+
+        RailsBase::ApplicationRecord.descendants.each do |model|
+          model._magically_defined_time_objects
+        end
+      end
+    end
 
     initializer 'instantiate RailsBase configs' do |_app|
-      RailsBase.config if ___execute_initializer___?
+      RailsBase.config if RailsBase.___execute_initializer___?
     end
 
     initializer 'remove write access to RailsBase config', after: 'after_initialize' do |app|
-      RailsBase::Configuration::Base._unset_allow_write! if ___execute_initializer___?
+      RailsBase::Configuration::Base._unset_allow_write! if RailsBase.___execute_initializer___?
     end
 
     initializer 'define magic convenionce methods for converting team', after: 'active_record.initialize_database' do |app|
-      if ___execute_initializer___?
-        raise
+      if RailsBase.___execute_initializer___?
         # need to eager load Models
         Rails.application.eager_load!
 
@@ -39,13 +47,6 @@ module RailsBase
       end
     end
 
-    def ___execute_initializer___?
-      # Only execute when not doing DB actions
-      boolean = defined?(ARGV) ? true : false  # for when no ARGVs are provided, we know its a railsc or rails s explicit
-      boolean = false if boolean && ARGV[0]&.include?('db') # when its the DB rake tasks
-      boolean = false if boolean && ARGV[0]&.include?('asset') # when its an asset
-      boolean = false if boolean && ARGV[0]&.include?(':') # else this delim should never be included
-      boolean = false if ENV['SKIP_CUSTOM_INIT']=='true' # explicitly set the variable to skip shit
-    end
+
   end
 end

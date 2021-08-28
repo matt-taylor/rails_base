@@ -4,19 +4,19 @@ class RailsBase::EmailVerificationMailer < RailsBase::ApplicationMailer
 	def email_verification(user:, url:)
 	  @user = user
 	  @sso_url_for_user = url
-	  mail(to: @user.email, subject: "Welcome to #{Rails.application.class.parent_name}")
+	  mail(to: @user.email, subject: "Welcome to #{RailsBase.app_name}")
 	end
 
 	def forgot_password(user:, url:)
 	  @user = user
 	  @sso_url_for_user = url
-	  mail(to: @user.email, subject: "#{Rails.application.class.parent_name}: Forgot Password")
+	  mail(to: @user.email, subject: "#{RailsBase.app_name}: Forgot Password")
 	end
 
 	def event(user:, event:, msg: nil)
 	  @user = user
 	  @event = event
 	  @msg = msg
-	  mail(to: @user.email, subject: "#{Rails.application.class.parent_name}: #{event}")
+	  mail(to: @user.email, subject: "#{RailsBase.app_name}: #{event}")
 	end
 end
