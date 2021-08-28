@@ -1,18 +1,19 @@
 require 'rails_base/configuration/base'
-require 'rails_base/configuration/display/table_header'
-require 'rails_base/configuration/display/table_body'
+require 'rails_base/configuration/display/back_to_top'
 require 'rails_base/configuration/display/background_color'
-require 'rails_base/configuration/display/navbar'
-require 'rails_base/configuration/display/text'
-require 'rails_base/configuration/display/footer'
+require 'rails_base/configuration/display/btn_danger'
+require 'rails_base/configuration/display/btn_dark'
+require 'rails_base/configuration/display/btn_info'
+require 'rails_base/configuration/display/btn_light'
 require 'rails_base/configuration/display/btn_primary'
 require 'rails_base/configuration/display/btn_secondary'
 require 'rails_base/configuration/display/btn_success'
-require 'rails_base/configuration/display/btn_danger'
 require 'rails_base/configuration/display/btn_warning'
-require 'rails_base/configuration/display/btn_info'
-require 'rails_base/configuration/display/btn_light'
-require 'rails_base/configuration/display/btn_dark'
+require 'rails_base/configuration/display/footer'
+require 'rails_base/configuration/display/navbar'
+require 'rails_base/configuration/display/table_body'
+require 'rails_base/configuration/display/table_header'
+require 'rails_base/configuration/display/text'
 
 module RailsBase
   module Configuration
@@ -35,10 +36,11 @@ module RailsBase
         :navbar,
         :text,
         :footer,
+        :back_to_top,
 
       ] + BUTTONS
 
-      SKIP_DOWNSTREAM_CLASSES = [:footer]
+      SKIP_DOWNSTREAM_CLASSES = [:footer, :back_to_top]
       DARK_MODE = :dark
       LIGHT_MODE = :light
       MATCH_OS = :match_os
@@ -83,7 +85,9 @@ module RailsBase
         @bg_color = Configuration::Display::BackgroundColor.new
         @navbar = Configuration::Display::Navbar.new
         @text = Configuration::Display::Text.new
+
         @footer = Configuration::Display::Footer.new
+        @back_to_top = Configuration::Display::Footer.new
 
         @btn_primary = Configuration::Display::BtnPrimary.new
         @btn_secondary = Configuration::Display::BtnSecondary.new
