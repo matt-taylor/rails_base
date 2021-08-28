@@ -126,15 +126,34 @@
       </footer>
     <% end %>
     </div>
-    <a id="rails-base-back-to-top" href="#" class="btn btn-light btn-lg back-to-top" role="button"><i class="fas fa-chevron-up"></i></a>
-    <style type="text/css">
-      .back-to-top {
-          position: fixed;
-          bottom: 50px;
-          right: 25px;
-          display: none;
-      }
-    </style>
+    
+    <% if RailsBase.appearance.back_to_top.enable? %>
+      <a id="rails-base-back-to-top" class="btn btn-light btn-lg back-to-top" role="button"><i class="fas fa-chevron-up"></i></a>
+      <script type="text/javascript">
+        $(document).ready(function(){
+          $(window).scroll(function () {
+            if ($(this).scrollTop() > 100) {
+              $('#rails-base-back-to-top').fadeIn();
+            } else {
+              $('#rails-base-back-to-top').fadeOut();
+            }
+          });
+          $('#rails-base-back-to-top').click(function () {
+            $('body,html').animate({
+              scrollTop: 0
+            }, 400);
+          });
+        });
+      </script>
+      <style type="text/css">
+        .back-to-top {
+            position: fixed;
+            bottom: 50px;
+            right: 25px;
+            display: none;
+        }
+      </style>
+    <% end %>
 
     <script>
       modify_layout();
@@ -178,22 +197,7 @@
 
         // Attempt to set timezone on every request
         set_cookie('<%= RailsBase::ApplicationController::TIMEZONE_OFFSET_COOKIE %>', new Date().getTimezoneOffset())
-
-        $(window).scroll(function () {
-          if ($(this).scrollTop() > 100) {
-            $('#rails-base-back-to-top').fadeIn();
-          } else {
-            $('#rails-base-back-to-top').fadeOut();
-          }
         });
-
-      });
-      $('#rails-base-back-to-top').click(function () {
-        $('body,html').animate({
-          scrollTop: 0
-        }, 400);
-        return false;
-      });
       <% end %>
       <% if Rails.env == 'production' %>
       // Disable console logging
