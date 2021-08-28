@@ -20,6 +20,7 @@
     <link href="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/css/bootstrap4-toggle.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/js/bootstrap4-toggle.min.js"></script>
     <script src="https://unpkg.com/sticky-table-headers"></script>
+    <script src="https://kit.fontawesome.com/3b649de495.js" crossorigin="anonymous"></script>
 
     <%=
     if RailsBase.config.app.favicon_path
@@ -125,6 +126,33 @@
       </footer>
     <% end %>
     </div>
+    <% if RailsBase.appearance.back_to_top.enable? %>
+      <a id="rails-base-back-to-top" class="btn btn-light btn-lg back-to-top" role="button"><i class="fas fa-chevron-up"></i></a>
+      <script type="text/javascript">
+        $(document).ready(function(){
+          $(window).scroll(function () {
+            if ($(this).scrollTop() > 100) {
+              $('#rails-base-back-to-top').fadeIn();
+            } else {
+              $('#rails-base-back-to-top').fadeOut();
+            }
+          });
+          $('#rails-base-back-to-top').click(function () {
+            $('body,html').animate({
+              scrollTop: 0
+            }, 400);
+          });
+        });
+      </script>
+      <style type="text/css">
+        .back-to-top {
+            position: fixed;
+            bottom: 50px;
+            right: 25px;
+            display: none;
+        }
+      </style>
+    <% end %>
 
     <script>
       modify_layout();
@@ -168,7 +196,7 @@
 
         // Attempt to set timezone on every request
         set_cookie('<%= RailsBase::ApplicationController::TIMEZONE_OFFSET_COOKIE %>', new Date().getTimezoneOffset())
-      });
+        });
       <% end %>
       <% if Rails.env == 'production' %>
       // Disable console logging
