@@ -97,7 +97,7 @@ class ShortLivedData < RailsBase::ApplicationRecord
     # only update if count is valid and we can add things -- save db call
     return false unless used_count_valid?
 
-    update_attributes(exclusive_use_count: exclusive_use_count + 1)
+    update(exclusive_use_count: exclusive_use_count + 1)
   end
 
   def invalid_reason
@@ -126,7 +126,7 @@ class ShortLivedData < RailsBase::ApplicationRecord
   end
 
   def user=(u)
-    update_attributes(user_id: u.id)
+    update(user_id: u.id)
     u.id
   end
 end

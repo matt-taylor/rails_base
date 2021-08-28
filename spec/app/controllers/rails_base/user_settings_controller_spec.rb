@@ -236,7 +236,7 @@ RSpec.describe RailsBase::UserSettingsController, type: :controller do
     let(:max_use) { 1 }
     let(:params) { { data: datum.data } }
     before do
-      user.update_attributes(
+      user.update(
         mfa_enabled: true,
         email_validated: true,
         last_mfa_login: Time.now,

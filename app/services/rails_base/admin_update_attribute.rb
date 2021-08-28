@@ -14,7 +14,7 @@ module RailsBase
 
       original_value = model_row.public_send(attribute)
       begin
-        model_row.update_attributes!(attribute => sanitized_value)
+        model_row.update!(attribute => sanitized_value)
       rescue ActiveRecord::RecordInvalid => e
         context.fail!(message: "Failed to update [#{attribute}] with #{sanitized_value} on #{model}##{model_row.id}. #{e.message}")
       rescue StandardError

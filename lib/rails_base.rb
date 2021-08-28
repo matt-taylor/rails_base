@@ -34,6 +34,14 @@ module RailsBase
     Rails.application.routes.url_helpers
   end
 
+  def self.app_name
+    if ::Rails::VERSION::MAJOR >= 6
+      ::Rails.application.class.module_parent_name
+    else
+      ::Rails.application.class.parent_name
+    end
+  end
+
   def self.route_exist?(path)
     Rails.application.routes.recognize_path(path)
     true

@@ -50,7 +50,7 @@ class User < RailsBase::ApplicationRecord
     end
 
     define_method("admin_#{admin_method}!") do
-      update_attributes!(admin: admin_method)
+      update!(admin: admin_method)
     end
 
     #### metods on the class
@@ -109,7 +109,7 @@ class User < RailsBase::ApplicationRecord
     return if last_known_timezone == tz_name
 
     Rails.logger.info { "#{id}: Setting tz_name: #{tz_name}"  }
-    update_attributes(last_known_timezone: tz_name, last_known_timezone_update: Time.now )
+    update(last_known_timezone: tz_name, last_known_timezone_update: Time.now )
   end
 
   def timezone

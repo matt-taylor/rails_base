@@ -1,6 +1,6 @@
 module RailsBase::AppearanceHelper
-  APPEARANCE_MODE_COOKIE = "_#{Rails.application.class.parent_name}_appearance_mode".gsub(' ', '-').downcase
-  APPEARANCE_MODE_ACTUAL_COOKIE = "_#{Rails.application.class.parent_name}_appearance_actual_mode".gsub(' ', '-').downcase
+  APPEARANCE_MODE_COOKIE = "_#{RailsBase.app_name}_appearance_mode".gsub(' ', '-').downcase
+  APPEARANCE_MODE_ACTUAL_COOKIE = "_#{RailsBase.app_name}_appearance_actual_mode".gsub(' ', '-').downcase
   APPEARANCE_TEXT_CLASS = RailsBase::Configuration::Display::Text::APPEARANCE_TEXT_CLASS
 
   VIEWPORT_EXTRA_SMALL = 'xs'.freeze
