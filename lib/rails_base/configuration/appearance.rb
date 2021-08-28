@@ -87,7 +87,7 @@ module RailsBase
         @text = Configuration::Display::Text.new
 
         @footer = Configuration::Display::Footer.new
-        @back_to_top = Configuration::Display::Footer.new
+        @back_to_top = Configuration::Display::BackTotop.new
 
         @btn_primary = Configuration::Display::BtnPrimary.new
         @btn_secondary = Configuration::Display::BtnSecondary.new
