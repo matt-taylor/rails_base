@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    rails_base (0.53.1)
+    rails_base (0.54.0)
       allow_numeric
       bootstrap (~> 4.6.0)
       browser
@@ -74,7 +74,7 @@ GEM
       activerecord (>= 3.2, < 7.0)
       rake (>= 10.4, < 14.0)
     arel (9.0.0)
-    autoprefixer-rails (10.3.1.0)
+    autoprefixer-rails (10.3.3.0)
       execjs (~> 2)
     bcrypt (3.1.16)
     bindex (0.8.1)
@@ -121,7 +121,7 @@ GEM
       i18n
     erubi (1.10.0)
     execjs (2.8.1)
-    faraday (1.7.0)
+    faraday (1.7.1)
       faraday-em_http (~> 1.0)
       faraday-em_synchrony (~> 1.0)
       faraday-excon (~> 1.1)
