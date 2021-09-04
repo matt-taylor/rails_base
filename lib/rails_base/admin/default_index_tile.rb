@@ -144,7 +144,6 @@ params = {
 instance = RailsBase::Admin::IndexTile.new(**params)
 RailsBase::Admin::IndexTile.add(instance)
 
-
 # Impersonation Tile
 params = {
   type: :button,

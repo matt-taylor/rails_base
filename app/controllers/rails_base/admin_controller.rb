@@ -298,7 +298,8 @@ module RailsBase
       session.delete(RailsBase::Authentication::Constants::ADMIN_REMEMBER_REASON)
 
       flash[:notice] = 'You no longer have an identity crisis. You are back to normal.'
-      redirect_to RailsBase.url_routes.admin_base_path
+      redirect_url = RailsBase.config.admin.admin_impersonate_return.call(request, params)
+      redirect_to redirect_url
     end
 
     private

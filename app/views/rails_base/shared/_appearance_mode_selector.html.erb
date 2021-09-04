@@ -111,6 +111,11 @@
         '<%= dark %>': '<%= RailsBase.appearance.text.dark_mode %>',
         '<%= light %>': '<%= RailsBase.appearance.text.light_mode %>'
       },
+      {
+        'descriptor': '.card',
+        '<%= dark %>': '<%= RailsBase.appearance.card.dark_mode %>',
+        '<%= light %>': '<%= RailsBase.appearance.card.light_mode %>'
+      },
       // buttons
       <% RailsBase.appearance.class::BUTTONS.each do |klass| %>
       {
@@ -119,7 +124,6 @@
         '<%= light %>': '<%= RailsBase.appearance.dig(klass, :light_mode) %>'
       },
       <% end %>
-
     ]
 
     function toggle_dark_mode(set_key){
@@ -146,7 +150,7 @@
       set_and_toggle_mode(value)
     })
     // This function MUST be called outside of document ready
-    // to ensure dark mode does not activate after docuemnt is loaded
+    // to ensure dark mode does not activate after document is loaded
     set_and_toggle_mode( `<%= cookies[RailsBase::ApplicationController::APPEARANCE_MODE_COOKIE] || RailsBase.appearance.default_mode %>`)
     $('#appearance_mode_selector').appendTo('body');
     $(document).ready(function(){

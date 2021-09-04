@@ -14,6 +14,9 @@ require 'rails_base/configuration/display/navbar'
 require 'rails_base/configuration/display/table_body'
 require 'rails_base/configuration/display/table_header'
 require 'rails_base/configuration/display/text'
+require 'rails_base/configuration/display/card'
+require 'rails_base/configuration/display/card'
+require 'rails_base/configuration/display/bg_light'
 
 module RailsBase
   module Configuration
@@ -27,6 +30,8 @@ module RailsBase
         :btn_info,
         :btn_light,
         :btn_dark,
+        :bg_light,
+
       ]
 
       DOWNSTREAM_CLASSES = [
@@ -35,9 +40,9 @@ module RailsBase
         :bg_color,
         :navbar,
         :text,
+        :card,
         :footer,
         :back_to_top,
-
       ] + BUTTONS
 
       SKIP_DOWNSTREAM_CLASSES = [:footer, :back_to_top]
@@ -85,9 +90,10 @@ module RailsBase
         @bg_color = Configuration::Display::BackgroundColor.new
         @navbar = Configuration::Display::Navbar.new
         @text = Configuration::Display::Text.new
-
+        @card = Configuration::Display::Card.new
         @footer = Configuration::Display::Footer.new
         @back_to_top = Configuration::Display::BackTotop.new
+        @bg_light = Configuration::Display::BgLight.new
 
         @btn_primary = Configuration::Display::BtnPrimary.new
         @btn_secondary = Configuration::Display::BtnSecondary.new

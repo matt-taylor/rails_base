@@ -15,7 +15,6 @@ module RailsBase
             type: :string_nil,
             default: 'text-dark',
             description: 'Color of text for light mode. Text that is outside of standard elems (tables, navbars): https://getbootstrap.com/docs/4.0/utilities/colors/'
-
           },
         }
 
