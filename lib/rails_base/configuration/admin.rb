@@ -190,6 +190,16 @@ module RailsBase
           default: ENV.fetch('ADMIN_VELOCITY_FRAME', 5).to_i.hours,
           description: 'Debug purposes. How long to keep admin_velocity_max attempts',
         },
+        admin_impersonate_redirect:{
+          type: :proc,
+          default: ->(_request, _params) { RailsBase.url_routes.authenticated_root_path },
+          description: 'Redirection to impersonation -- Landing page when having an identity cris',
+        },
+        admin_impersonate_return:{
+          type: :proc,
+          default: ->(_request, _params) { RailsBase.url_routes.admin_base_path },
+          description: 'Redirection from impersonation -- Page to return from when you have found yourself',
+        }
       }
 
       attr_accessor *DEFAULT_VALUES.keys

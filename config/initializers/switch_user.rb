@@ -41,7 +41,7 @@ SwitchUser.setup do |config|
 
   # redirect_path is a block, it returns which page will be redirected
   # after switching a user.
-  config.redirect_path = ->(_request, _params) { RailsBase.url_routes.authenticated_root_path }
+  config.redirect_path = ->(request, params) { RailsBase.config.admin.admin_impersonate_redirect.call(request, params) }
 
   # helper_with_guest is a boolean value, if it set to false
   # the guest item in the helper won't be shown
