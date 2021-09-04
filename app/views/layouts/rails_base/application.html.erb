@@ -32,7 +32,7 @@
   <body>
     <script type="text/javascript">
       // Load at top so available for rest of body oddy
-      function set_cookie(name, value, path ) {
+      function set_cookie(name, value, path) {
         path ||= '/'
         document.cookie = `${name}=${value}; path=${path}`
       }
@@ -126,7 +126,7 @@
       </footer>
     <% end %>
     </div>
-    
+
     <% if RailsBase.appearance.back_to_top.enable? %>
       <a id="rails-base-back-to-top" class="btn btn-light btn-lg back-to-top" role="button"><i class="fas fa-chevron-up"></i></a>
       <script type="text/javascript">
