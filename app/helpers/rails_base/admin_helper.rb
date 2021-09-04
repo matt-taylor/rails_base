@@ -19,6 +19,9 @@ module RailsBase
       User.all.select do |user|
         proc.call(user)
       end.map(&:inspect_name)
+    rescue StandardError => e
+      Rails.logger.warn("Error -> #{e}")
+      nil
     end
 
     def array_for_proc(proc, array)
