@@ -9,7 +9,7 @@ module VelocityLimiter
 		if metadata[:velocity_reached]
 			log(level: :warn, msg: "#{cache_key} has been velocity limited. #{metadata[:within_attempts_count]} attempts since #{metadata[:threshold]}. MAX allowed is #{velocity_max}")
 			log(level: :warn, msg: "#{cache_key} may try again in #{metadata[:to_words]} :: #{metadata[:attempt_again_at]}. Will fully reset at #{metadata[:fully_reset_time]}")
-			msg = "Velocity limit reached for SMS verification. You may try again in #{metadata[:to_words]}"
+			msg = velocity_limit_message(metadata: metadata)
 			return {reached: true, msg: msg}
 		end
 
@@ -35,6 +35,10 @@ module VelocityLimiter
 	def velocity_frame
 	end
 
+	def velocity_limit_message(metadata:)
+		"Velocity limit reached for SMS verification. You may try again in #{metadata[:to_words]}"
+	end
+
 	def cache_delineator
 		','
 	end
@@ -57,6 +61,7 @@ module VelocityLimiter
 		obj[:velocity_reached] = within_attempts.count >= velocity_max
 		obj[:within_attempts_arr] = within_attempts
 		obj[:within_attempts_count] = within_attempts.count
+		obj[:attempts_remaining] = velocity_max - obj[:vl_write].count
 		obj[:threshold] = threshold
 		obj[:velocity_max] = velocity_max
 		obj[:velocity_frame] = velocity_frame
