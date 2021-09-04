@@ -9,6 +9,7 @@ module RailsBase::Authentication
     delegate :reason, to: :context
     delegate :token_type, to: :context
     delegate :url_redirect, to: :context
+    delegate :msg_proc, to: :context
 
     SSO_DECISION_TWILIO = :twilio
     SSO_DECISION_EMAIL = :email
@@ -38,17 +39,19 @@ module RailsBase::Authentication
       case sso_decision_type
       when SSO_DECISION_TWILIO
         context.sso_destination = :sms
-        send_to_twilio!(message: message(url: url))
+        send_to_twilio!(message: message(url: url, full_name: user.full_name))
       when SSO_DECISION_EMAIL
         context.sso_destination = :email
-        send_to_email!(message: message(url: url))
+        send_to_email!(message: message(url: url, full_name: user.full_name))
       end
     end
 
     # This method is expected to be overridden by the main app
     # This is the default message
     # Might consider shipping this to a locales that can be easily overridden in downstream app
-    def message(url:)
+    def message(url:, full_name:)
+      return msg_proc.call(url, full_name) if msg_proc.is_a?(Proc)
+
       "Hello #{user.full_name}. This is your SSO link to your favorite site.\n#{url}"
     end
 
