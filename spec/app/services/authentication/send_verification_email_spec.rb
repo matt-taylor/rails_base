@@ -51,7 +51,7 @@ RSpec.describe RailsBase::Authentication::SendVerificationEmail do
 			expect(ShortLivedData).to receive(:create_data_key).with(
 				hash_including(
 					user: user,
-					max_use: described_class::MAX_USE_COUNT,
+					max_use: described_class::REASON_MAPPER[reason][:max_use],
 					reason: reason,
 					data_use: described_class::DATA_USE,
 					ttl: RailsBase::Authentication::Constants::SVE_TTL,

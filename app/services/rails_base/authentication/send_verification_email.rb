@@ -8,15 +8,22 @@ module RailsBase::Authentication
 		delegate :user, to: :context
 		delegate :reason, to: :context
 
-		MAX_USE_COUNT = 1.freeze
 		DATA_USE = :alphanumeric
 		VELOCITY_MAX = 5
 		VELOCITY_MAX_IN_FRAME = 10.minutes
 		VELOCITY_FRAME = 1.hour
 
 		REASON_MAPPER = {
-			Constants::SVE_LOGIN_REASON => { method: :email_verification, url_method: :email_verification_url },
-			Constants::SVE_FORGOT_REASON => { method: :forgot_password, url_method: :forgot_password_auth_url }
+			Constants::SVE_LOGIN_REASON => {
+				method: :email_verification,
+				url_method: :email_verification_url,
+				max_use: RailsBase.config.login_behavior.email_max_use_verification
+			},
+			Constants::SVE_FORGOT_REASON => {
+				method: :forgot_password,
+				url_method: :forgot_password_auth_url,
+				max_use: RailsBase.config.login_behavior.email_max_use_forgot
+			}
 		}
 
 		def call
@@ -61,7 +68,7 @@ module RailsBase::Authentication
 		def create_short_lived_data
 			params = {
 				user: user,
-				max_use: MAX_USE_COUNT,
+				max_use: REASON_MAPPER[reason][:max_use],
 				reason: reason,
 				data_use: DATA_USE,
 				ttl: Constants::SVE_TTL,
