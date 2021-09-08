@@ -59,7 +59,7 @@
         </br>
         <div class='row'>
           <div class='col'>
-            <a class="btn btn_info btn-block" href="<%=RailsBase.url_routes.user_settings_path%>" role="button">Modify User</a>
+            <a class="btn btn_info btn-block" href="<%=RailsBase.url_routes.user_settings_path %>" role="button">Modify User</a>
           </div>
         </div>
         </br>
@@ -69,6 +69,14 @@
           </div>
         </div>
         </br>
+        <% if RailsBase.config.templates.logged_in_header_modal %>
+          <div class='row'>
+            <div class='col'>
+            <%= render partial: RailsBase.config.templates.logged_in_header_modal, locals: { current_user: current_user } %>
+            </div>
+          </div>
+          </br>
+        <% end %>
           <div class="dropdown-divider"></div>
         <div class='row'>
           <div class='col'>
