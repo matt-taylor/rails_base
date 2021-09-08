@@ -11,6 +11,7 @@ require 'rails_base/configuration/appearance'
 require 'rails_base/configuration/user'
 require 'rails_base/configuration/login_behavior'
 require 'rails_base/configuration/active_job'
+require 'rails_base/configuration/templates'
 
 module RailsBase
   class Config
@@ -28,7 +29,8 @@ module RailsBase
       appearance: nil,
       user: nil,
       active_job: nil,
-      login_behavior: nil
+      login_behavior: nil,
+      templates: nil,
     }
     attr_reader *VARIABLES.keys
 
