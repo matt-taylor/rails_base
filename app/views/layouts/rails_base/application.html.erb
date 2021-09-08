@@ -24,7 +24,7 @@
 
     <%=
     if RailsBase.config.app.favicon_path
-      favicon_link_tag 'rails_base/favicon.ico'
+      favicon_link_tag(RailsBase.config.app.favicon_path)
     end
     %>
   </head>
