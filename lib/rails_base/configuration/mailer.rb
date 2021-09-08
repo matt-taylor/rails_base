@@ -107,7 +107,12 @@ module RailsBase
           default: 'mailers',
           on_assignment: ->(val, _instance) { ACTION_MAILER_PROC.call(:deliver_later_queue_name, val) },
           description: 'The active job queue to send twilio messages from. Ensure that adapter is bound to the queue',
-        }
+        },
+        verification_content: {
+          type: :string_proc,
+          default: ->(user) { "We are pleased to have you here" },
+          description: 'Description of app for verification mailer. User is passed in.',
+        },
       }
 
       attr_accessor *DEFAULT_VALUES.keys

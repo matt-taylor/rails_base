@@ -1,7 +1,9 @@
 <p>Hello <%= @user.full_name %>!</p>
 
 <p>
-  Welcome to <%= RailsBase.config.app.communication_name %>. Where you have the ability to keep track of all of your optiosn accross different companies and life events
+  Welcome to <%= RailsBase.config.app.communication_name %>.
+  </br>
+  <%= RailsBase.config.mailer.verification_content(@user) %>
   </br>
   Please finish your registration by following this <a href="<%=@sso_url_for_user%>" target="_blank"> Registration Link </a>
   </br>
