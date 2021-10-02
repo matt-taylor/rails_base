@@ -178,15 +178,21 @@
         # dont load these when error page happens. The full stack of librarires are not
         # rendered and jquery/bootstrap are missing
       %>
-      <% case footer_mode_case %>
-      <% when :sticky %>
-      $('#base-footer').addClass('fixed-bottom')
-      <% when :bottom %>
-      if($('#_body_base_container').height() <= window.innerHeight){
+      function _rails_base_reload_base_footer(){
+        <% case footer_mode_case %>
+        <% when :sticky %>
         $('#base-footer').addClass('fixed-bottom')
+        <% when :bottom %>
+        if($('#_body_base_container').height() <= window.innerHeight){
+          $('#base-footer').addClass('fixed-bottom')
+        } else {
+          $('#base-footer').removeClass('fixed-bottom')
+        }
+        <% else %>
+        <% end %>
       }
-      <% else %>
-      <% end %>
+
+      _rails_base_reload_base_footer();
 
       <% unless defined?(@error_page) %>
       $(document).ready(function(){

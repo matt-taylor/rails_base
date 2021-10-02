@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    rails_base (0.58.0)
+    rails_base (0.60.0)
       allow_numeric
       bootstrap (~> 4.6.0)
       browser
@@ -121,7 +121,7 @@ GEM
       i18n
     erubi (1.10.0)
     execjs (2.8.1)
-    faraday (1.7.1)
+    faraday (1.8.0)
       faraday-em_http (~> 1.0)
       faraday-em_synchrony (~> 1.0)
       faraday-excon (~> 1.1)
@@ -160,7 +160,7 @@ GEM
       nokogiri (>= 1.5.9)
     mail (2.7.1)
       mini_mime (>= 0.1.1)
-    marcel (1.0.1)
+    marcel (1.0.2)
     method_source (1.0.0)
     mini_mime (1.1.0)
     mini_portile2 (2.5.3)
@@ -281,7 +281,7 @@ GEM
     turbolinks (5.2.1)
       turbolinks-source (~> 5.2)
     turbolinks-source (5.2.0)
-    twilio-ruby (5.58.1)
+    twilio-ruby (5.58.3)
       faraday (>= 0.9, < 2.0)
       jwt (>= 1.5, <= 2.5)
       nokogiri (>= 1.6, < 2.0)
@@ -325,4 +325,4 @@ DEPENDENCIES
   web-console
 
 BUNDLED WITH
-   2.2.24
+   2.2.28
