@@ -192,6 +192,16 @@
         <% end %>
       }
 
+      function _rails_base_toggle_base_footer(status){
+        if(status=='show') {
+           $('#base-footer').show()
+        } else if(status=='hide') {
+           $('#base-footer').hide()
+        } else  {
+           $('#base-footer').toggle()
+        }
+      }
+
       _rails_base_reload_base_footer();
 
       <% unless defined?(@error_page) %>
