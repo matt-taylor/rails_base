@@ -1,0 +1,62 @@
+
+<%
+  id = options.fetch(:id)
+  title = options.fetch(:title_id)
+  body = options.fetch(:body_id)
+  use_fa_icon = options[:fa_icon] != false
+  if use_fa_icon
+    fa_icon_open = options.dig(:fa_icon, :open) || 'fa-caret-right'
+    fa_icon_closed = options.dig(:fa_icon, :closed) || 'fa-caret-down'
+    fa_icon_only = options.dig(:fa_icon, :collapse_only) || false
+    fa_icon_span_class = "fa-icon-span-class-#{rand(100..100_000)}_id-#{id}"
+    fa_icon_span_id = "id-#{fa_icon_span_class}"
+  end
+  start_open = !(options[:default_closed] || false)
+  close_display = start_open ? 'inline' : 'none'
+  open_display = !start_open ? 'inline' : 'none'
+  id_transposed = "id_transposed_#{rand(100_000..999_999)}"
+%>
+
+<% if use_fa_icon %>
+  <span id="<%= fa_icon_span_id %>" class="float-md-left fa-icon-span <%= fa_icon_span_class %> ">
+    <i class="fa <%= fa_icon_open %> open" aria-hidden="true" style="display:<%= open_display %>"></i>
+    <i class="fa <%= fa_icon_closed %> closed" aria-hidden="true" style="display:<%= close_display %>"></i>
+  </span>
+<% end %>
+
+<script type="text/javascript">
+  $(`#<%= body %>`).addClass('collapse')
+  <% if start_open %>
+    $(`#<%= body %>`).addClass('show')
+  <% end %>
+  <% if use_fa_icon %>
+    // Initialize fa <%= id %>
+    $(`#<%= fa_icon_span_id %>`).prependTo(`#<%= title %>`);
+  <% end %>
+
+  <% if use_fa_icon && fa_icon_only %>
+  var <%= id_transposed %> = `#<%= fa_icon_span_id %>`
+  <% else %>
+  var <%= id_transposed %> = `#<%= title %>`
+  <% end %>
+
+  $(<%= id_transposed %>).click(function(event){
+    _rails_base_toggle_base_footer('hide')
+    $(`#<%= body %>`).collapse('toggle')
+    <% if use_fa_icon %>
+      $(`#<%= fa_icon_span_id %> .open`).toggle()
+      $(`#<%= fa_icon_span_id %> .closed`).toggle()
+    <% end %>
+  });
+
+  $(`#<%= body %>`).on('shown.bs.collapse', function () {
+    _rails_base_reload_base_footer();
+    _rails_base_toggle_base_footer('show')
+  })
+
+  $(`#<%= body %>`).on('hidden.bs.collapse', function () {
+    _rails_base_reload_base_footer();
+    _rails_base_toggle_base_footer('show')
+  })
+
+</script>
