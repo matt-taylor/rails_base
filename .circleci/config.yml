@@ -23,7 +23,7 @@ executors:
   rails:
     parameters:
       ruby-version:
-        default: 3
+        default: "3"
         type: string
     docker:
       - image: circleci/ruby:<< parameters.ruby-version >>-node
