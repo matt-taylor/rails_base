@@ -67,7 +67,7 @@ commands:
 
     steps:
       - run:
-          name: Waiting for <<parameters.name>> to be ready
+          name: Waiting for <<parameters.service-name>> to be ready
           command: |
             for i in `seq 1 <<parameters.wait-in-seconds>>`;
             do
