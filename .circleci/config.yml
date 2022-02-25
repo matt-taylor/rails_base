@@ -47,6 +47,7 @@ commands:
           key: bundle-<< parameters.ruby-version >>-{{ checksum "Gemfile.lock" }}-<< parameters.cache-breaker >>
           paths:
             - vendor/bundle
+
   wait-for-it:
     description: "Wait for service to be available"
     parameters:
