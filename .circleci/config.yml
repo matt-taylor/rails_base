@@ -24,7 +24,7 @@ defaults: &defaults
     RAILS_ENV: test
 
 commands:
-  bundler-preamble:
+  mt-bundler-preamble:
     description: "Install ruby and the Gemfile dependencies"
     parameters:
       ruby-version:
@@ -150,7 +150,7 @@ jobs:
     docker:
       - image: circleci/ruby:<< parameters.ruby-version >>-node
     steps:
-      - bundler-preamble:
+      - mt-bundler-preamble:
           ruby-version: "<< parameters.ruby-version >>"
       - wait-for-it:
           endpoint: "127.0.0.1"
