@@ -33,7 +33,7 @@ commands:
       cache-breaker:
         type: string
         default: "0"
-        description: "0"
+        description: "Cache breaker to force new cache instantiation"
 
     steps:
       - attach_workspace:
