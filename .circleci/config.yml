@@ -158,10 +158,10 @@ jobs:
         description: "Rails version to test against"
     executor:
       - rails:
-          ruby-version: << parameters.ruby-version >>
+          ruby-version: "<< parameters.ruby-version >>"
     steps:
       - bundler-preamble:
-          ruby-version: << parameters.ruby-version >>
+          ruby-version: "<< parameters.ruby-version >>"
       - wait-for-it:
           endpoint: "127.0.0.1"
           port: "3306"
