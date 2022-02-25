@@ -1,8 +1,10 @@
+require 'switch_user'
+
 module RailsBase::Admin
   class ActionHelper
     ACTIONS_KEY = "___all_actions_#{(rand*10**10).to_i}___"
     CONTROLLER_ACTIONS_KEY = "___all_controller_actions__#{(rand*10**10).to_i}___"
-    DEFAULT_ALLOWED_KLASSES = [ApplicationController, RailsBase::ApplicationController, ::SwitchUserController]
+    DEFAULT_ALLOWED_KLASSES = [ApplicationController, RailsBaseApplicationController, ::SwitchUserController]
     class << self
       def allowed_inherited_klasses
         DEFAULT_ALLOWED_KLASSES + (@allowed_klasses || [])
@@ -60,7 +62,7 @@ module RailsBase::Admin
     class InvalidTitleError < StandardError; end;
 
     attr_accessor :controller, :action, :proc, :title, :default
-    # controller is the controller class inherited by RailsBase::ApplicationController
+    # controller is the controller class inherited by RailsBaseApplicationController
     # action is the method name on the controller
     # title should be the AdminAction.action
     # if proc available,

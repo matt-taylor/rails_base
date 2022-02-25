@@ -65,6 +65,8 @@ Rails.application.configure do
   #
   #####
 
+  config.autoloader = :zeitwerk
+
   ActiveSupport::Dependencies.autoload_paths << RailsBase::Engine.root.join('app')
   ActiveSupport::Dependencies.autoload_paths << RailsBase::Engine.root.join('lib')
 

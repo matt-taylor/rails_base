@@ -230,6 +230,7 @@ module RailsBase
         # User.admin_owner
         # User.admin_owners
         # This is 100% dependent upon keeping `admin_types` in order of precedence
+        require RailsBase::Engine.root.join('app','models', 'user.rb')
         admin_types.each do |type|
           ::User._def_admin_convenience_method!(admin_method: type)
         end

@@ -50,20 +50,20 @@
         }
       }
 
-      <% RailsBase::ApplicationController::VIEWPORT_SIZES.each do |name, max_width| %>
+      <% RailsBaseApplicationController::VIEWPORT_SIZES.each do |name, max_width| %>
         function viewport_at_least_<%= name %>(){
           return getViewportWidth() >= <%= max_width || 99_999 %>
 
         }
-        <% if name == RailsBase::ApplicationController::VIEWPORT_MOBILE_MAX %>
+        <% if name == RailsBaseApplicationController::VIEWPORT_MOBILE_MAX %>
         <% puts "Rendering #{name} for viewport_probable_mobile" %>
 
         <% end %>
       <% end %>
 
       <%
-        k = RailsBase::ApplicationController::VIEWPORT_MOBILE_MAX
-        size = RailsBase::ApplicationController::VIEWPORT_SIZES[k] || 99_999
+        k = RailsBaseApplicationController::VIEWPORT_MOBILE_MAX
+        size = RailsBaseApplicationController::VIEWPORT_SIZES[k] || 99_999
       %>
       function viewport_probable_mobile(){
         return getViewportWidth() <= <%= size  %>
@@ -212,7 +212,7 @@
         $('.tableFixHead').stickyTableHeaders();
 
         // Attempt to set timezone on every request
-        set_cookie('<%= RailsBase::ApplicationController::TIMEZONE_OFFSET_COOKIE %>', new Date().getTimezoneOffset())
+        set_cookie('<%= RailsBaseApplicationController::TIMEZONE_OFFSET_COOKIE %>', new Date().getTimezoneOffset())
         });
       <% end %>
       <% if Rails.env == 'production' %>
