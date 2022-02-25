@@ -24,7 +24,7 @@ defaults: &defaults
     RAILS_ENV: test
 
 commands:
-  mt-bundler-preamble:
+  bundler-preamble:
     description: "Install ruby and the Gemfile dependencies"
     parameters:
       ruby-version:
@@ -85,8 +85,6 @@ jobs:
       BUNDLE_RETRY: "3"
       RAILS_ENV: test
     steps:
-      - bundler-preamble:
-          ruby-version:
       - run:
           name: Validate Version Matches Gemfile.lock
           command: bin/validate_bundler
@@ -150,8 +148,8 @@ jobs:
     docker:
       - image: circleci/ruby:<< parameters.ruby-version >>-node
     steps:
-      - mt-bundler-preamble:
-          ruby-version: "<< parameters.ruby-version >>"
+      - bundler-preamble:
+          ruby-version: << parameters.ruby-version >>
       - wait-for-it:
           endpoint: "127.0.0.1"
           port: "3306"
