@@ -66,7 +66,7 @@ commands:
                   name: Remove Gemfile.lock
                   command: rm Gemfile.lock
       - restore_cache:
-          key: bundle-<< parameters.ruby-version >>-<< parameters.key-name >>-{{ checksum "Gemfile.lock" }}-<< parameters.cache-breaker >>
+          key: bundle-<< parameters.ruby-version >>-<< parameters.key-name >>-{{ checksum "Gemfile" }}-<< parameters.cache-breaker >>
       - ruby/install-deps:
           path: vendor/bundle
           with-cache: false
@@ -74,7 +74,7 @@ commands:
           name: "Update dependencies"
           command: bundle update
       - save_cache:
-          key: bundle-<< parameters.ruby-version >>-<< parameters.key-name >>-{{ checksum "Gemfile.lock" }}-<< parameters.cache-breaker >>
+          key: bundle-<< parameters.ruby-version >>-<< parameters.key-name >>-{{ checksum "Gemfile" }}-<< parameters.cache-breaker >>
           paths:
             - vendor/bundle
 
@@ -111,7 +111,8 @@ jobs:
   validate-bundler:
     executor: rails
     steps:
-      - bundler-preamble
+      - bundler-preamble:
+          keep-lock-file: true
       - wait-for-it:
           endpoint: "127.0.0.1"
           port: "3306"
@@ -122,7 +123,8 @@ jobs:
   publish-rubygems:
     executor: rails
     steps:
-      - bundler-preamble
+      - bundler-preamble:
+          keep-lock-file: true
       - wait-for-it:
           endpoint: "127.0.0.1"
           port: "3306"
@@ -134,7 +136,8 @@ jobs:
   publish-github:
     executor: rails
     steps:
-      - bundler-preamble
+      - bundler-preamble:
+          keep-lock-file: true
       - wait-for-it:
           endpoint: "127.0.0.1"
           port: "3306"
