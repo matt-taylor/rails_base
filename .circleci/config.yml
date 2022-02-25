@@ -4,15 +4,57 @@ orbs:
   ruby: circleci/ruby@1.0
   node: circleci/node@2
 
-jobs:
-  build:
-    docker:
-      - image: cimg/ruby:2.7-node
+defaults: &defaults
+  docker:
+    - image: cimg/ruby:2.7-node
+    - image: circleci/mysql:5.7
+      environment:
+        MYSQL_ROOT_PASSWORD: rootpw
+        MYSQL_DATABASE: test_db
+        MYSQL_USER: user
+        MYSQL_PASSWORD: passw0rd
+  environment:
+    BUNDLE_JOBS: "3"
+    BUNDLE_RETRY: "3"
+    MYSQL_HOST: 127.0.0.1
+    MYSQL_ROOT_PASSWORD: rootpw
+    MYSQL_DATABASE: test_db
+    MYSQL_USER: user
+    MYSQL_PORT: 3306
+    MYSQL_PASSWORD: passw0rd
+    RAILS_ENV: test
+
+commands:
+  wait-for-it:
+    description: "Wait for service to be available"
+    parameters:
+      service:
+        type: string
+        description: "Name of the service to wait for"
+      endpoint:
+        type: string
+        description: "Endpoint of the service"
+      port:
+        type: string
+        description: "Port of the service to wait for"
+      wait-in-seconds:
+        default: 10
+        type: integer
+        description: "Max time in seconds to wait for service"
+
     steps:
-      - checkout
-      - ruby/install-deps
-    environment:
-      SKIP_CUSTOM_INIT: 'true'
+      - run:
+          name: Waiting for <<parameters.name>> to be ready
+          command: |
+            for i in `seq 1 <<parameters.wait-in-seconds>>`;
+            do
+              nc -z <<parameters.endpoint>> <<parameters.port>> && echo Success && exit 0
+              echo -n .
+              sleep 1
+            done
+            echo Failed waiting for <<parameters.name>> && exit 1
+
+jobs:
   validate-bundler:
     docker:
       - image: cimg/ruby:2.7-node # this is our primary docker image, where step commands run.
@@ -24,8 +66,7 @@ jobs:
       - checkout
       - run:
           name: Validate Version Matches Gemfile.lock
-          command: |
-            bin/validate_bundler
+          command: bin/validate_bundler
   publish-rubygems:
     docker:
       - image: cimg/ruby:2.7-node # this is our primary docker image, where step commands run.
@@ -73,37 +114,25 @@ jobs:
             export GHRLOCATION=ghr
             bin/publish_git
   test:
+    parameters:
+      ruby-version:
+        default: "2.7.5"
+        type: string
+        description: "Ruby version to test against"
+      rails-version:
+        default: "~> 6.1.0"
+        type: string
+        description: "Rails version to test against"
+    <<: *defaults
     docker:
-      - image: cimg/ruby:2.7-node
-      - image: circleci/mysql:5.7
-        environment:
-          MYSQL_ROOT_PASSWORD: rootpw
-          MYSQL_DATABASE: test_db
-          MYSQL_USER: user
-          MYSQL_PASSWORD: passw0rd
-    environment:
-      BUNDLE_JOBS: "3"
-      BUNDLE_RETRY: "3"
-      MYSQL_HOST: 127.0.0.1
-      MYSQL_ROOT_PASSWORD: rootpw
-      MYSQL_DATABASE: test_db
-      MYSQL_USER: user
-      MYSQL_PORT: 3306
-      MYSQL_PASSWORD: passw0rd
-      RAILS_ENV: test
+      - image: circleci/ruby:<< parameters.ruby-version >>
     steps:
       - checkout
       - ruby/install-deps
-      - run:
-          name: Waiting for MySQL to be ready
-          command: |
-            for i in `seq 1 10`;
-            do
-              nc -z 127.0.0.1 3306 && echo Success && exit 0
-              echo -n .
-              sleep 1
-            done
-            echo Failed waiting for MySQL && exit 1
+      - wait-for-it:
+          endpoint: "127.0.0.1"
+          port: "3306"
+          name: "MySQL"
       - run:
           name: Database setup
           command: SKIP_CUSTOM_INIT=true bundle exec rails db:schema:load --trace
