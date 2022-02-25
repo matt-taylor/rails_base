@@ -1,4 +1,4 @@
-version: 2.1 # Use 2.1 to enable using orbs and other features.
+version: 2.1
 
 orbs:
   ruby: circleci/ruby@1.0
@@ -6,7 +6,6 @@ orbs:
 
 defaults: &defaults
   docker:
-    - image: cimg/ruby:2.7-node
     - image: circleci/mysql:5.7
       environment:
         MYSQL_ROOT_PASSWORD: rootpw
@@ -25,6 +24,29 @@ defaults: &defaults
     RAILS_ENV: test
 
 commands:
+  bundler-preamble:
+    description: "Install ruby and the Gemfile dependencies"
+    parameters:
+      ruby-version:
+        type: string
+        description: "Ruby Gem version"
+      cache-breaker:
+        type: string
+        default: "0"
+        description: "0"
+
+    steps:
+      - attach_workspace:
+          at: workspace
+      - restore_cache:
+          key: bundle-<< parameters.ruby-version >>-{{ checksum "Gemfile.lock" }}-<< parameters.cache-breaker >>
+      - ruby/install-deps:
+          path: vendor/bundle
+          with-cache: false
+      - save_cache:
+          key: bundle-<< parameters.ruby-version >>-{{ checksum "Gemfile.lock" }}-<< parameters.cache-breaker >>
+          paths:
+            - vendor/bundle
   wait-for-it:
     description: "Wait for service to be available"
     parameters:
@@ -63,7 +85,8 @@ jobs:
       BUNDLE_RETRY: "3"
       RAILS_ENV: test
     steps:
-      - checkout
+      - bundler-preamble:
+          ruby-version:
       - run:
           name: Validate Version Matches Gemfile.lock
           command: bin/validate_bundler
@@ -125,10 +148,10 @@ jobs:
         description: "Rails version to test against"
     <<: *defaults
     docker:
-      - image: circleci/ruby:<< parameters.ruby-version >>
+      - image: circleci/ruby:<< parameters.ruby-version >>-node
     steps:
-      - checkout
-      - ruby/install-deps
+      - bundler-preamble:
+          ruby-version: << parameters.ruby-version >>
       - wait-for-it:
           endpoint: "127.0.0.1"
           port: "3306"
@@ -152,13 +175,8 @@ workflows:
   version: 2
   yeet-le-jobs:
     jobs:
-      - build
-      - validate-bundler:
-          requires:
-            - build
-      - test:
-          requires:
-            - build
+      - validate-bundler
+      - test
       - publish-github:
           requires:
             - test
