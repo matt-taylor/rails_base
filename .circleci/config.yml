@@ -93,14 +93,22 @@ jobs:
   validate-bundler:
     executor: rails
     steps:
+      - bundler-preamble
+      - wait-for-it:
+          endpoint: "127.0.0.1"
+          port: "3306"
+          service-name: "MySQL"
       - run:
           name: Validate Version Matches Gemfile.lock
           command: bin/validate_bundler
   publish-rubygems:
     executor: rails
     steps:
-      - checkout
-      - ruby/install-deps
+      - bundler-preamble
+      - wait-for-it:
+          endpoint: "127.0.0.1"
+          port: "3306"
+          service-name: "MySQL"
       - run:
           name: Publish Ruby Gems
           command: |
@@ -108,8 +116,11 @@ jobs:
   publish-github:
     executor: rails
     steps:
-      - checkout
-      - ruby/install-deps
+      - bundler-preamble
+      - wait-for-it:
+          endpoint: "127.0.0.1"
+          port: "3306"
+          service-name: "MySQL"
       - run:
           name: 'Get Go'
           command: |
