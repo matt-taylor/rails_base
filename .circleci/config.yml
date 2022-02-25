@@ -50,16 +50,29 @@ commands:
         type: string
         default: "0"
         description: "Cache breaker to force new cache instantiation"
-
+      keep-lock-file:
+        type: boolean
+        default: false
+        description: "Retain lock file when bit is set to true. Otherwise generate a new one specific for this build"
     steps:
       - checkout
       - attach_workspace:
           at: workspace
+      - unless:
+            condition:
+              equal: [ true, << parameters.keep-lock-file >> ]
+            steps:
+              - run:
+                  name: Remove Gemfile.lock
+                  command: rm Gemfile.lock
       - restore_cache:
           key: bundle-<< parameters.ruby-version >>-<< parameters.key-name >>-{{ checksum "Gemfile.lock" }}-<< parameters.cache-breaker >>
       - ruby/install-deps:
           path: vendor/bundle
           with-cache: false
+      - run:
+          name: "Update dependencies"
+          command: bundle update
       - save_cache:
           key: bundle-<< parameters.ruby-version >>-<< parameters.key-name >>-{{ checksum "Gemfile.lock" }}-<< parameters.cache-breaker >>
           paths:
