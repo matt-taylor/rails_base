@@ -4,20 +4,6 @@ orbs:
   ruby: circleci/ruby@1.0
   node: circleci/node@2
 
-executors:
-  rails:
-    parameters:
-      ruby-version:
-        type: string
-    docker:
-      - image: circleci/ruby:<< parameters.ruby-version >>-node
-      - image: circleci/redis:6.0
-      - image: circleci/mysql:5.7
-        environment:
-          <<: *mysql_envs
-
-    <<: *common_envs
-
 mysql_envs: &mysql_envs
   MYSQL_ROOT_PASSWORD: rootpw
   MYSQL_DATABASE: test_db
@@ -32,6 +18,20 @@ common_envs: &common_envs
     MYSQL_PORT: 3306
     RAILS_ENV: test
     <<: *mysql_envs
+
+executors:
+  rails:
+    parameters:
+      ruby-version:
+        type: string
+    docker:
+      - image: circleci/ruby:<< parameters.ruby-version >>-node
+      - image: circleci/redis:6.0
+      - image: circleci/mysql:5.7
+        environment:
+          <<: *mysql_envs
+
+    <<: *common_envs
 
 commands:
   bundler-preamble:
