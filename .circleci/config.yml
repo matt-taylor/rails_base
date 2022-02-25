@@ -51,7 +51,7 @@ commands:
   wait-for-it:
     description: "Wait for service to be available"
     parameters:
-      service:
+      name:
         type: string
         description: "Name of the service to wait for"
       endpoint:
