@@ -157,8 +157,9 @@ jobs:
         type: string
         description: "Rails version to test against"
     executor:
-      - rails:
-          ruby-version: "<< parameters.ruby-version >>"
+      name: rails
+      ruby-version: << parameters.ruby-version >>
+
     steps:
       - bundler-preamble:
           ruby-version: "<< parameters.ruby-version >>"
