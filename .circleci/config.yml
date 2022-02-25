@@ -51,7 +51,7 @@ commands:
   wait-for-it:
     description: "Wait for service to be available"
     parameters:
-      name:
+      service-name:
         type: string
         description: "Name of the service to wait for"
       endpoint:
@@ -75,7 +75,7 @@ commands:
               echo -n .
               sleep 1
             done
-            echo Failed waiting for <<parameters.name>> && exit 1
+            echo Failed waiting for <<parameters.service-name>> && exit 1
 
 jobs:
   validate-bundler:
@@ -154,7 +154,7 @@ jobs:
       - wait-for-it:
           endpoint: "127.0.0.1"
           port: "3306"
-          name: "MySQL"
+          service-name: "MySQL"
       - run:
           name: Database setup
           command: SKIP_CUSTOM_INIT=true bundle exec rails db:schema:load --trace
