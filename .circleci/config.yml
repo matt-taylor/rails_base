@@ -42,6 +42,10 @@ commands:
         type: string
         default: "3"
         description: "Ruby Gem version"
+      key-name:
+        type: string
+        default: ""
+        description: Custom name to add to the cache key
       cache-breaker:
         type: string
         default: "0"
@@ -52,12 +56,12 @@ commands:
       - attach_workspace:
           at: workspace
       - restore_cache:
-          key: bundle-<< parameters.ruby-version >>-{{ checksum "Gemfile.lock" }}-<< parameters.cache-breaker >>
+          key: bundle-<< parameters.ruby-version >>-<< parameters.key-name >>-{{ checksum "Gemfile.lock" }}-<< parameters.cache-breaker >>
       - ruby/install-deps:
           path: vendor/bundle
           with-cache: false
       - save_cache:
-          key: bundle-<< parameters.ruby-version >>-{{ checksum "Gemfile.lock" }}-<< parameters.cache-breaker >>
+          key: bundle-<< parameters.ruby-version >>-<< parameters.key-name >>-{{ checksum "Gemfile.lock" }}-<< parameters.cache-breaker >>
           paths:
             - vendor/bundle
 
@@ -157,10 +161,12 @@ jobs:
     executor:
       name: rails
       ruby-version: << parameters.ruby-version >>
-
+    environment:
+      BUNDLER_RAILS_VERSION: << parameters.rails-version >>
     steps:
       - bundler-preamble:
           ruby-version: "<< parameters.ruby-version >>"
+          key-name: << parameters.rails-version >>
       - wait-for-it:
           endpoint: "127.0.0.1"
           port: "3306"
@@ -173,6 +179,12 @@ jobs:
           command: |
             curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
             chmod +x ./cc-test-reporter
+      - run:
+          name: Ruby Version << parameters.ruby-version >>
+          command: echo "Running test against ruby version $(ruby -v)"
+      - run:
+          name: Rails Version << parameters.rails-version >>
+          command: echo "Running test against rails version ${BUNDLER_RAILS_VERSION}"
       - run:
           name: Run le tests
           command: |
