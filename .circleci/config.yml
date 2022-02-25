@@ -151,7 +151,7 @@ jobs:
       - image: circleci/ruby:<< parameters.ruby-version >>-node
     steps:
       - bundler-preamble:
-          ruby-version: << parameters.ruby-version >>
+          ruby-version: "<< parameters.ruby-version >>"
       - wait-for-it:
           endpoint: "127.0.0.1"
           port: "3306"
