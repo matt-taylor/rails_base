@@ -23,6 +23,7 @@ executors:
   rails:
     parameters:
       ruby-version:
+        default: 3
         type: string
     docker:
       - image: circleci/ruby:<< parameters.ruby-version >>-node
@@ -90,23 +91,13 @@ commands:
 
 jobs:
   validate-bundler:
-    docker:
-      - image: cimg/ruby:2.7-node # this is our primary docker image, where step commands run.
-    environment:
-      BUNDLE_JOBS: "3"
-      BUNDLE_RETRY: "3"
-      RAILS_ENV: test
+    executor: rails
     steps:
       - run:
           name: Validate Version Matches Gemfile.lock
           command: bin/validate_bundler
   publish-rubygems:
-    docker:
-      - image: cimg/ruby:2.7-node # this is our primary docker image, where step commands run.
-    environment:
-      BUNDLE_JOBS: "3"
-      BUNDLE_RETRY: "3"
-      RAILS_ENV: test
+    executor: rails
     steps:
       - checkout
       - ruby/install-deps
@@ -115,12 +106,7 @@ jobs:
           command: |
             bin/publish_ruby_gems
   publish-github:
-    docker:
-      - image: cimg/ruby:2.7-node # this is our primary docker image, where step commands run.
-    environment:
-      BUNDLE_JOBS: "3"
-      BUNDLE_RETRY: "3"
-      RAILS_ENV: test
+    executor: rails
     steps:
       - checkout
       - ruby/install-deps
