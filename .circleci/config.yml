@@ -36,6 +36,7 @@ commands:
         description: "Cache breaker to force new cache instantiation"
 
     steps:
+      - checkout
       - attach_workspace:
           at: workspace
       - restore_cache:
