@@ -40,6 +40,7 @@ commands:
     parameters:
       ruby-version:
         type: string
+        default: "3"
         description: "Ruby Gem version"
       cache-breaker:
         type: string
