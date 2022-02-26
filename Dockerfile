@@ -1,5 +1,5 @@
 # ./Dockerfile
-FROM ruby:2.7.1 as base
+FROM ruby:2.7.5 as base
 
 # set some default ENV values for the image
 ENV BUNDLE_PATH /bundle
@@ -52,7 +52,7 @@ RUN npm install -g yarn@${YARN_VERSION}
 RUN go get -u github.com/tcnksm/ghr
 
 # install bundler
-ARG BUNDLER_VERSION=2.0.2
+ARG BUNDLER_VERSION=2.3.8
 RUN gem install bundler -v "${BUNDLER_VERSION}"
 
 

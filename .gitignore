@@ -18,3 +18,4 @@ spec/examples.txt
 # Keep local secrets local
 .env
 
+vendor/*
