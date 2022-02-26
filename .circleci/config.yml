@@ -233,17 +233,18 @@ workflows:
             exclude:
               - ruby-version: "3.0.3"
                 rails-version: "~> 5.2.0"
+            alias: required-matrix-tests
           name: test-ruby<< matrix.ruby-version >>-rails<< matrix.rails-version >>
       - publish-github:
           requires:
-            - test
+            - required-matrix-tests
           filters:
             branches:
               only:
                 - main
       - publish-rubygems:
           requires:
-            - test
+            - required-matrix-tests
           filters:
             branches:
               only:
