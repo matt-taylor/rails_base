@@ -77,7 +77,6 @@ commands:
           key: bundle-<< parameters.ruby-version >>-<< parameters.key-name >>-{{ checksum "Gemfile" }}-<< parameters.cache-breaker >>
           paths:
             - vendor/bundle
-
   wait-for-it:
     description: "Wait for service to be available"
     parameters:
@@ -201,12 +200,25 @@ jobs:
       - run:
           name: Rails Version << parameters.rails-version >>
           command: echo "Running test against rails version ${BUNDLER_RAILS_VERSION}"
+
       - run:
           name: Run le tests
           command: |
             ./cc-test-reporter before-build
             SKIP_CUSTOM_INIT=false SIMPLE_COV_RUN=true bundle exec rspec --format RspecJunitFormatter --out test-results/rspec/rspec.xml --format progress --color
             ./cc-test-reporter after-build format-coverage -t simplecov
+
+      - when:
+          condition:
+            equal:
+              [
+                required-test-ruby2.7.5-rails~> 6.1.0,
+                required-test-ruby<< parameters.ruby-version >>-rails<< parameters.rails-version >>,
+              ]
+          steps:
+            - run:
+                name: Test reporter send
+                command: ./cc-test-reporter before-build
 
 workflows:
   version: 2
