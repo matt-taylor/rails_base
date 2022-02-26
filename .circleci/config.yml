@@ -212,7 +212,7 @@ jobs:
           condition:
             equal:
               [
-                required-test-ruby2.7.5-rails~> 5,
+                required-test-ruby2.7.5-rails~> 5.2,
                 required-test-ruby<< parameters.ruby-version >>-rails<< parameters.rails-version >>,
               ]
           steps:
