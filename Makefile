@@ -8,6 +8,8 @@ bundle: #
 
 setup: build bundle db_reset annotate clean # Set up the service
 
+docker_reset: down clean build bundle setup_db migrate db_reset #: Comand to be used when changing the ruby version in the docker image
+
 db_reset: # Blows away db and sets it up with seed data
 	docker-compose run --rm engine bin/rails db:reset
 

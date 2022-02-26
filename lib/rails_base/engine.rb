@@ -8,7 +8,7 @@ module RailsBase
       if RailsBase.___execute_initializer___?
         RailsBase.config.admin.convenience_methods
 
-        Dir[RailsBase::Engine.root.join('app','models','**', '*.rb')].each {|f| puts f; require f }
+        Dir[RailsBase::Engine.root.join('app','models','**', '*.rb')].each {|f| require f }
         RailsBase::ApplicationRecord.descendants.each do |model|
           model._magically_defined_time_objects
         end
@@ -31,8 +31,6 @@ module RailsBase
         ActiveRecord::Base.retrieve_connection
 
         #explicitly load engine routes
-        # Dir[RailsBase::Engine.root.join('app','helpers', '**', '*.rb')].each {|f| puts f; require f }
-        # Dir[RailsBase::Engine.root.join('app','controllers', '**', '*.rb')].each {|f| puts f; require f }
         RailsBase::ApplicationRecord.descendants.each do |model|
           model._magically_defined_time_objects
         end
