@@ -170,7 +170,7 @@ jobs:
         type: string
         description: "Ruby version to test against"
       rails-version:
-        default: "~> 6.1.0"
+        default: "~> 5.2"
         type: string
         description: "Rails version to test against"
     executor:
