@@ -3,12 +3,14 @@ params = {
   email: "mattius.taylor@gmail.com",
   first_name: 'Some',
   last_name: 'Guy',
-  phone_number: '6508675309',
+  phone_number: ENV.fetch("PHONE_NUMBER", '6509410795'),
   password: "password1",
-  password_confirmation: "password1"
+  password_confirmation: "password1",
+  email_validated: true,
 }
 
-User.create!(params)
+user = User.create!(params)
+user.admin_owner!
 
 
 params = {
@@ -17,7 +19,8 @@ params = {
   last_name: 'Guy2',
   phone_number: '6508675309',
   password: "password2",
-  password_confirmation: "password2"
+  password_confirmation: "password2",
+  email_validated: true,
 }
 
 User.create!(params)
