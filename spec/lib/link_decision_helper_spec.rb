@@ -1,6 +1,6 @@
 RSpec.describe LinkDecisionHelper do
 
-  let(:instance) { described_class.new(params) }
+  let(:instance) { described_class.new(**params) }
   let(:params) do
     {
       title: title,
@@ -106,8 +106,8 @@ RSpec.describe LinkDecisionHelper do
       # Removes default and sets config to an array
       described_class.clear_type!(type: type)
       # whatever is defined first is set to active and first in line
-      described_class.new(params).assign!
-      described_class.new(params.merge(default_type: type)).assign!
+      described_class.new(**params).assign!
+      described_class.new(**params.merge(default_type: type)).assign!
     end
 
     it 'sets two headers' do

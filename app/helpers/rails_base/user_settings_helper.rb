@@ -17,6 +17,6 @@ module RailsBase::UserSettingsHelper
       ttl: DATUM_TTL,
       length: DATUM_LENGTH,
     }
-    ShortLivedData.create_data_key(params)
+    ShortLivedData.create_data_key(**params)
   end
 end

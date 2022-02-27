@@ -49,7 +49,7 @@ module RailsBase
         expires_at: EXPIRES_AT.from_now,
         length: Authentication::Constants::MFA_LENGTH,
       }
-      ShortLivedData.create_data_key(params)
+      ShortLivedData.create_data_key(**params)
     end
 
     def velocity_max_in_frame
