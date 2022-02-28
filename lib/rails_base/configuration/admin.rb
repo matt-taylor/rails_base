@@ -192,12 +192,12 @@ module RailsBase
         },
         admin_impersonate_redirect:{
           type: :proc,
-          default: ->(_request, _params) { RailsBase.url_routes.authenticated_root_path },
-          description: 'Redirection to impersonation -- Landing page when having an identity cris',
+          default: ->(*) { RailsBase.url_routes.authenticated_root_path },
+          description: 'Redirection to impersonation -- Landing page when having an identity crisis',
         },
         admin_impersonate_return:{
           type: :proc,
-          default: ->(_request, _params) { RailsBase.url_routes.admin_base_path },
+          default: ->(*) { RailsBase.url_routes.admin_base_path },
           description: 'Redirection from impersonation -- Page to return from when you have found yourself',
         }
       }

@@ -90,10 +90,11 @@ module RailsBase::Admin
         action_params = proc.call(req, params, admin_user, user, title, struct)
         return if action_params.nil?
 
-        AdminAction.action(action_params)
+        AdminAction.action(**action_params)
       else
         default_call(request: request, admin_user: admin_user, user: user, struct: struct)
       end
+
     rescue StandardError => e
       Rails.logger.error(e.message)
       Rails.logger.error(e.backtrace)
@@ -110,7 +111,7 @@ module RailsBase::Admin
         change_from: struct&.original_attribute,
         change_to: struct&.new_attribute,
       }
-      AdminAction.action(action_params)
+      AdminAction.action(**action_params)
     end
 
     def valid_controller!

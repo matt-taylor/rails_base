@@ -19,6 +19,9 @@ migrate: # Blows away db and sets it up with seed data
 setup_db: # sets up db from empty state
 	docker-compose run --rm engine bin/rails db:setup
 
+seeds: #: run the seeds file
+	docker-compose run --rm engine bin/rails runner db/seeds.rb
+
 rspec: # runs the test suite
 	docker-compose run --rm -e RAILS_ENV=test engine bin/test
 

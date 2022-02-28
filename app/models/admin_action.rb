@@ -20,6 +20,7 @@ class AdminAction < RailsBase::ApplicationRecord
 
   class << self
     include ActionView::Helpers::DateHelper
+
     def action(admin_user:, action:, user: nil, original_attribute: nil, new_attribute: nil, long_action: nil)
       params = { admin_user_id: admin_user.id, action: action }
       params[:user_id] = user.id if user
@@ -27,7 +28,7 @@ class AdminAction < RailsBase::ApplicationRecord
       params[:change_to] = new_attribute.to_s unless new_attribute.nil?
       params[:long_action] = long_action unless long_action.nil?
       begin
-        instance = AdminAction.create!(params)
+        instance = AdminAction.create!(**params)
         ship_to_cache!(instance: instance, user: user, created_at: Time.zone.now) if user
         instance
       rescue StandardError => e

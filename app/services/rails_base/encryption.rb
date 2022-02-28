@@ -26,7 +26,7 @@ class RailsBase::Encryption
       raise "expires_at && expires_in are both nil" if expires_in.nil? && expires_at.nil?
 
       log(level: :info, msg: "Encoding [#{value}] with params #{params}")
-      token = verifier.generate(value, params)
+      token = verifier.generate(value, **params)
       token = CGI.escape(token) if url_safe
       token
     end
@@ -40,7 +40,7 @@ class RailsBase::Encryption
       # TODO: matt-taylor
       # Check if the message is valid and untampered with
       # https://api.rubyonrails.org/classes/ActiveSupport/MessageVerifier.html#method-i-valid_message-3F
-      decoded = verifier.verified(value, params)
+      decoded = verifier.verified(value, **params)
       if decoded.nil?
         log(level: :warn, msg: "Failed to decode value: value: #{value}, purpose: #{purpose}")
       end

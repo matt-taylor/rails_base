@@ -25,7 +25,7 @@ module RailsBase::Authentication
         length: token_length,
         extra: url_redirect,
       }.compact
-      ShortLivedData.create_data_key(params)
+      ShortLivedData.create_data_key(**params)
     end
 
     def data_type

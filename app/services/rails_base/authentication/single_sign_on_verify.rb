@@ -31,7 +31,7 @@ module RailsBase::Authentication
         reason: reason,
         access_count: !(bypass || false)
       }
-      ShortLivedData.find_datum(params)
+      ShortLivedData.find_datum(**params)
     end
 
     def validate!

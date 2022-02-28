@@ -11,7 +11,7 @@ module RailsBase::Authentication
 				expires_at: expires_at
 			}
 
-			context.encrypted_val = RailsBase::Encryption.encode(params)
+			context.encrypted_val = RailsBase::Encryption.encode(**params)
 		end
 
 		def value
