@@ -53,6 +53,7 @@ module RailsBase
     initializer 'rails_base.switch_user.view' do
       config.to_prepare do
         ActiveSupport.on_load(:action_view) do
+          require RailsBase::Engine.root.join('lib', 'rails_base', 'switch_user_helper.rb')
 
           include RailsBase::SwitchUserHelper
         end
