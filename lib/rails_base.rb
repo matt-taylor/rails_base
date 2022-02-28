@@ -37,6 +37,10 @@ module RailsBase
   end
 
   def self.app_name
+    config.app.app_name
+  end
+
+  def self.default_app_name
     if ::Rails::VERSION::MAJOR >= 6
       ::Rails.application.class.module_parent_name
     else
