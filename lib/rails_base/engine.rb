@@ -27,6 +27,7 @@ module RailsBase
       if RailsBase.___execute_initializer___?
         # need to eager load Models
         Rails.application.eager_load!
+
         # create a connection
         ActiveRecord::Base.retrieve_connection
 
