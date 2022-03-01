@@ -5,6 +5,7 @@ module RailsBase
         if val.is_a?(Symbol)
           begin
             ::ActiveJob::QueueAdapters.lookup(val)
+            RailsBase::ApplicationJob.queue_adapter = val.to_sym
             Rails.configuration.active_job.queue_adapter = val.to_sym
           rescue StandardError => e
             raise ArgumentError, "config.app.active_job_adapter=#{val} is not a defined active job"

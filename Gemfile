@@ -3,7 +3,7 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 gemspec
 
-gem 'rails', ENV.fetch("BUNDLER_RAILS_VERSION", '~> 6.0.0')
+gem 'rails', ENV.fetch("BUNDLER_RAILS_VERSION", '~> 6')
 
 gem 'sidekiq'
 gem 'webrick' # needed to run with ruby 3
