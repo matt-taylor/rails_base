@@ -53,8 +53,8 @@
     <% light = RailsBase::Configuration::Appearance::LIGHT_MODE %>
     var type_mapping = JSON.parse('<%= raw RailsBase::Configuration::Appearance::APPEARANCE_TYPES.to_json %>')
 
-    var cookie_name = `<%= RailsBase::ApplicationController::APPEARANCE_MODE_COOKIE %>`;
-    var cookie_actual_name = `<%= RailsBase::ApplicationController::APPEARANCE_MODE_ACTUAL_COOKIE %>`;
+    var cookie_name = `<%= RailsBaseApplicationController::APPEARANCE_MODE_COOKIE %>`;
+    var cookie_actual_name = `<%= RailsBaseApplicationController::APPEARANCE_MODE_ACTUAL_COOKIE %>`;
     var dark_mode_changes = [
       {
         'descriptor': 'thead',
@@ -151,11 +151,11 @@
     })
     // This function MUST be called outside of document ready
     // to ensure dark mode does not activate after document is loaded
-    set_and_toggle_mode( `<%= cookies[RailsBase::ApplicationController::APPEARANCE_MODE_COOKIE] || RailsBase.appearance.default_mode %>`)
+    set_and_toggle_mode( `<%= cookies[RailsBaseApplicationController::APPEARANCE_MODE_COOKIE] || RailsBase.appearance.default_mode %>`)
     $('#appearance_mode_selector').appendTo('body');
     $(document).ready(function(){
       // differentiation of load order means we need to call this twice
-      set_and_toggle_mode( `<%= cookies[RailsBase::ApplicationController::APPEARANCE_MODE_COOKIE] || RailsBase.appearance.default_mode %>`)
+      set_and_toggle_mode( `<%= cookies[RailsBaseApplicationController::APPEARANCE_MODE_COOKIE] || RailsBase.appearance.default_mode %>`)
       $(document).ajaxComplete(function () {
         set_and_toggle_mode()
       });

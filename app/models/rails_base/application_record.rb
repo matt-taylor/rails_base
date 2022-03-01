@@ -8,7 +8,7 @@ module RailsBase
 
         # This is actually pretty cool. If you set the thread corectly, you can
         define_method("#{column.name}") do
-          thread_tz = Thread.current[RailsBase::ApplicationController::TIMEZONE_THREAD_NAME]
+          thread_tz = Thread.current[RailsBaseApplicationController::TIMEZONE_THREAD_NAME]
           return super() if thread_tz.nil?
           time = self[column.name].in_time_zone(thread_tz) rescue self[column.name]
 

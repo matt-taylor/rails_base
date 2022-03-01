@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module RailsBase
   class SwitchUserController < ::SwitchUserController
     before_action :admin_user?

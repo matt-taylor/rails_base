@@ -1,5 +1,5 @@
 module RailsBase
-  class SecondaryAuthenticationController < ApplicationController
+  class SecondaryAuthenticationController < RailsBaseApplicationController
     before_action :authenticate_user!, only: [:remove_phone_mfa, :confirm_phone_registration]
 
     before_action :validate_token!, only: [:resend_email, :wait, :confirm_phone_registration]

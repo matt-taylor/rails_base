@@ -1,9 +1,9 @@
 module RailsBase
-  class AdminController < ApplicationController
+  class AdminController < RailsBaseApplicationController
     before_action :authenticate_user!, except: [:sso_retrieve]
     before_action :admin_user?, only: [:index, :config, :sso_send]
     before_action :validate_token!, only: [:update_email, :update_phone]
-    skip_before_action :admin_reset_impersonation_session!
+    skip_before_action :admin_reset_impersonation_session!, raise: false
 
     include AdminHelper
 

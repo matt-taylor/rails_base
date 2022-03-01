@@ -4,6 +4,11 @@ module RailsBase
   module Configuration
     class App < Base
       DEFAULT_VALUES = {
+        app_name: {
+          type: :string_proc,
+          default: ->(*) { RailsBase.default_app_name },
+          description: 'Name of the application when authenticated user is present. Name in the tab of the browser. Allows for dynamic tab names'
+        },
         base_url: {
           type: :string,
           default: ENV.fetch('BASE_URL', 'http://localhost'),
@@ -16,27 +21,27 @@ module RailsBase
         },
         web_name_logged_in: {
           type: :string_proc,
-          default: ->(user) { RailsBase.app_name },
+          default: ->(*) { RailsBase.config.app.app_name },
           description: 'Name of the application when authenticated user is present. Name in the tab of the browser. Allows for dynamic tab names'
         },
         web_name_logged_out: {
           type: :string_proc,
-          default: ->(*) { RailsBase.app_name },
+          default: ->(*) { RailsBase.config.app.app_name },
           description: 'Name of the application when no authenticated user. Name in the tab of the browser. Allows for dynamic tab names'
         },
         web_title_logged_in: {
           type: :string_proc,
-          default: ->(user) { RailsBase.app_name },
+          default: ->(user) { RailsBase.config.app.app_name },
           description: 'Title in nav for the web when logged in. String or proc accepted. When proc, current user will be passed in.'
         },
         web_title_logged_out: {
           type: :string_proc,
-          default: ->(*) { RailsBase.app_name },
+          default: ->(*) { RailsBase.config.app.app_name },
           description: 'Title in nav for the web when logged in. String or proc accepted. When proc, current user will be passed in.'
         },
         communication_name: {
           type: :string_proc,
-          default: ->(*) { RailsBase.app_name },
+          default: ->(*) { RailsBase.config.app.app_name },
           description: 'Name used when communicating with users.'
         },
         favicon_path: {

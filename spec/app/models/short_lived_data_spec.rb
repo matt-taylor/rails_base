@@ -24,7 +24,7 @@ RSpec.describe ShortLivedData do
   let(:extra) { nil }
 
   describe '.create_data_key' do
-    subject(:create_data_key) { described_class.create_data_key(params) }
+    subject(:create_data_key) { described_class.create_data_key(**params) }
 
     context 'when max_use defined' do
       let(:max_use) { 5 }

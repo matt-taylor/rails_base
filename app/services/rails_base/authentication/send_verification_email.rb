@@ -74,7 +74,7 @@ module RailsBase::Authentication
 				ttl: Constants::SVE_TTL,
 				length: Constants::EMAIL_LENGTH,
 			}
-			ShortLivedData.create_data_key(params)
+			ShortLivedData.create_data_key(**params)
 		end
 
 		def velocity_max_in_frame

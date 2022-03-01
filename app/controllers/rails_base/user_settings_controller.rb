@@ -1,5 +1,5 @@
 module RailsBase
-  class UserSettingsController < ApplicationController
+  class UserSettingsController < RailsBaseApplicationController
     before_action :authenticate_user!
     before_action :confirm_password_flow, only: :confirm_password
 
