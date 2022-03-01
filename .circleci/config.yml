@@ -228,8 +228,8 @@ workflows:
       - test:
           matrix:
             parameters:
-              ruby-version: ["2.7.5", "3.0.3"]
-              rails-version: ["~> 5.2.0", "~> 6.1.0"]
+              ruby-version: ["2.7.5" , "3.0.3"]
+              rails-version: ["~> 5.2", "~> 6.0.0" , "~> 6"]
             exclude:
               - ruby-version: "3.0.3"
                 rails-version: "~> 5.2.0"
