@@ -96,7 +96,7 @@ jobs:
   validate-bundler:
     executor: cst/ruby-base
     steps:
-      - bundler-preamble:
+      - cst/bundler-preamble:
           keep-lock-file: true
       - wait-for-it:
           endpoint: "127.0.0.1"
@@ -108,7 +108,7 @@ jobs:
   publish-rubygems:
     executor: cst/ruby-base
     steps:
-      - bundler-preamble:
+      - cst/bundler-preamble:
           keep-lock-file: true
       - wait-for-it:
           endpoint: "127.0.0.1"
@@ -121,7 +121,7 @@ jobs:
   publish-github:
     executor: cst/ruby-base
     steps:
-      - bundler-preamble:
+      - cst/bundler-preamble:
           keep-lock-file: true
       - wait-for-it:
           endpoint: "127.0.0.1"
@@ -165,9 +165,9 @@ jobs:
     environment:
       BUNDLER_RAILS_VERSION: << parameters.rails-version >>
     steps:
-      - bundler-preamble:
+      - cst/bundler-preamble:
           ruby-version: "<< parameters.ruby-version >>"
-          key-name: << parameters.rails-version >>
+          additional-cache-tag: << parameters.rails-version >>
       - wait-for-it:
           endpoint: "127.0.0.1"
           port: "3306"
