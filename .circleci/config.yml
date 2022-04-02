@@ -121,7 +121,7 @@ jobs:
           name: Validate Version Matches Gemfile.lock
           command: bin/validate_bundler
   publish-rubygems:
-    executor: rails
+    executor: cst/ruby-base
     steps:
       - bundler-preamble:
           keep-lock-file: true
@@ -134,7 +134,7 @@ jobs:
           command: |
             bin/publish_ruby_gems
   publish-github:
-    executor: rails
+    executor: cst/ruby-base
     steps:
       - bundler-preamble:
           keep-lock-file: true
@@ -175,7 +175,7 @@ jobs:
         type: string
         description: "Rails version to test against"
     executor:
-      name: rails
+      name: cst/ruby-base
       ruby-version: << parameters.ruby-version >>
     environment:
       BUNDLER_RAILS_VERSION: << parameters.rails-version >>
