@@ -21,48 +21,6 @@ common_envs: &common_envs
     <<: *mysql_envs
 
 commands:
-  bundler-preamble:
-    description: "Install ruby and the Gemfile dependencies"
-    parameters:
-      ruby-version:
-        type: string
-        default: "3"
-        description: "Ruby Gem version"
-      key-name:
-        type: string
-        default: ""
-        description: Custom name to add to the cache key
-      cache-breaker:
-        type: string
-        default: "0"
-        description: "Cache breaker to force new cache instantiation"
-      keep-lock-file:
-        type: boolean
-        default: false
-        description: "Retain lock file when bit is set to true. Otherwise generate a new one specific for this build"
-    steps:
-      - checkout
-      - attach_workspace:
-          at: workspace
-      - unless:
-            condition:
-              equal: [ true, << parameters.keep-lock-file >> ]
-            steps:
-              - run:
-                  name: Remove Gemfile.lock
-                  command: rm Gemfile.lock
-      - restore_cache:
-          key: bundle-<< parameters.ruby-version >>-<< parameters.key-name >>-{{ checksum "Gemfile" }}-<< parameters.cache-breaker >>
-      - ruby/install-deps:
-          path: vendor/bundle
-          with-cache: false
-      - run:
-          name: "Update dependencies"
-          command: bundle update
-      - save_cache:
-          key: bundle-<< parameters.ruby-version >>-<< parameters.key-name >>-{{ checksum "Gemfile" }}-<< parameters.cache-breaker >>
-          paths:
-            - vendor/bundle
   wait-for-it:
     description: "Wait for service to be available"
     parameters:
