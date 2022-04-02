@@ -56,10 +56,8 @@ jobs:
     steps:
       - cst/bundler-preamble:
           keep-lock-file: true
-      - wait-for-it:
-          endpoint: "127.0.0.1"
-          port: "3306"
-          service-name: "MySQL"
+      - cst/wait-for-mysql
+      - cst/wait-for-redis
       - run:
           name: Validate Version Matches Gemfile.lock
           command: bin/validate_bundler
@@ -68,10 +66,8 @@ jobs:
     steps:
       - cst/bundler-preamble:
           keep-lock-file: true
-      - wait-for-it:
-          endpoint: "127.0.0.1"
-          port: "3306"
-          service-name: "MySQL"
+      - cst/wait-for-mysql
+      - cst/wait-for-redis
       - run:
           name: Publish Ruby Gems
           command: |
@@ -81,10 +77,8 @@ jobs:
     steps:
       - cst/bundler-preamble:
           keep-lock-file: true
-      - wait-for-it:
-          endpoint: "127.0.0.1"
-          port: "3306"
-          service-name: "MySQL"
+      - cst/wait-for-mysql
+      - cst/wait-for-redis
       - run:
           name: 'Get Go'
           command: |
@@ -126,10 +120,8 @@ jobs:
       - cst/bundler-preamble:
           ruby-version: "<< parameters.ruby-version >>"
           additional-cache-tag: << parameters.rails-version >>
-      - wait-for-it:
-          endpoint: "127.0.0.1"
-          port: "3306"
-          service-name: "MySQL"
+      - cst/wait-for-mysql
+      - cst/wait-for-redis
       - run:
           name: Database setup
           command: SKIP_CUSTOM_INIT=true bundle exec rails db:schema:load --trace
