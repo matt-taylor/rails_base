@@ -3,6 +3,7 @@ version: 2.1
 orbs:
   ruby: circleci/ruby@1.0
   node: circleci/node@2
+  cst: cst/framework@dev:create_executor
 
 mysql_envs: &mysql_envs
   MYSQL_ROOT_PASSWORD: rootpw
@@ -108,7 +109,7 @@ commands:
 
 jobs:
   validate-bundler:
-    executor: rails
+    executor: cst/ruby-base
     steps:
       - bundler-preamble:
           keep-lock-file: true
