@@ -213,7 +213,7 @@ jobs:
           condition:
             equal:
               [
-                required-test-ruby2.7.5-rails~> 5.2,
+                required-test-ruby2.7.5-node-rails~> 5.2,
                 required-test-ruby<< parameters.ruby-version >>-rails<< parameters.rails-version >>,
               ]
           steps:
@@ -232,7 +232,7 @@ workflows:
               ruby-version: ["2.7.5-node" , "3.0.3-node"]
               rails-version: ["~> 5.2", "~> 6.0.0" , "~> 6"]
             exclude:
-              - ruby-version: "3.0.3"
+              - ruby-version: "3.0.3-node"
                 rails-version: "~> 5.2"
             alias: required-matrix-tests
           name: test-ruby<< matrix.ruby-version >>-rails<< matrix.rails-version >>
