@@ -3,7 +3,7 @@ version: 2.1
 orbs:
   ruby: circleci/ruby@1.0
   node: circleci/node@2
-  cst: cst/framework@dev:create_executor
+  cst: cst/framework@dev:phase_1
 
 mysql_envs: &mysql_envs
   MYSQL_ROOT_PASSWORD: rootpw
@@ -229,7 +229,7 @@ workflows:
       - test:
           matrix:
             parameters:
-              ruby-version: ["2.7.5" , "3.0.3"]
+              ruby-version: ["2.7.5-node" , "3.0.3-node"]
               rails-version: ["~> 5.2", "~> 6.0.0" , "~> 6"]
             exclude:
               - ruby-version: "3.0.3"
