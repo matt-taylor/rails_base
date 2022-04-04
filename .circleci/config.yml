@@ -21,34 +21,6 @@ common_envs: &common_envs
     <<: *mysql_envs
 
 commands:
-  wait-for-it:
-    description: "Wait for service to be available"
-    parameters:
-      service-name:
-        type: string
-        description: "Name of the service to wait for"
-      endpoint:
-        type: string
-        description: "Endpoint of the service"
-      port:
-        type: string
-        description: "Port of the service to wait for"
-      wait-in-seconds:
-        default: 10
-        type: integer
-        description: "Max time in seconds to wait for service"
-
-    steps:
-      - run:
-          name: Waiting for <<parameters.service-name>> to be ready
-          command: |
-            for i in `seq 1 <<parameters.wait-in-seconds>>`;
-            do
-              nc -z <<parameters.endpoint>> <<parameters.port>> && echo Success && exit 0
-              echo -n .
-              sleep 1
-            done
-            echo Failed waiting for <<parameters.service-name>> && exit 1
 
 jobs:
   validate-bundler:
