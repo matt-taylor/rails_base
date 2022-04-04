@@ -171,16 +171,6 @@ workflows:
             exclude:
               - ruby-version: "3.0.3-node"
                 rails-version: "~> 5.2"
-            alias: cst-required-matrix-tests
-          name: cst-test-ruby<< matrix.ruby-version >>-rails<< matrix.rails-version >>
-      - test:
-          matrix:
-            parameters:
-              ruby-version: ["2.7.5-node" , "3.0.3-node"]
-              rails-version: ["~> 5.2", "~> 6.0.0" , "~> 6"]
-            exclude:
-              - ruby-version: "3.0.3-node"
-                rails-version: "~> 5.2"
             alias: required-matrix-tests
           name: test-ruby<< matrix.ruby-version >>-rails<< matrix.rails-version >>
       - publish-github:
