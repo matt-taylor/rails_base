@@ -152,6 +152,7 @@ workflows:
   yeet-le-jobs:
     jobs:
       - validate-bundler
+      - rspec-temp
       - test:
           matrix:
             parameters:
