@@ -160,9 +160,10 @@ workflows:
       - validate-bundler
       - rspec-rails-ruby:
           rspec-system-args: "SKIP_CUSTOM_INIT=false SIMPLE_COV_RUN=true"
-          pre-rspec-steps: [ pre-rspec-step ]
           rails-version: "~> 6"
           ruby-version: "2.7.5-node"
+          database-migration-command: "SKIP_CUSTOM_INIT=true bundle exec rails db:schema:load --trace"
+          database-migration: true
       - test:
           matrix:
             parameters:
