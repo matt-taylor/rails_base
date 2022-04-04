@@ -73,6 +73,25 @@ jobs:
           command: |
             export GHRLOCATION=ghr
             bin/publish_git
+  rspec-temp:
+    executor:
+      name: cst/ruby-base
+      ruby-version: "2.7.5"
+    environment:
+      BUNDLER_RAILS_VERSION: "~> 6"
+    steps:
+      - cst/bundler-preamble:
+          ruby-version: "<< parameters.ruby-version >>"
+          additional-cache-tag: "~> 6"
+      - cst/wait-for-mysql
+      - cst/wait-for-redis
+      - run:
+          name: Database setup
+          command: SKIP_CUSTOM_INIT=true bundle exec rails db:schema:load --trace
+      - cst/rspec-test
+          code-climate-report: true
+          rspec-system-args: "SKIP_CUSTOM_INIT=false SIMPLE_COV_RUN=true"
+
   test:
     parameters:
       ruby-version:
