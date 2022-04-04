@@ -158,7 +158,7 @@ workflows:
   yeet-le-jobs:
     jobs:
       - validate-bundler
-      - rspec-rails-ruby:
+      - cst/rspec-rails-ruby:
           rspec-system-args: "SKIP_CUSTOM_INIT=false SIMPLE_COV_RUN=true"
           rails-version: "~> 6"
           ruby-version: "2.7.5-node"
