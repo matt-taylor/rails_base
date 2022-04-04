@@ -20,14 +20,6 @@ common_envs: &common_envs
     RAILS_ENV: test
     <<: *mysql_envs
 
-commands:
-  pre-rspec-step:
-    steps:
-      - cst/wait-for-mysql
-      - cst/wait-for-redis
-      - run:
-          name: Database setup
-          command: SKIP_CUSTOM_INIT=true bundle exec rails db:schema:load --trace
 jobs:
   validate-bundler:
     executor: cst/ruby-base
@@ -79,79 +71,6 @@ jobs:
           command: |
             export GHRLOCATION=ghr
             bin/publish_git
-  rspec-temp:
-    executor:
-      name: cst/ruby-base
-      ruby-version: "2.7.5-node"
-    environment:
-      BUNDLER_RAILS_VERSION: "~> 6"
-    steps:
-      - cst/bundler-preamble:
-          ruby-version: "2.7.5"
-          additional-cache-tag: "~> 6"
-      - cst/wait-for-mysql
-      - cst/wait-for-redis
-      - run:
-          name: Database setup
-          command: SKIP_CUSTOM_INIT=true bundle exec rails db:schema:load --trace
-      - cst/rspec-test:
-          code-climate-report: true
-          rspec-system-args: "SKIP_CUSTOM_INIT=false SIMPLE_COV_RUN=true"
-
-  test:
-    parameters:
-      ruby-version:
-        default: "2.7.5"
-        type: string
-        description: "Ruby version to test against"
-      rails-version:
-        default: "~> 5.2"
-        type: string
-        description: "Rails version to test against"
-    executor:
-      name: cst/ruby-base
-      ruby-version: << parameters.ruby-version >>
-    environment:
-      BUNDLER_RAILS_VERSION: << parameters.rails-version >>
-    steps:
-      - cst/bundler-preamble:
-          ruby-version: "<< parameters.ruby-version >>"
-          additional-cache-tag: << parameters.rails-version >>
-      - cst/wait-for-mysql
-      - cst/wait-for-redis
-      - run:
-          name: Database setup
-          command: SKIP_CUSTOM_INIT=true bundle exec rails db:schema:load --trace
-      - run:
-          name: Setup Climate Control test-reporter
-          command: |
-            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-            chmod +x ./cc-test-reporter
-      - run:
-          name: Ruby Version << parameters.ruby-version >>
-          command: echo "Running test against ruby version $(ruby -v)"
-      - run:
-          name: Rails Version << parameters.rails-version >>
-          command: echo "Running test against rails version ${BUNDLER_RAILS_VERSION}"
-
-      - run:
-          name: Run le tests
-          command: |
-            ./cc-test-reporter before-build
-            SKIP_CUSTOM_INIT=false SIMPLE_COV_RUN=true bundle exec rspec --format RspecJunitFormatter --out test-results/rspec/rspec.xml --format progress --color
-            ./cc-test-reporter after-build format-coverage -t simplecov
-
-      - when:
-          condition:
-            equal:
-              [
-                required-test-ruby2.7.5-node-rails~> 5.2,
-                required-test-ruby<< parameters.ruby-version >>-rails<< parameters.rails-version >>,
-              ]
-          steps:
-            - run:
-                name: Test reporter send
-                command: ./cc-test-reporter before-build
 
 workflows:
   version: 2
@@ -166,10 +85,14 @@ workflows:
           cc-report-collect-rails: "~> 6"
           matrix:
             parameters:
-              ruby-version: ["2.7.5-node" , "3.0.3-node"]
+              ruby-version: ["2.7.5-node" , "3.0.0-node",, "3.0.3-node", "3.1.0-node"]
               rails-version: ["~> 5.2", "~> 6.0.0" , "~> 6"]
             exclude:
+              - ruby-version: "3.0.0-node"
+                rails-version: "~> 5.2"
               - ruby-version: "3.0.3-node"
+                rails-version: "~> 5.2"
+              - ruby-version: "3.1.0-node"
                 rails-version: "~> 5.2"
             alias: required-matrix-tests
           name: test-ruby<< matrix.ruby-version >>-rails<< matrix.rails-version >>
