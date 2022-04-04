@@ -146,13 +146,23 @@ jobs:
             - run:
                 name: Test reporter send
                 command: ./cc-test-reporter before-build
-
+  pre-rspec-step:
+    steps:
+      - cst/wait-for-mysql
+      - cst/wait-for-redis
+      - run:
+          name: Database setup
+          command: SKIP_CUSTOM_INIT=true bundle exec rails db:schema:load --trace
 workflows:
   version: 2
   yeet-le-jobs:
     jobs:
       - validate-bundler
-      - rspec-temp
+      - rspec-rails-ruby:
+          rspec-system-args: "SKIP_CUSTOM_INIT=false SIMPLE_COV_RUN=true"
+          pre-rspec-steps: [ pre-rspec-step ]
+          rails-version: "~> 6"
+          ruby-version: "2.7.5-node"
       - test:
           matrix:
             parameters:
