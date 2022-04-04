@@ -161,6 +161,7 @@ workflows:
       - cst/rspec-rails-ruby:
           database-migration: true
           database-migration-command: "SKIP_CUSTOM_INIT=true bundle exec rails db:schema:load --trace"
+          rspec-system-args: "SIMPLE_COV_RUN=true"
           matrix:
             parameters:
               ruby-version: ["2.7.5-node" , "3.0.3-node"]
