@@ -159,36 +159,15 @@ workflows:
     jobs:
       - validate-bundler
       - cst/rspec-rails-ruby:
-          rspec-system-args: "SKIP_CUSTOM_INIT=false SIMPLE_COV_RUN=true"
-          rails-version: "~> 6"
-          ruby-version: "2.7.5-node"
-          database-migration-command: "SKIP_CUSTOM_INIT=true bundle exec rails db:schema:load --trace"
-          database-migration: true
-      - cst/rspec-rails-ruby:
-          rspec-system-args: "SKIP_CUSTOM_INIT=false SIMPLE_COV_RUN=true"
-          rails-version: "~> 6"
-          ruby-version: "3.0.1-node"
-          database-migration-command: "SKIP_CUSTOM_INIT=true bundle exec rails db:schema:load --trace"
-          database-migration: true
-          code-climate-report: false
-      - cst/rspec-rails-ruby:
-          name: "this should fail"
-          rspec-system-args: "SKIP_CUSTOM_INIT=false SIMPLE_COV_RUN=true"
-          rails-version: "~> 6"
-          ruby-version: "3.0.1-node"
-          database-migration-command: "SKIP_CUSTOM_INIT=true bundle exec rails db:schema:load --trace"
-          database-migration: true
-          cc-report-collect-rails: "this should not report"
-          cc-report-collect-ruby: "this should not report"
-      - cst/rspec-rails-ruby:
-          name: "this should pass"
-          rspec-system-args: "SKIP_CUSTOM_INIT=false SIMPLE_COV_RUN=true"
-          rails-version: "~> 6"
-          ruby-version: "3.0.1-node"
-          database-migration-command: "SKIP_CUSTOM_INIT=true bundle exec rails db:schema:load --trace"
-          database-migration: true
-          cc-report-collect-rails: "~> 6"
-          cc-report-collect-ruby: "3.0.1-node"
+          matrix:
+            parameters:
+              ruby-version: ["2.7.5-node" , "3.0.3-node"]
+              rails-version: ["~> 5.2", "~> 6.0.0" , "~> 6"]
+            exclude:
+              - ruby-version: "3.0.3-node"
+                rails-version: "~> 5.2"
+            alias: cst-required-matrix-tests
+          name: cst-test-ruby<< matrix.ruby-version >>-rails<< matrix.rails-version >>
       - test:
           matrix:
             parameters:
