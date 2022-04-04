@@ -163,6 +163,8 @@ workflows:
             parameters:
               ruby-version: ["2.7.5-node" , "3.0.3-node"]
               rails-version: ["~> 5.2", "~> 6.0.0" , "~> 6"]
+              database-migration: true
+              database-migration-command: "SKIP_CUSTOM_INIT=true bundle exec rails db:schema:load --trace"
             exclude:
               - ruby-version: "3.0.3-node"
                 rails-version: "~> 5.2"
