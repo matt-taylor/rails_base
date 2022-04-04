@@ -164,6 +164,13 @@ workflows:
           ruby-version: "2.7.5-node"
           database-migration-command: "SKIP_CUSTOM_INIT=true bundle exec rails db:schema:load --trace"
           database-migration: true
+      - cst/rspec-rails-ruby:
+          rspec-system-args: "SKIP_CUSTOM_INIT=false SIMPLE_COV_RUN=true"
+          rails-version: "~> 6"
+          ruby-version: "3.0.1-node"
+          database-migration-command: "SKIP_CUSTOM_INIT=true bundle exec rails db:schema:load --trace"
+          database-migration: true
+          code-climate-report: false
       - test:
           matrix:
             parameters:
