@@ -76,7 +76,7 @@ jobs:
   rspec-temp:
     executor:
       name: cst/ruby-base
-      ruby-version: "2.7.5"
+      ruby-version: "2.7.5-node"
     environment:
       BUNDLER_RAILS_VERSION: "~> 6"
     steps:
