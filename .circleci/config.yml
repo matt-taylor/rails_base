@@ -81,7 +81,7 @@ jobs:
       BUNDLER_RAILS_VERSION: "~> 6"
     steps:
       - cst/bundler-preamble:
-          ruby-version: "<< parameters.ruby-version >>"
+          ruby-version: "2.7.5"
           additional-cache-tag: "~> 6"
       - cst/wait-for-mysql
       - cst/wait-for-redis
