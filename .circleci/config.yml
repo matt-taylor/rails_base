@@ -21,7 +21,13 @@ common_envs: &common_envs
     <<: *mysql_envs
 
 commands:
-
+  pre-rspec-step:
+    steps:
+      - cst/wait-for-mysql
+      - cst/wait-for-redis
+      - run:
+          name: Database setup
+          command: SKIP_CUSTOM_INIT=true bundle exec rails db:schema:load --trace
 jobs:
   validate-bundler:
     executor: cst/ruby-base
@@ -146,13 +152,7 @@ jobs:
             - run:
                 name: Test reporter send
                 command: ./cc-test-reporter before-build
-  pre-rspec-step:
-    steps:
-      - cst/wait-for-mysql
-      - cst/wait-for-redis
-      - run:
-          name: Database setup
-          command: SKIP_CUSTOM_INIT=true bundle exec rails db:schema:load --trace
+
 workflows:
   version: 2
   yeet-le-jobs:
