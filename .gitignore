@@ -17,5 +17,6 @@ spec/examples.txt
 
 # Keep local secrets local
 .env
+*.gem
 
 vendor/*
