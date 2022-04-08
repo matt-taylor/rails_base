@@ -76,6 +76,7 @@ workflows:
   version: 2
   yeet-le-jobs:
     jobs:
+      - cst/enforce-gem-version-bump
       - validate-bundler
       - cst/rspec-rails-ruby:
           database-migration: true
