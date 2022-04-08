@@ -71,6 +71,9 @@ workflows:
                 rails-version: "~> 5.2"
             alias: required-matrix-tests
           name: test-ruby<< matrix.ruby-version >>-rails<< matrix.rails-version >>
+      - cst/publish-gem:
+          publish-git: true
+          publish-default-gem: true
       - publish-github:
           requires:
             - required-matrix-tests
