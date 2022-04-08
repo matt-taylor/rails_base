@@ -6,46 +6,6 @@ orbs:
   cst: cst/framework@dev:phase_1
 
 jobs:
-  publish-rubygems:
-    executor: cst/ruby-base
-    steps:
-      - cst/bundler-preamble:
-          keep-lock-file: true
-      - cst/wait-for-mysql
-      - cst/wait-for-redis
-      - run:
-          name: Publish Ruby Gems
-          command: |
-            bin/publish_ruby_gems
-  publish-github:
-    executor: cst/ruby-base
-    steps:
-      - cst/bundler-preamble:
-          keep-lock-file: true
-      - cst/wait-for-mysql
-      - cst/wait-for-redis
-      - run:
-          name: 'Get Go'
-          command: |
-            sudo apt-get update -qq
-            sudo apt-get -y --no-install-recommends install golang-go
-      - run:
-          name: 'Set Git stats'
-          command: |
-            git config user.name $GITHUB_USER
-            git config user.email $GITHUB_EMAIL
-      - run:
-          name: 'Download GHR'
-          command: |
-            curl -sSL https://github.com/tcnksm/ghr/releases/download/v0.13.0/ghr_v0.13.0_linux_amd64.tar.gz | tar xz -f - -C . ghr_v0.13.0_linux_amd64/ghr
-            mv ghr_v0.13.0_linux_amd64/ghr .
-            rm -rf ghr_v0.13.0_linux_amd64
-            chmod 0755 ghr
-      - run:
-          name: Publish Git
-          command: |
-            export GHRLOCATION=ghr
-            bin/publish_git
 
 workflows:
   version: 2
@@ -74,16 +34,9 @@ workflows:
       - cst/publish-gem:
           publish-git: true
           publish-default-gem: true
-      - publish-github:
           requires:
             - required-matrix-tests
-          filters:
-            branches:
-              only:
-                - main
-      - publish-rubygems:
-          requires:
-            - required-matrix-tests
+            - cst/enforce-gem-version-bump
           filters:
             branches:
               only:
