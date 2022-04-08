@@ -5,32 +5,7 @@ orbs:
   node: circleci/node@2
   cst: cst/framework@dev:phase_1
 
-mysql_envs: &mysql_envs
-  MYSQL_ROOT_PASSWORD: rootpw
-  MYSQL_DATABASE: test_db
-  MYSQL_USER: user
-  MYSQL_PASSWORD: passw0rd
-
-common_envs: &common_envs
-  environment:
-    BUNDLE_JOBS: "3"
-    BUNDLE_RETRY: "3"
-    MYSQL_HOST: 127.0.0.1
-    MYSQL_PORT: 3306
-    RAILS_ENV: test
-    <<: *mysql_envs
-
 jobs:
-  validate-bundler:
-    executor: cst/ruby-base
-    steps:
-      - cst/bundler-preamble:
-          keep-lock-file: true
-      - cst/wait-for-mysql
-      - cst/wait-for-redis
-      - run:
-          name: Validate Version Matches Gemfile.lock
-          command: bin/validate_bundler
   publish-rubygems:
     executor: cst/ruby-base
     steps:
@@ -77,7 +52,6 @@ workflows:
   yeet-le-jobs:
     jobs:
       - cst/enforce-gem-version-bump
-      - validate-bundler
       - cst/rspec-rails-ruby:
           database-migration: true
           database-migration-command: "SKIP_CUSTOM_INIT=true bundle exec rails db:schema:load --trace"
