@@ -50,6 +50,7 @@ module RailsBase::Authentication
 			rescue StandardError => e
 				log(level: :error, msg: "Unkown error occured when sending EmailVerificationMailer.#{method}")
 				log(level: :error, msg: "Params: #{method}, #{reason}, user: #{user.id}")
+				log(level: :error, msg: e.message)
 				context.fail!(message: "Unknown error occurred. Please log in with credentials to restart process")
 				return
 			end

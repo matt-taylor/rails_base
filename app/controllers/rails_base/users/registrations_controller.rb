@@ -45,7 +45,7 @@ class RailsBase::Users::RegistrationsController < Devise::RegistrationsControlle
 
       email_verification = RailsBase::Authentication::SendVerificationEmail.call(user: resource, reason: RailsBase::Authentication::Constants::SVE_LOGIN_REASON)
       if email_verification.failure?
-        render RailsBase.url_routes.auth_static_path, alert: email_verification.message
+        redirect_to RailsBase.url_routes.new_user_session_path, alert: email_verification.message
         return
       end
       session[:mfa_randomized_token] = nil
