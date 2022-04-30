@@ -59,7 +59,7 @@ class RailsBase::ServiceBase
   ensure
     # Always log how long it took along with a status
     finished_time = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-    elapsed = ((finished_time - beginning_time) * 10).round
+    elapsed = ((finished_time - beginning_time)).round(1)
     log(level: :info, msg: "Finished with [#{status}]...elapsed #{elapsed}s")
   end
 end

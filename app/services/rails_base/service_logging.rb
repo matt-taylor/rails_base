@@ -1,13 +1,16 @@
 module RailsBase::ServiceLogging
 	def log(level:, msg:)
-	  altered_message = "#{log_prefix}: #{msg}"
-	  logger.public_send(level, altered_message)
+	  logger.public_send(level, aletered_message(msg))
 	rescue StandardError
-		Rails.logger.public_send(level, msg)
+		Rails.logger.public_send(level, aletered_message(msg))
+	end
+
+	def aletered_message(msg)
+		"#{log_prefix}: #{msg}"
 	end
 
 	def logger
-		defined?(context) ? context.loger : nil
+		defined?(context) ? context.logger : Rails.logger
 	end
 
 	def log_prefix
