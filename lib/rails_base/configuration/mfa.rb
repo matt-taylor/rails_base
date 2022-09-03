@@ -69,9 +69,9 @@ module RailsBase
       def enforce_twilio!
         return unless enable == true
 
-      return if twilio_sid.present? &&
-        twilio_auth_token.present? &&
-        twilio_from_number.present?
+        return if twilio_sid.present? &&
+          twilio_auth_token.present? &&
+          twilio_from_number.present?
 
         raise InvalidConfiguration, "twilio_sid twilio_auth_token twilio_from_number need to be present when `mfa.enabled`"
       end

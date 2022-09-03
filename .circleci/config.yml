@@ -20,7 +20,7 @@ workflows:
           cc-report-collect-rails: "~> 6"
           matrix:
             parameters:
-              ruby-version: ["2.7.5-node" , "3.0.0-node", "3.0.3-node"]
+              ruby-version: ["2.7.5-node" , "3.0.0-node", "3.0.3-node", "3.1.0-node"]
               rails-version: ["~> 5.2", "~> 6.0.0" , "~> 6"]
             exclude:
               - ruby-version: "3.0.0-node"
