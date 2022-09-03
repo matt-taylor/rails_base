@@ -3,7 +3,7 @@ RSpec.describe RailsBase::Authentication::AuthenticateUser do
 
 	let(:user) { User.first }
 	let(:email) { user.email }
-	let(:password) { 'password1' }
+	let(:password) { 'password11' }
 	let(:params) { { email: email, password: password } }
 
 	describe '#validate!' do

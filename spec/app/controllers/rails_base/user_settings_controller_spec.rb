@@ -105,7 +105,7 @@ RSpec.describe RailsBase::UserSettingsController, type: :controller do
 
     let(:reason) { :password_flow }
     let(:params) { super().merge(reason: reason) }
-    let(:user_params) { { password: 'password1' } }
+    let(:user_params) { { password: 'password11' } }
 
     context 'when incorrect password reason' do
       let(:reason) { 'invalid_reason' }
@@ -148,7 +148,7 @@ RSpec.describe RailsBase::UserSettingsController, type: :controller do
     subject(:edit_password) { post(:edit_password, params: params) }
 
     let(:user_params) { { password: password, password_confirmation: password_confirmation } }
-    let(:password) { 'thisismynewsecurepassword1' }
+    let(:password) { 'thisismynewsecurepassword11' }
     let(:password_confirmation) { password }
 
     it 'redirects correctly' do
@@ -195,8 +195,8 @@ RSpec.describe RailsBase::UserSettingsController, type: :controller do
         include_examples 'password validation failures'
       end
 
-      context 'with apostrophe' do
-        let(:password) { "'UnacaptableChars1" }
+      context 'with invalid character' do
+        let(:password) { "√UnacaptableChars11" }
         let(:flash_msg) { 'Unaccepted characters received' }
 
         include_examples 'password validation failures'
@@ -204,7 +204,7 @@ RSpec.describe RailsBase::UserSettingsController, type: :controller do
 
       context 'with no number' do
         let(:password) { "NotAvalidPassword" }
-        let(:flash_msg) { 'Password must contain at least 1 numbers' }
+        let(:flash_msg) { 'Password must contain at least 2 numbers' }
 
         include_examples 'password validation failures'
       end

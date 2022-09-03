@@ -281,7 +281,7 @@ RSpec.describe RailsBase::SecondaryAuthenticationController, type: :controller d
     let(:params) { { user: user_params} }
     let(:user_params) { { email: email, password: password } }
     let(:email) { user.email }
-    let(:password) { 'password1' }
+    let(:password) { 'password11' }
     let(:mfa_randomized_token) do
       RailsBase::Authentication::MfaSetEncryptToken.call(
         user: user,
@@ -763,7 +763,7 @@ RSpec.describe RailsBase::SecondaryAuthenticationController, type: :controller d
       end
 
       context 'when password does not meet criteria' do
-        let(:password) { 'invalid chars 1 ;"'}
+        let(:password) { 'invalid chars 11√"'}
         let(:flash_msg) { 'Unaccepted characters received. Characters must be in [0-9a-zA-Z]' }
 
         include_examples 'password reset_fails'
