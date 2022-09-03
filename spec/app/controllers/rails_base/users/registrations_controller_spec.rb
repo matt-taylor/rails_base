@@ -5,7 +5,7 @@ RSpec.describe RailsBase::Users::RegistrationsController, type: :controller do
   let(:email) { 'some_random_person@not_a_domain.app' }
   let(:first_name) { 'FirstName' }
   let(:last_name) { 'LastName' }
-  let(:password) { 'password1' }
+  let(:password) { 'password11' }
   let(:password_confirmation) { password }
   let(:sign_up_params) { { email: email, first_name: first_name, last_name: last_name, password: password, password_confirmation: password_confirmation } }
   let(:params) { { user: sign_up_params } }

@@ -1,3 +1,5 @@
+require 'rails_base/configuration/base'
+
 module RailsBase
   module Configuration
     class ActiveJob < Base

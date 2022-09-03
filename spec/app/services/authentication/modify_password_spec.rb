@@ -4,7 +4,7 @@ RSpec.describe RailsBase::Authentication::ModifyPassword do
 	let(:user) { User.first }
 	let(:mfa_user) { user }
 	let(:user_id) { user.id }
-	let(:password) { 'password1' }
+	let(:password) { 'password11' }
 	let(:password_confirmation) { password }
 	let(:flow) { :forgot_password }
 	let(:data) { rand.to_s[2...32] }
@@ -124,10 +124,10 @@ RSpec.describe RailsBase::Authentication::ModifyPassword do
 			end
 
 			context 'when password contains unacceptable characters' do
-				let(:password) { "#{super()};" }
+				let(:password) { "#{super()}√" }
 
 				it { expect(call.failure?).to be true }
-				it { expect(call.message).to include('[0-9a-zA-Z] exclusively') }
+				it { expect(call.message).to include("[0-9a-zA-Z] and [#{RailsBase.config.auth.password_allowed_special_chars}] exclusively") }
 			end
 		end
 
@@ -153,6 +153,16 @@ RSpec.describe RailsBase::Authentication::ModifyPassword do
 
 			it { expect(call.failure?).to be true }
 			it { expect(call.message).to include('Failed to update user') }
+		end
+
+		context 'when password contains acceptable special characters' do
+			RailsBase.config.auth.password_allowed_special_chars.split("").each do |special_char|
+				context "when using special character #{special_char}" do
+					let(:password) { "#{super()}#{special_char}" }
+
+					it { expect(call.success?).to be true }
+				end
+			end
 		end
 
 		it { expect(call.success?).to be true }

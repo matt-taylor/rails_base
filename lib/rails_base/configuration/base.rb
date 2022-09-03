@@ -16,19 +16,20 @@ module RailsBase
       end
 
       ALLOWED_TYPES = {
+        array: -> (val) { [Array].include?(val.class) },
+        array_nil: -> (val) { [Array, NilClass].include?(val.class) },
         boolean: -> (val) { [TrueClass, FalseClass].include?(val.class) },
-        proc: -> (val) { [Proc].include?(val.class) },
-        integer: -> (val) { [Integer].include?(val.class) },
-        string: -> (val) { [String].include?(val.class) },
-        symbol: -> (val) { [Symbol].include?(val.class) },
-        symbol_class: -> (val) { [Symbol].include?(val.class) || val.superclass === ActiveJob::QueueAdapters },
         duration: -> (val) { [ActiveSupport::Duration].include?(val.class) },
+        hash: -> (val) { [Hash].include?(val.class) },
+        integer: -> (val) { [Integer].include?(val.class) },
+        klass: -> (_val) { true },
+        path: -> (val) { [Pathname].include?(val.class) },
+        proc: -> (val) { [Proc].include?(val.class) },
+        string: -> (val) { [String].include?(val.class) },
         string_nil: -> (val) { [String, NilClass].include?(val.class) },
         string_proc: -> (val) { [String, Proc].include?(val.class) },
-        array: -> (val) { [Array].include?(val.class) },
-        hash: -> (val) { [Hash].include?(val.class) },
-        path: -> (val) { [Pathname].include?(val.class) },
-        klass: -> (_val) { true },
+        symbol: -> (val) { [Symbol].include?(val.class) },
+        symbol_class: -> (val) { [Symbol].include?(val.class) || val.superclass === ActiveJob::QueueAdapters },
         values: -> (_val) { true },
       }
 
@@ -116,8 +117,7 @@ module RailsBase
 
       private
 
-      def custom_validations
-      end
+      def custom_validations; end
 
       def def_convenience_methods
         self.class::DEFAULT_VALUES.each do |key, object|

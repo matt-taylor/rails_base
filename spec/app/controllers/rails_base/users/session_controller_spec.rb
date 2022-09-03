@@ -4,7 +4,7 @@ RSpec.describe RailsBase::Users::SessionsController, type: :controller do
   let(:sessions) { { } }
   let(:user) { User.first }
   let(:email) { user.email }
-  let(:password) { 'password1' }
+  let(:password) { 'password11' }
   let(:valid_heartbeat_response) { { 'success' => true, 'ttd' => ttd, 'ttl' => ttl, 'last_request' => last_request } }
   let(:last_request) { Time.zone.now.to_i }
   let(:ttd) { Devise.timeout_in.to_i + last_request }

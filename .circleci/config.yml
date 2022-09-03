@@ -3,7 +3,7 @@ version: 2.1
 orbs:
   ruby: circleci/ruby@1.0
   node: circleci/node@2
-  cst: cst/framework@1
+  cst: cst/framework@1.2
 
 jobs:
 
