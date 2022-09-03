@@ -35,13 +35,10 @@ module RailsBase::Authentication
 		SSOVE_PURPOSE = :verify_email
 
 		# modify password
-		MP_MIN_LENGTH = 7
-		MP_MIN_NUMS = 1
-		MP_MIN_ALPHA = 6
-		var = []
-		var << "contain at least #{MP_MIN_NUMS} numerics [0-9]" if MP_MIN_NUMS > 0
-		var << "contain at least #{MP_MIN_ALPHA} letters [a-z,A-Z]" if MP_MIN_NUMS > 0
-		MP_REQ_MESSAGE = "Password must #{var.join(' and ')}. Minimum length is #{MP_MIN_LENGTH} and contain [1-9a-zA-Z] only"
+		MP_MIN_LENGTH = RailsBase.config.auth.password_min_length
+		MP_MIN_NUMS = RailsBase.config.auth.password_min_numeric
+		MP_MIN_ALPHA = RailsBase.config.auth.password_min_alpha
+		MP_REQ_MESSAGE = RailsBase.config.auth.password_message
 
 		STATIC_WAIT_FLASH = '"Check email inbox for verification email. Follow instructions to gain access"'
 

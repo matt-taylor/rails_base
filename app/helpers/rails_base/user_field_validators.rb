@@ -86,7 +86,7 @@ module RailsBase::UserFieldValidators
 
 		number_count = password.scan(/\d/).join('').length
 		char_count = password.scan(/[a-zA-Z]/).join('').length
-		unacceptable_chars = password.scan(/\W/).join('')
+		non_standard_chars = password.scan(/\W/)
 
 		if char_count < RailsBase::Authentication::Constants::MP_MIN_ALPHA
 			log(level: :warn, msg: "User password does not have enough numbers. Req: #{RailsBase::Authentication::Constants::MP_MIN_ALPHA}. Given: #{char_count}")
@@ -98,9 +98,10 @@ module RailsBase::UserFieldValidators
 			return { status: false, msg: "Password must contain at least #{RailsBase::Authentication::Constants::MP_MIN_NUMS} numbers [0-9]" }
 		end
 
+    unacceptable_chars = non_standard_chars - RailsBase.config.auth.password_allowed_special_chars.split("")
 		if unacceptable_chars.length > 0
-			log(level: :warn, msg: "User password contains unacceptable_chars. Received: #{unacceptable_chars}")
-			return { status: false, msg: "Unaccepted characters received. Characters must be in [0-9a-zA-Z] exclusively. Received #{unacceptable_chars}" }
+			log(level: :warn, msg: "User password contains unacceptable_chars special chars. Received: #{unacceptable_chars}")
+			return { status: false, msg: "Unaccepted characters received. Characters must be in [0-9a-zA-Z] and [#{RailsBase.config.auth.password_allowed_special_chars}] exclusively. Received #{unacceptable_chars}" }
 		end
 
 		{ status: true }
