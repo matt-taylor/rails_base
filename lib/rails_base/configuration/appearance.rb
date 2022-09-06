@@ -10,6 +10,7 @@ require 'rails_base/configuration/display/btn_secondary'
 require 'rails_base/configuration/display/btn_success'
 require 'rails_base/configuration/display/btn_warning'
 require 'rails_base/configuration/display/footer'
+require 'rails_base/configuration/display/header'
 require 'rails_base/configuration/display/navbar'
 require 'rails_base/configuration/display/table_body'
 require 'rails_base/configuration/display/table_header'
@@ -42,10 +43,11 @@ module RailsBase
         :text,
         :card,
         :footer,
+        :header,
         :back_to_top,
       ] + BUTTONS
 
-      SKIP_DOWNSTREAM_CLASSES = [:footer, :back_to_top]
+      SKIP_DOWNSTREAM_CLASSES = [:footer, :header, :back_to_top]
       DARK_MODE = :dark
       LIGHT_MODE = :light
       MATCH_OS = :match_os
@@ -92,6 +94,7 @@ module RailsBase
         @text = Configuration::Display::Text.new
         @card = Configuration::Display::Card.new
         @footer = Configuration::Display::Footer.new
+        @header = Configuration::Display::Header.new
         @back_to_top = Configuration::Display::BackTotop.new
         @bg_light = Configuration::Display::BgLight.new
 

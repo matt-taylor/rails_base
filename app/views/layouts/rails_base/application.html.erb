@@ -110,6 +110,12 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
+        <% if partial = RailsBase.config.appearance.header.partial %>
+          <%= render partial: partial %>
+        <% end %>
+      <div >
+
+      </div>
       <div class="p-1">
         <%= yield %>
       </div>
