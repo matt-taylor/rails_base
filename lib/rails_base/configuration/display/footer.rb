@@ -44,7 +44,6 @@ module RailsBase
             dependents: [ -> (i) { i.enable? } ],
             description: 'When enabled, footer will stick to bottom or stick to bottom of content -- whichever is greater. Takes precendence over `sticky`',
           },
-
         }
 
         attr_accessor *DEFAULT_VALUES.keys
