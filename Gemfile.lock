@@ -334,6 +334,9 @@ DEPENDENCIES
   capybara (>= 2.15)
   database_cleaner-active_record
   listen
+  net-imap
+  net-pop
+  net-smtp
   null-logger
   pry
   rails (~> 7)

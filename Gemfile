@@ -8,6 +8,10 @@ gem "pry"
 gem 'sidekiq'
 gem 'webrick' # needed to run with ruby 3
 
+gem 'net-smtp'
+gem 'net-imap'
+gem 'net-pop'
+
 group :test do
   gem 'database_cleaner-active_record'
   gem 'null-logger', require: 'null_logger'
