@@ -31,7 +31,7 @@ ARG YARN_VERSION=1.22.4
 RUN npm install -g yarn@${YARN_VERSION}
 
 # install bundler
-ARG BUNDLER_VERSION=2.3.8
+ARG BUNDLER_VERSION=2.3.23
 RUN gem install bundler -v "${BUNDLER_VERSION}"
 RUN gem install annotate
 RUN gem install bundler

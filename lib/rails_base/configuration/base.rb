@@ -28,6 +28,7 @@ module RailsBase
         string: -> (val) { [String].include?(val.class) },
         string_nil: -> (val) { [String, NilClass].include?(val.class) },
         string_proc: -> (val) { [String, Proc].include?(val.class) },
+        string_proc_nil: -> (val) { [String, Proc, NilClass].include?(val.class) },
         symbol: -> (val) { [Symbol].include?(val.class) },
         symbol_class: -> (val) { [Symbol].include?(val.class) || val.superclass === ActiveJob::QueueAdapters },
         values: -> (_val) { true },
@@ -133,7 +134,7 @@ module RailsBase
 
               public_send(key).call(current_user)
             end
-          elsif object[:type] == :string_proc
+          elsif object[:type] == :string_proc || object[:type] == :string_proc_nil
             self.class.define_method("#{key}") do |*args|
               return false unless dependents_true?(key)
 

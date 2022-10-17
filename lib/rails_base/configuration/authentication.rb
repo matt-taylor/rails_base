@@ -42,6 +42,16 @@ module RailsBase
           default: true,
           description: 'Display a timeout warning. When disabled, user will be logged out without warning',
         },
+        login_message_base: {
+          type: :string_proc,
+          default: ->(user) { "Welcome #{user.full_name}. You have succesfully signed in to #{RailsBase.config.app.app_name}" } ,
+          description: 'Login Base message for all users when using user/password flow',
+        },
+        login_message_mfa_user_disabled: {
+          type: :string_proc_nil,
+          default: ->(user) { "We suggest enabling MFA authentication to secure your account" } ,
+          description: 'Additive login message for when MFA is enabled and user MFA is disabled',
+        },
         mfa_time_duration: {
           type: :duration,
           default: DEFAULT_MFA_TIME,

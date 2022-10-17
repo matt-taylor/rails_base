@@ -11,13 +11,19 @@ module RailsBase::Authentication
 
 			mfa_decision =
 				if user.email_validated
-					if RailsBase.config.mfa.enable? && user.mfa_enabled
+					if !RailsBase.config.mfa.enable?
+						# MFA is not enabled on application
+						sign_in_user_context!
+						context.flash = { notice: RailsBase.config.auth.login_message_base(user) }
+						nil
+					elsif user.mfa_enabled
 						mfa_enabled_context!
 					else
 						# user has signed up and validated email
 						# user does not have mfa enabled
 						sign_in_user_context!
-						context.flash = { notice: "Welcome. You have succesfully signed in. We suggest enabling 2fa authentication to secure your account" }
+						mfa_message = [RailsBase.config.auth.login_message_base(user), RailsBase.config.auth.login_message_mfa_user_disabled(user)].join(". ").strip
+						context.flash = { notice: mfa_message }
 						nil
 					end
 				else
@@ -33,7 +39,7 @@ module RailsBase::Authentication
 		end
 
 		def validate_email_context!
-			# user has signed up but have not validated their email
+			# user has signed up but has not validated their email
 			context.redirect_url = Constants::URL_HELPER.auth_static_path
 			context.set_mfa_randomized_token = true
 			context.mfa_purpose = Constants::SSOVE_PURPOSE
