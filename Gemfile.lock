@@ -13,6 +13,7 @@ PATH
       jquery-rails (~> 4.3, >= 4.3.3)
       jquery_mask_rails
       mysql2
+      psych (< 4)
       rails
       rails-ujs (~> 0.1.0)
       redis (>= 4.2.5)
@@ -193,6 +194,7 @@ GEM
     pry (0.14.1)
       coderay (~> 1.1)
       method_source (~> 1.0)
+    psych (3.3.4)
     public_suffix (5.0.0)
     racc (1.6.0)
     rack (2.2.4)
