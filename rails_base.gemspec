@@ -35,6 +35,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'redis', '>= 4.2.5'
   spec.add_dependency 'redis-namespace', '>= 1.8.1'
   spec.add_dependency 'switch_user'
+  spec.add_dependency 'psych', "< 4"
 
   spec.add_development_dependency 'annotate'
   spec.add_development_dependency 'spring-watcher-listen'

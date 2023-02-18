@@ -19,21 +19,24 @@ module RailsBase
       RailsBase.config if RailsBase.___execute_initializer___?
     end
 
-    initializer 'rails_base.config.remove_write_acess', after: 'after_initialize' do |app|
+    config.after_initialize do
+      RailsBase.config.validate_configs!
       RailsBase::Configuration::Base._unset_allow_write! if RailsBase.___execute_initializer___?
     end
 
     initializer 'rails_base.magic_convenience_methods.model', after: 'active_record.initialize_database' do |app|
       if RailsBase.___execute_initializer___?
         # need to eager load Models
-        Rails.application.eager_load!
+        Rails.application.config.to_prepare do
+          # Rails.application.eager_load!
 
-        # create a connection
-        ActiveRecord::Base.retrieve_connection
+          # create a connection
+          ActiveRecord::Base.retrieve_connection
 
-        #explicitly load engine routes
-        RailsBase::ApplicationRecord.descendants.each do |model|
-          model._magically_defined_time_objects
+          #explicitly load engine routes
+          RailsBase::ApplicationRecord.descendants.each do |model|
+            model._magically_defined_time_objects
+          end
         end
       end
     end

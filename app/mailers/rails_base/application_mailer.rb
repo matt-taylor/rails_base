@@ -1,5 +1,5 @@
 class RailsBase::ApplicationMailer < ActionMailer::Base
-  default from: 'from@example.com'
+  default from: -> { Rails.configuration.action_mailer.smtp_settings[:user_name] }
   layout 'mailer'
 
   CONTACT_URL = [

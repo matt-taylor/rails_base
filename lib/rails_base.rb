@@ -57,8 +57,6 @@ module RailsBase
 
   def self.configure(&block)
     yield(config) if block_given?
-
-    config.validate_configs!
   end
 
   def self.config

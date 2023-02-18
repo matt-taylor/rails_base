@@ -3,10 +3,14 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 gemspec
 
-gem 'rails', ENV.fetch("BUNDLER_RAILS_VERSION", '~> 6')
-
+gem 'rails', ENV.fetch("BUNDLER_RAILS_VERSION", '~> 7')
+gem "pry"
 gem 'sidekiq'
 gem 'webrick' # needed to run with ruby 3
+
+gem 'net-smtp'
+gem 'net-imap'
+gem 'net-pop'
 
 group :test do
   gem 'database_cleaner-active_record'
