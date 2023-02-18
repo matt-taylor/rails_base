@@ -1,3 +1,6 @@
+require RailsBase::Engine.root.join('app','models','rails_base', 'application_record.rb')
+require RailsBase::Engine.root.join('app','models','rails_base', 'user_constants.rb')
+
 # == Schema Information
 #
 # Table name: users

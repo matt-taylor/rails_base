@@ -20,6 +20,7 @@ module RailsBase
     end
 
     config.after_initialize do
+      RailsBase.config.validate_configs!
       RailsBase::Configuration::Base._unset_allow_write! if RailsBase.___execute_initializer___?
     end
 
@@ -27,7 +28,7 @@ module RailsBase
       if RailsBase.___execute_initializer___?
         # need to eager load Models
         Rails.application.config.to_prepare do
-          Rails.application.eager_load!
+          # Rails.application.eager_load!
 
           # create a connection
           ActiveRecord::Base.retrieve_connection

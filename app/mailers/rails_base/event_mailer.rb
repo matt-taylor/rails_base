@@ -1,6 +1,4 @@
 class RailsBase::EventMailer < RailsBase::ApplicationMailer
-  default from: Rails.configuration.mail_from
-
   def send_sso(user:, message:)
     @user = user
     @message = message

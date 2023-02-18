@@ -8,8 +8,11 @@ module RailsBase
       CUSTOM_MAILER_METHOD = :deliver_me
 
       FROM_PROC = Proc.new do |val, _instance|
-        hash = Rails.configuration.action_mailer.default_options || {}
-        ACTION_MAILER_PROC.call(:default_options, hash.merge(from: val))
+        options = Rails.configuration.action_mailer.default_options || {}
+        url_options = Rails.configuration.action_mailer.default_url_options || {}
+        ACTION_MAILER_PROC.call(:default_options, options.merge(from: val))
+        domain = val.split("@")[-1]
+        ACTION_MAILER_PROC.call(:default_url_options, url_options.merge(host: domain))
       end
 
       SMTP_OPTIONS_PROC = Proc.new do |field, val|

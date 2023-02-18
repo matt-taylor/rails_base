@@ -1,5 +1,4 @@
 class RailsBase::EmailVerificationMailer < RailsBase::ApplicationMailer
-	default from: Rails.configuration.mail_from
 
 	def email_verification(user:, url:)
 	  @user = user
