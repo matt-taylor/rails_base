@@ -69,6 +69,10 @@ module RailsBase
     config.reset_config!
   end
 
+  # This method allows the downstream service to explicitly set the paths to reload
+  # This can be very useful if you want to add new methods to already defined classes from RailsBase
+  # EG: You want to add a new method to the User Model
+  # EG: You want to overload a method for the services/rails_base/name_change.rb
   def self.reloadable_paths!(relative_path:, skip_files: [])
     unless Array === skip_files
       raise ArgumentError, "When `skip_files` provided, it is expected to be an array"
