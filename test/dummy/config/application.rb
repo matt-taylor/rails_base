@@ -16,6 +16,17 @@ module Dummy
 
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults Rails::VERSION::STRING.to_f
+    config.autoloader = :zeitwerk
+
+    model_overrides = Rails.root.join('app','models')
+    Rails.autoloaders.main.ignore(model_overrides)
+    config.to_prepare do
+      Dir.glob("#{model_overrides}/**/*.rb").sort.each do |override|
+        puts "override: #{override}"
+        next if override.include?("application_record.rb")
+        load override
+      end
+    end
   end
 end
 
