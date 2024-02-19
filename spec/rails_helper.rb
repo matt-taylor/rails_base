@@ -15,7 +15,7 @@ require File.expand_path("../test/dummy/config/environment.rb", __dir__)
 abort("The Rails environment is running in <#{Rails.env}> mode!") unless Rails.env.test?
 require 'rspec/rails'
 # Add additional requires below this line. Rails is not loaded until this point!
-require 'byebug'
+require 'pry'
 require 'null_logger'
 require 'rails-controller-testing'
 Rails::Controller::Testing.install
@@ -131,4 +131,7 @@ RSpec.configure do |config|
     DatabaseCleaner.clean
     Timecop.return
   end
+
+  config.order = :random
+  Kernel.srand config.seed
 end
