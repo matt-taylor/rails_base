@@ -1,3 +1,6 @@
+# Load Application record from the upstream
+require "application_record"
+
 module RailsBase
   class ApplicationRecord < ::ApplicationRecord
     self.abstract_class = true

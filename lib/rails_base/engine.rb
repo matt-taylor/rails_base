@@ -23,15 +23,11 @@ module RailsBase
       RailsBase::Configuration::Base._unset_allow_write! if RailsBase.___execute_initializer___?
     end
 
-    initializer 'rails_base.magic_convenience_methods.model', after: 'active_record.initialize_database' do |app|
+    initializer 'rails_base.magic_convenience_methods.model', before: 'after_initialize' do |app|
       if RailsBase.___execute_initializer___?
-        # need to eager load Models
-        Rails.application.eager_load!
-
-        # create a connection
         ActiveRecord::Base.retrieve_connection
 
-        #explicitly load engine routes
+        # explicitly load engine routes
         RailsBase::ApplicationRecord.descendants.each do |model|
           model._magically_defined_time_objects
         end

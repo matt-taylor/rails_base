@@ -29,7 +29,7 @@ x-common-environment: &common-environment
 
 services:
   mysql:
-    image: mysql:8.0.21
+    image: mysql:latest
     command:
       - --default-authentication-plugin=mysql_native_password
     environment:

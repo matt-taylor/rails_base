@@ -1,7 +1,7 @@
 require "rails_base/engine"
 
 # explicitly require gems that provide assets
-# when engine loads, this adds assets to Main apps ssets pipeline
+# when engine loads, this adds assets to Main apps assets pipeline
 # (Only a problem for lazy loaded non prod ENVs)
 require 'jquery_mask_rails'
 require 'allow_numeric'
@@ -19,7 +19,7 @@ require 'rails_base/config'
 module RailsBase
 
   def self.___execute_initializer___?
-    # Fixes rails 6 changes to ARGV's -- dont reun initializers during rake tasks
+    # Fixes rails 6 changes to ARGV's -- dont rerun initializers during rake tasks
     return false if Rake.application.top_level_tasks.any? { |task| task.include?(":") } rescue nil
 
     # Only execute when not doing DB actions
@@ -27,7 +27,7 @@ module RailsBase
     boolean = false if boolean && ARGV[0]&.include?('db') # when its the DB rake tasks
     boolean = false if boolean && ARGV[0]&.include?('asset') # when its an asset
     boolean = false if boolean && ARGV[0]&.include?(':') # else this delim should never be included
-    boolean = false if ENV['SKIP_CUSTOM_INIT']=='true' # explicitly set the variable to skip shit
+    boolean = false if ENV['SKIP_CUSTOM_INIT'] == 'true' # explicitly set the variable to skip shit
 
     boolean
   end
@@ -41,11 +41,7 @@ module RailsBase
   end
 
   def self.default_app_name
-    if ::Rails::VERSION::MAJOR >= 6
-      ::Rails.application.class.module_parent_name
-    else
-      ::Rails.application.class.parent_name
-    end
+    ::Rails.application.class.module_parent_name
   end
 
   def self.route_exist?(path)
@@ -71,6 +67,27 @@ module RailsBase
 
   def self.reset_config!
     config.reset_config!
+  end
+
+  # This method allows the downstream service to explicitly set the paths to reload
+  # This can be very useful if you want to add new methods to already defined classes from RailsBase
+  # EG: You want to add a new method to the User Model
+  # EG: You want to overload a method for the services/rails_base/name_change.rb
+  def self.reloadable_paths!(relative_path:, skip_files: [])
+    unless Array === skip_files
+      raise ArgumentError, "When `skip_files` provided, it is expected to be an array"
+    end
+
+    overrides = Rails.root.join(relative_path)
+    Rails.autoloaders.main.ignore(overrides)
+
+    Rails.configuration.to_prepare do
+      Dir.glob("#{overrides}/**/*.rb").sort.each do |override|
+        next if skip_files.any? { override.include?(_1) }
+
+        load override
+      end
+    end
   end
 
   AdminStruct = Struct.new(:original_attribute, :new_attribute, :user)

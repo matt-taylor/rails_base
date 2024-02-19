@@ -15,7 +15,8 @@ Gem::Specification.new do |spec|
 
   spec.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.md"]
 
-  spec.add_dependency "rails"
+  spec.add_dependency "rails", ">= 6.1"
+  spec.add_dependency "zeitwerk", ">= 2.6.5" # 2.6.5 starts enforcing Zeitwerk::SetupRequired
   spec.add_dependency 'mysql2'
   spec.add_dependency 'sass-rails'
   spec.add_dependency 'uglifier'
@@ -29,7 +30,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'interactor'
   spec.add_dependency 'allow_numeric'
   spec.add_dependency 'jquery_mask_rails'
-  spec.add_dependency 'dalli'
   spec.add_dependency 'browser'
   spec.add_dependency 'dotiw'
   spec.add_dependency 'redis', '>= 4.2.5'
@@ -41,7 +41,9 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'spring'
   spec.add_development_dependency 'listen'
   spec.add_development_dependency 'web-console'
-  spec.add_development_dependency 'byebug'
+  spec.add_development_dependency 'pry'
+  spec.add_development_dependency 'pry-nav'
+  spec.add_development_dependency 'pry-stack_explorer'
 
   spec.add_development_dependency 'capybara', '>= 2.15'
 end

@@ -16,6 +16,9 @@ module Dummy
 
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults Rails::VERSION::STRING.to_f
+    config.autoloader = :zeitwerk
+
+    RailsBase.reloadable_paths!(relative_path: "app/models", skip_files: ["application_record.rb"])
   end
 end
 

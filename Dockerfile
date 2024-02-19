@@ -12,7 +12,7 @@ ENV RUBYOPT '-W0'
 ENV APP_HOME /home/app
 
 WORKDIR $APP_HOME
-ARG NODE_MAJOR_VERSION=14
+ARG NODE_MAJOR_VERSION=20
 RUN curl -sL https://deb.nodesource.com/setup_${NODE_MAJOR_VERSION}.x | bash -
 RUN apt-get update -qq
 RUN apt-get install -y --no-install-recommends \
@@ -31,10 +31,10 @@ ARG YARN_VERSION=1.22.4
 RUN npm install -g yarn@${YARN_VERSION}
 
 # install bundler
-ARG BUNDLER_VERSION=2.3.8
+ARG BUNDLER_VERSION=2.5.3
 RUN gem install bundler -v "${BUNDLER_VERSION}"
 RUN gem install annotate
-RUN gem install bundler
+RUN bundle config set force_ruby_platform true
 
 COPY . $APP_HOME
 
