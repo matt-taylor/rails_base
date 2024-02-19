@@ -12,7 +12,7 @@ PATH
       jquery-rails (~> 4.3, >= 4.3.3)
       jquery_mask_rails
       mysql2
-      rails
+      rails (>= 6.1)
       rails-ujs (~> 0.1.0)
       redis (>= 4.2.5)
       redis-namespace (>= 1.8.1)
@@ -21,6 +21,7 @@ PATH
       turbolinks
       twilio-ruby
       uglifier
+      zeitwerk (>= 2.6.5)
 
 GEM
   remote: https://rubygems.org/
