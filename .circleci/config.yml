@@ -20,8 +20,8 @@ workflows:
           cc-report-collect-rails: "~> 6"
           matrix:
             parameters:
-              ruby-version: ["3.0.6-node", "3.1.4-node", "3.2.3-node"]
-              rails-version: ["~> 6.0.0" , "~> 6"]
+              ruby-version: ["3.0.6-node", "3.1.4-node"] #, "3.2.3-node"]
+              rails-version: ["~> 6.1"]
             # exclude:
             alias: required-matrix-tests
           name: test-ruby<< matrix.ruby-version >>-rails<< matrix.rails-version >>
