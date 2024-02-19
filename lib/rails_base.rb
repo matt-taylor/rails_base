@@ -41,11 +41,7 @@ module RailsBase
   end
 
   def self.default_app_name
-    if ::Rails::VERSION::MAJOR >= 6
-      ::Rails.application.class.module_parent_name
-    else
-      ::Rails.application.class.parent_name
-    end
+    ::Rails.application.class.module_parent_name
   end
 
   def self.route_exist?(path)
