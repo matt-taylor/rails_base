@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.75.1
+- Allow Ruby version to be customizable
+- This way, the Gemfile can use the default ruby that CI setups and Heroku can evaluate which version to use
+
 ## v0.75.0
 - Rails 6.1 or greater enforced
 - Zeitwerk 2.6.5 or greater enforced
