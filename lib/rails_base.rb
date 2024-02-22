@@ -73,17 +73,30 @@ module RailsBase
   # This can be very useful if you want to add new methods to already defined classes from RailsBase
   # EG: You want to add a new method to the User Model
   # EG: You want to overload a method for the services/rails_base/name_change.rb
-  def self.reloadable_paths!(relative_path:, skip_files: [])
+  def self.reloadable_paths!(relative_path: nil, only_files: [], skip_files: [])
     unless Array === skip_files
       raise ArgumentError, "When `skip_files` provided, it is expected to be an array"
     end
 
-    overrides = Rails.root.join(relative_path)
-    Rails.autoloaders.main.ignore(overrides)
+    unless Array === only_files
+      raise ArgumentError, "When `only_files` provided, it is expected to be an array"
+    end
+
+    override_files = if relative_path
+      Dir.glob("#{Rails.root.join(relative_path)}/**/*.rb")
+    elsif only_files.presence
+      only_files.map { Rails.root.join(_1) }
+    else
+      []
+    end
+
+    Rails.autoloaders.main.ignore(*override_files)
 
     Rails.configuration.to_prepare do
-      Dir.glob("#{overrides}/**/*.rb").sort.each do |override|
-        next if skip_files.any? { override.include?(_1) }
+      override_files.sort.each do |override|
+        if skip_files.any? { override.include?(_1) }
+          next
+        end
 
         load override
       end

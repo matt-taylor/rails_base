@@ -21,6 +21,8 @@ module Dummy
 
     # Allow all files under `app/models` to be re-opened by the Dummy Application
     RailsBase.reloadable_paths!(relative_path: "app/models")
+    # Or to just reload the user model
+    RailsBase.reloadable_paths!(only_files: ["app/models/user.rb"])
     ...
   end
 end
