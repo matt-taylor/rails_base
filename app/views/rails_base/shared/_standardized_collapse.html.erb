@@ -54,8 +54,8 @@
     _rails_base_toggle_base_footer('hide')
     $(`#<%= body %>`).collapse('show')
     <% if use_fa_icon %>
-      $(`#<%= fa_icon_span_id %> .open`).show()
-      $(`#<%= fa_icon_span_id %> .closed`).hide()
+      $(`#<%= fa_icon_span_id %> .open`).hide()
+      $(`#<%= fa_icon_span_id %> .closed`).show()
     <% end %>
   }
 
@@ -63,7 +63,7 @@
     _rails_base_toggle_base_footer('hide')
     $(`#<%= body %>`).collapse('hide')
     <% if use_fa_icon %>
-      $(`#<%= fa_icon_span_id %> .open`).hide()
+      $(`#<%= fa_icon_span_id %> .open`).show()
       $(`#<%= fa_icon_span_id %> .closed`).hide()
     <% end %>
   }
