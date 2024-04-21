@@ -140,5 +140,3 @@ module RailsBase
     end
   end
 end
-
-

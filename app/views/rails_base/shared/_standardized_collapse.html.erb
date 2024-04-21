@@ -15,6 +15,7 @@
   close_display = start_open ? 'inline' : 'none'
   open_display = !start_open ? 'inline' : 'none'
   id_transposed = "id_transposed_#{rand(100_000..999_999)}"
+  function_name = options.fetch(:function_name, id_transposed)
 %>
 
 <% if use_fa_icon %>
@@ -48,6 +49,33 @@
       $(`#<%= fa_icon_span_id %> .closed`).toggle()
     <% end %>
   });
+
+  function <%= function_name %>_collapse_open(){
+    _rails_base_toggle_base_footer('hide')
+    $(`#<%= body %>`).collapse('show')
+    <% if use_fa_icon %>
+      $(`#<%= fa_icon_span_id %> .open`).hide()
+      $(`#<%= fa_icon_span_id %> .closed`).show()
+    <% end %>
+  }
+
+  function <%= function_name %>_collapse_close(){
+    _rails_base_toggle_base_footer('hide')
+    $(`#<%= body %>`).collapse('hide')
+    <% if use_fa_icon %>
+      $(`#<%= fa_icon_span_id %> .open`).show()
+      $(`#<%= fa_icon_span_id %> .closed`).hide()
+    <% end %>
+  }
+
+  function <%= function_name %>_collapse_toggle(){
+    _rails_base_toggle_base_footer('hide')
+    $(`#<%= body %>`).collapse('toggle')
+    <% if use_fa_icon %>
+      $(`#<%= fa_icon_span_id %> .open`).toggle()
+      $(`#<%= fa_icon_span_id %> .closed`).toggle()
+    <% end %>
+  }
 
   $(`#<%= body %>`).on('shown.bs.collapse', function () {
     _rails_base_reload_base_footer();
