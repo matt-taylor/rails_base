@@ -20,9 +20,11 @@ workflows:
           cc-report-collect-rails: "~> 6.1"
           matrix:
             parameters:
-              ruby-version: ["3.0.6-node", "3.1.4-node"] #, "3.2.3-node"]
-              rails-version: ["~> 6.1"]
-            # exclude:
+              ruby-version: ["3.0.6-node", "3.1.4-node", "3.2.3-node"]
+              rails-version: ["~> 6.1", "~> 7"]
+            exclude:
+              - ruby-version: "3.2.3-node"
+                rails-version: "~> 6.1"
             alias: required-matrix-tests
           name: test-ruby<< matrix.ruby-version >>-rails<< matrix.rails-version >>
       - cst/publish-gem:
