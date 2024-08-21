@@ -2,6 +2,28 @@ module RailsBase
   class MfaAuthController < RailsBaseApplicationController
     before_action :validate_token, only: [:mfa_code, :mfa_code_verify, :resend_mfa]
 
+    # POST /totp
+    def totp_secret
+      result = RailsBase::Authentication::Totp::OtpMetadata.(user: current_user)
+      if result.success?
+        render json: result.metadata
+      else
+        render json: { status: result.message }, status: 400
+      end
+    end
+
+    # POST /totp/validate
+    def totp_validate
+      result = RailsBase::Authentication::Totp::ValidateTemporaryCode.(user: current_user, otp_code: params[:totp_code])
+      if result.success?
+        flash[:notice] = "Successfully added an Authenticator for TOTP to #{RailsBase.app_name}"
+      else
+        flash[:alert] = "Something Went Wrong! Failed to add an Authenticator for TOTP to #{RailsBase.app_name}. Please try again"
+      end
+
+      redirect_to RailsBase.url_routes.user_settings_path
+    end
+
     # GET /mfa_verify
     def mfa_code
       @masked_phone = User.find(@token_verifier.user_id).masked_phone

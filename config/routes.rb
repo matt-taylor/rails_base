@@ -76,6 +76,11 @@ Rails.application.routes.draw do
 
     post 'auth/phone', to: 'rails_base/secondary_authentication#phone_registration', as: :phone_registration
     post 'auth/phone/mfa', to: 'rails_base/secondary_authentication#confirm_phone_registration', as: :phone_registration_mfa_code
+
+    constraints(->(_req) { RailsBase.config.totp.enable? }) do
+      post 'totp', to: 'rails_base/mfa_auth#totp_secret', as: :totp_secret
+      post 'totp/validate', to: 'rails_base/mfa_auth#totp_validate', as: :totp_validate
+    end
   end
 
   ################################

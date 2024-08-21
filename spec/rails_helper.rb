@@ -81,43 +81,42 @@ RSpec.configure do |config|
   config.before(:suite) do
     # seed the DB --- yeah I know. there are better ways to do this
     #
-    if User.count != 3
-      User.delete_all
+    User.delete_all
 
-      params = {
-        email: "some.guy@gmail.com",
-        first_name: 'Some',
-        last_name: 'Guy',
-        phone_number: '6508675309',
-        password: "password11",
-        password_confirmation: "password11"
-      }
-      User.create!(params)
+    params = {
+      email: "some.guy@gmail.com",
+      first_name: 'Some',
+      last_name: 'Guy',
+      phone_number: '6508675309',
+      password: "password11",
+      password_confirmation: "password11",
+      otp_required_for_login: true,
+      otp_secret: User.generate_otp_secret,
+    }
+    user = User.create!(params)
+    user.generate_otp_backup_codes!
 
-      params = {
-        email: "some.guy2@gmail.com",
-        first_name: 'Some2',
-        last_name: 'Guy2',
-        phone_number: '4158675309',
-        password: "password22",
-        password_confirmation: "password22"
-      }
+    params = {
+      email: "some.guy2@gmail.com",
+      first_name: 'Some2',
+      last_name: 'Guy2',
+      phone_number: '4158675309',
+      password: "password22",
+      password_confirmation: "password22"
+    }
+    User.create!(params)
 
-      User.create!(params)
-
-      params = {
-        email: "some.guy3@gmail.com",
-        first_name: 'Some3',
-        last_name: 'Guy3',
-        phone_number: '4158675300',
-        password: "password33",
-        password_confirmation: "password33",
-        admin: :owner,
-        active: true
-      }
-
-      User.create!(params)
-    end
+    params = {
+      email: "some.guy3@gmail.com",
+      first_name: 'Some3',
+      last_name: 'Guy3',
+      phone_number: '4158675300',
+      password: "password33",
+      password_confirmation: "password33",
+      admin: :owner,
+      active: true
+    }
+    User.create!(params)
   end
 
   require 'timecop'

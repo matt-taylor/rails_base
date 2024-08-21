@@ -43,22 +43,6 @@
       <div class="modal-body ">
         <div class='row'>
           <div class='col'>
-            <% if RailsBase.config.mfa.enable? %>
-              <% if current_user.mfa_enabled %>
-                <button type="button" class="btn btn-block btn_info close-me" data-toggle="modal" data-target="#modifyMfamodal">
-                    Modify 2fa Auth
-                </button>
-              <% else %>
-                <button type="button" class="btn btn-block btn_info close-me" data-toggle="modal" data-target="#enableMfamodal">
-                  Enable 2fa Auth
-                </button>
-              <% end %>
-            <% end %>
-          </div>
-        </div>
-        </br>
-        <div class='row'>
-          <div class='col'>
             <a class="btn btn_info btn-block" href="<%=RailsBase.url_routes.user_settings_path %>" role="button">Modify User</a>
           </div>
         </div>
@@ -87,14 +71,6 @@
     </div>
   </div>
 </div>
-
-<% if RailsBase.config.mfa.enable? %>
-  <% if current_user.mfa_enabled %>
-    <%= render partial: 'rails_base/shared/modify_mfa_auth_modal'%>
-  <% else %>
-    <%= render partial: 'rails_base/shared/enable_mfa_auth_modal'%>
-  <% end %>
-<% end %>
 
 <% if @__admin_actions_array && @__admin_actions_array.present? %>
   <%= render partial: 'rails_base/shared/admin_actions_modal'%>

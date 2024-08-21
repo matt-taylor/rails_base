@@ -7,6 +7,8 @@ module RailsBase
 
     # GET user/settings
     def index
+      @type = :rest
+      @endpoint = RailsBase.url_routes.totp_validate_path
     end
 
     # POST user/settings/edit/name

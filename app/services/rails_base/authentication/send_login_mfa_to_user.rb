@@ -50,15 +50,15 @@ module RailsBase::Authentication
     end
 
     def velocity_max_in_frame
-      RailsBase.config.mfa.twilio_velocity_max_in_frame
+      RailsBase.config.twilio.twilio_velocity_max_in_frame
     end
 
     def velocity_max
-      RailsBase.config.mfa.twilio_velocity_max
+      RailsBase.config.twilio.twilio_velocity_max
     end
 
     def velocity_frame
-      RailsBase.config.mfa.twilio_velocity_frame
+      RailsBase.config.twilio.twilio_velocity_frame
     end
 
     def cache_key

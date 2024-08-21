@@ -25,6 +25,10 @@
 #  last_sign_in_ip            :string(255)
 #  created_at                 :datetime         not null
 #  updated_at                 :datetime         not null
+#  otp_secret                 :string(255)
+#  consumed_timestep          :integer
+#  otp_required_for_login     :boolean          default(FALSE)
+#  otp_backup_codes           :text(65535)
 #
 class User < RailsBase::ApplicationRecord
   # Include default devise modules. Others available are:
@@ -33,6 +37,7 @@ class User < RailsBase::ApplicationRecord
          :recoverable, :rememberable, :validatable, :timeoutable, :trackable
 
   include RailsBase::UserConstants
+  include RailsBase::UserHelper::Totp
 
   validate :enforce_owner, if: :will_save_change_to_admin?
   validate :enforce_admin_type, if: :will_save_change_to_admin?

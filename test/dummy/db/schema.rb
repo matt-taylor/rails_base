@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_04_06_015744) do
+ActiveRecord::Schema.define(version: 2024_08_08_013706) do
 
   create_table "admin_actions", charset: "utf8mb3", force: :cascade do |t|
     t.bigint "admin_user_id", null: false
@@ -70,6 +70,11 @@ ActiveRecord::Schema.define(version: 2021_04_06_015744) do
     t.string "last_sign_in_ip"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "otp_secret"
+    t.string "temp_otp_secret"
+    t.integer "consumed_timestep"
+    t.boolean "otp_required_for_login", default: false
+    t.text "otp_backup_codes"
     t.index ["active"], name: "index_users_on_active"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["phone_number"], name: "index_users_on_phone_number", unique: true
