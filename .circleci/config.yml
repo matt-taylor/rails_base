@@ -16,11 +16,11 @@ workflows:
           database-migration: true
           database-migration-command: "SKIP_CUSTOM_INIT=true bundle exec rails db:schema:load --trace"
           rspec-system-args: "SIMPLE_COV_RUN=true"
-          cc-report-collect-ruby: "3.1.4-node"
+          cc-report-collect-ruby: "3.2.5-node"
           cc-report-collect-rails: "~> 6.1"
           matrix:
             parameters:
-              ruby-version: ["3.0.6-node", "3.1.4-node", "3.2.5-node", "3.3.4-node"]
+              ruby-version: ["3.2.5-node", "3.3.4-node"]
               rails-version: ["~> 6.1"]
             # exclude:
             alias: required-matrix-tests
