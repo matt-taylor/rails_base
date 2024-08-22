@@ -29,6 +29,7 @@ module RailsBase
       def reset_otp!
         self.otp_secret = nil
         self.temp_otp_secret = nil
+        self.consumed_timestep = nil
         self.otp_required_for_login = false
         self.otp_backup_codes = []
 

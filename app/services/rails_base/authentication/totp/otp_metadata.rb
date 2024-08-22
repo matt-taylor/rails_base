@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module RailsBase::Authentication::Totp
   class OtpMetadata < RailsBase::ServiceBase
     delegate :user, to: :context

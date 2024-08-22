@@ -5,14 +5,7 @@ module RailsBase
     module Totp
       module BackupMethodOptions
         def generate_otp_backup_codes!
-          codes = []
-          number_of_codes = totp_config.backup_code_count
-          code_length = totp_config.backup_code_length
-
-          number_of_codes.times do
-            codes << SecureRandom.hex(code_length / 2) # Hexstring has length 2*n
-          end
-
+          codes = User.generate_backup_codes
           self.otp_backup_codes = codes
           save!
 

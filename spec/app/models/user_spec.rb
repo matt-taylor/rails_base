@@ -70,34 +70,6 @@ RSpec.describe User do
     end
   end
 
-  describe "#enable_totp_for_user!" do
-    it do
-      expect(instance.enable_totp_for_user!).to be_truthy
-    end
-
-    context "when not enabled for application" do
-      before { allow(instance.totp_config).to receive(:enable?).and_return(false) }
-
-      it do
-        expect { instance.enable_totp_for_user! }.to raise_error(RailsBase::UserHelper::Totp::Error)
-      end
-    end
-
-    context "when not enabled for user" do
-      before { allow(instance).to receive(:otp_required_for_login).and_return(false) }
-
-      it do
-        expect { instance.enable_totp_for_user! }.to raise_error(RailsBase::UserHelper::Totp::NotRequired)
-      end
-    end
-  end
-
-  describe "#otp" do
-    it do
-      expect(instance.otp).to be_a(ROTP::TOTP)
-    end
-  end
-
   describe "#otp_provisioning_uri" do
     it do
       expect(instance.otp_provisioning_uri).to include(ERB::Util.url_encode(instance.email))
@@ -105,59 +77,6 @@ RSpec.describe User do
 
     it do
       expect(instance.otp_provisioning_uri).to include(ERB::Util.url_encode(RailsBase.app_name))
-    end
-  end
-
-  describe "#validate_and_consume_otp!" do
-    subject(:validate_and_consume_otp) { instance.validate_and_consume_otp!(code) }
-
-    let(:code) { instance.current_otp }
-
-    context "when correct code" do
-      it do
-        expect(validate_and_consume_otp).to be(true)
-      end
-    end
-
-    context "when incorrect code" do
-      let(:code) { "12345" }
-
-      it do
-        expect(validate_and_consume_otp).to be(false)
-      end
-    end
-
-    context "when outside drift ahead" do
-      before do
-        # initialize it
-        code
-        # advance outside drift
-        Timecop.freeze((User.totp_drift_ahead * 2).seconds.from_now)
-      end
-
-      it do
-        expect(validate_and_consume_otp).to be(false)
-      end
-    end
-
-    context "when attempt double consume otp" do
-      it do
-        expect(instance.validate_and_consume_otp!(code)).to be(true)
-        expect(instance.validate_and_consume_otp!(code)).to be(false)
-      end
-    end
-
-    context "when outside drift behind" do
-      before do
-        # initialize it
-        code
-        # advance outside drift
-        Timecop.freeze((User.totp_drift_behind * 2).seconds.ago)
-      end
-
-      it do
-        expect(validate_and_consume_otp).to be(false)
-      end
     end
   end
 

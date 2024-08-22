@@ -26,6 +26,7 @@
 #  created_at                 :datetime         not null
 #  updated_at                 :datetime         not null
 #  otp_secret                 :string(255)
+#  temp_otp_secret            :string(255)
 #  consumed_timestep          :integer
 #  otp_required_for_login     :boolean          default(FALSE)
 #  otp_backup_codes           :text(65535)
