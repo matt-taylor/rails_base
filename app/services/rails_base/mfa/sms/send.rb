@@ -1,8 +1,7 @@
-require 'twilio_helper'
-require 'velocity_limiter'
+# frozen_string_literal: true
 
-module RailsBase::Authentication
-  class SendLoginMfaToUser < RailsBase::ServiceBase
+module RailsBase::Mfa::Sms
+  class Send < RailsBase::ServiceBase
     include ActionView::Helpers::DateHelper
     include VelocityLimiter
 
@@ -15,8 +14,6 @@ module RailsBase::Authentication
     delegate :expires_at, to: :context
 
     def call
-      raise "This Service is deprecated.. Migrate to RailsBase::Authentication::Sms::SendMfaToUser"
-
       velocity = velocity_limit_reached?
       context.fail!(message: velocity[:msg]) if velocity[:reached]
 
@@ -42,11 +39,11 @@ module RailsBase::Authentication
       params = {
         user: user,
         max_use: MAX_USE_COUNT,
-        reason: Constants::MFA_REASON,
+        reason: RailsBase::Authentication::Constants::MFA_REASON,
         data_use: DATA_USE,
-        ttl: Constants::SLMTU_TTL,
+        ttl: RailsBase::Authentication::Constants::SLMTU_TTL,
         expires_at: expires_at,
-        length: Constants::MFA_LENGTH,
+        length: RailsBase::Authentication::Constants::MFA_LENGTH,
       }
       ShortLivedData.create_data_key(**params)
     end

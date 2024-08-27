@@ -50,7 +50,7 @@ class RailsBase::Users::RegistrationsController < Devise::RegistrationsControlle
       end
       session[:mfa_randomized_token] = nil
       session[:mfa_randomized_token] =
-        RailsBase::Authentication::MfaSetEncryptToken.call(purpose: RailsBase::Authentication::Constants::SSOVE_PURPOSE, user: resource, expires_at: Time.zone.now + 20.minutes).encrypted_val
+        RailsBase::Mfa::EncryptToken.call(purpose: RailsBase::Authentication::Constants::SSOVE_PURPOSE, user: resource, expires_at: Time.zone.now + 20.minutes).encrypted_val
       redirect_to RailsBase.url_routes.auth_static_path, notice: "Check email for verification email."
     else
       flash[:error] = resource.errors.messages

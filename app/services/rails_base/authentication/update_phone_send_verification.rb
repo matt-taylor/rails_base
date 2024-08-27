@@ -14,7 +14,7 @@ module RailsBase::Authentication
 			# requires a bit of a restructure that I dont have time for
 			update_user_number!
 
-			twilio_sms = SendLoginMfaToUser.call(user: user.reload)
+			twilio_sms = RailsBase::Mfa::Sms::Send.call(user: user.reload)
 
 			if twilio_sms.failure?
 				log(level: :error, msg: "Failed with #{twilio_sms.message}")

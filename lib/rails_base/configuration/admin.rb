@@ -44,13 +44,13 @@ module RailsBase
         proc: ->(user, admin_user) { user.email_validated? }
       }
 
-      DEFAULT_MFA_ENABLED = {
-        filter: 'MFA Enabled',
-        id: 'mfa_enabled',
-        proc: ->(user, admin_user) { user.mfa_enabled? }
+      DEFAULT_MFA_SMS_ENABLED = {
+        filter: 'MFA SMS Enabled',
+        id: 'mfa_sms_enabled',
+        proc: ->(user, admin_user) { user.mfa_sms_enabled? }
       }
 
-      DEFAULT_PAGE_FILTER = [DEFAULT_ADMIN_TYPE, DEFAULT_ADMIN_SELF, DEFAULT_ADMIN_ACTIVE, DEFAULT_EMAIL_VALIDATED, DEFAULT_MFA_ENABLED].flatten
+      DEFAULT_PAGE_FILTER = [DEFAULT_ADMIN_TYPE, DEFAULT_ADMIN_SELF, DEFAULT_ADMIN_ACTIVE, DEFAULT_EMAIL_VALIDATED, DEFAULT_MFA_SMS_ENABLED].flatten
       DEFAULT_VALUES = {
         enable: {
           type: :boolean,

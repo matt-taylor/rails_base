@@ -237,9 +237,9 @@ RSpec.describe RailsBase::UserSettingsController, type: :controller do
     let(:params) { { data: datum.data } }
     before do
       user.update(
-        mfa_enabled: true,
+        mfa_sms_enabled: true,
         email_validated: true,
-        last_mfa_login: Time.now,
+        last_mfa_sms_login: Time.now,
       )
     end
 
@@ -274,7 +274,7 @@ RSpec.describe RailsBase::UserSettingsController, type: :controller do
 
     it 'sets soft destroy' do
       expect { destroy_user }.to change { user.reload.last_mfa_login }.to(nil)
-        .and change { user.reload.mfa_enabled }.to(false)
+        .and change { user.reload.mfa_sms_enabled }.to(false)
         .and change { user.reload.email_validated }.to(false)
         .and change { user.reload.encrypted_password }.to('')
         .and change { user.reload.phone_number }.to(nil)

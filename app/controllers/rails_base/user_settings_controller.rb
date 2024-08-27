@@ -8,7 +8,8 @@ module RailsBase
     # GET user/settings
     def index
       @type = :rest
-      @endpoint = RailsBase.url_routes.totp_validate_path
+      @endpoint = RailsBase.url_routes.totp_register_validate_path
+      session[:mfa_randomized_token] = RailsBase::Mfa::EncryptToken.call(user: current_user, expires_at: 5.minutes.from_now).encrypted_val
     end
 
     # POST user/settings/edit/name

@@ -33,7 +33,7 @@ class RailsBase::Users::SessionsController < Devise::SessionsController
 
     if mfa_decision.set_mfa_randomized_token
       session[:mfa_randomized_token] =
-        RailsBase::Authentication::MfaSetEncryptToken.call(
+        RailsBase::Mfa::EncryptToken.call(
           user: authenticate.user,
           expires_at: mfa_decision.token_ttl,
           purpose: mfa_decision.mfa_purpose,

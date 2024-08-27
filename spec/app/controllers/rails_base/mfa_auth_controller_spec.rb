@@ -3,7 +3,7 @@ require 'twilio_helper'
 RSpec.describe RailsBase::MfaAuthController, type: :controller do
   let(:user) { User.first }
   let(:sessions) { { mfa_randomized_token: mfa_randomized_token } }
-  let(:mfa_randomized_token) { RailsBase::Authentication::MfaSetEncryptToken.call(user: user, expires_at: expires_at).encrypted_val }
+  let(:mfa_randomized_token) { RailsBase::Mfa::EncryptToken.call(user: user, expires_at: expires_at).encrypted_val }
   let(:expires_at) { Time.zone.now + 5.minutes }
   before do
     @request.env["devise.mapping"] = Devise.mappings[:user]
@@ -170,5 +170,10 @@ RSpec.describe RailsBase::MfaAuthController, type: :controller do
     end
 
     include_examples 'when invalid token'
+  end
+
+  describe "POST #totp_secret" do
+    subject(:totp_secret) { get(:totp_secret) }
+
   end
 end

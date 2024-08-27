@@ -25,12 +25,12 @@ RSpec.describe RailsBase::Authentication::DecisionTwofaType do
 			before { allow(user).to receive(:email_validated).and_return(true) }
 
 			context 'when mfa enabled' do
-				before { allow(user).to receive(:mfa_enabled).and_return(true) }
+				before { allow(user).to receive(:mfa_sms_enabled).and_return(true) }
 
 				context 'when mfa expired' do
 					before do
 						allow(RailsBase::Authentication::SendLoginMfaToUser).to receive(:call).with(user: user).and_return(mfa_object)
-						allow(user).to receive(:past_mfa_time_duration?).and_return(true)
+						allow(user).to receive(:past_mfa_sms_time_duration?).and_return(true)
 					end
 
 					context 'when mfa fails' do
@@ -49,8 +49,8 @@ RSpec.describe RailsBase::Authentication::DecisionTwofaType do
 
 				context 'when mfa within time' do
 					before do
-						allow(user).to receive(:past_mfa_time_duration?).and_return(false)
-						allow(user).to receive(:last_mfa_login).and_return(Time.zone.now)
+						allow(user).to receive(:past_mfa_sms_time_duration?).and_return(false)
+						allow(user).to receive(:last_mfa_sms_login).and_return(Time.zone.now)
 					end
 
 					it { expect(call.sign_in_user).to be true }
@@ -60,7 +60,7 @@ RSpec.describe RailsBase::Authentication::DecisionTwofaType do
 			end
 
 			context 'when mfa is not enabled' do
-				before { allow(user).to receive(:mfa_enabled).and_return(false) }
+				before { allow(user).to receive(:mfa_sms_enabled).and_return(false) }
 
 				it { expect(call.sign_in_user).to be true }
 				it { expect(call.redirect_url).to eq RailsBase::Authentication::Constants::URL_HELPER.authenticated_root_path }
@@ -72,8 +72,8 @@ RSpec.describe RailsBase::Authentication::DecisionTwofaType do
 			let(:mfa_decision) { double('SendVerificationEmail', failure?: !mfa_success, success?: mfa_success, message: 'msg') }
 			before do
 				allow(RailsBase::Authentication::SendVerificationEmail).to receive(:call).with(user: user, reason: RailsBase::Authentication::Constants::SVE_LOGIN_REASON).and_return(mfa_decision)
-				allow(user).to receive(:past_mfa_time_duration?).and_return(false)
-				allow(user).to receive(:last_mfa_login).and_return(Time.zone.now)
+				allow(user).to receive(:past_mfa_sms_time_duration?).and_return(false)
+				allow(user).to receive(:last_mfa_sms_login).and_return(Time.zone.now)
 			end
 
 			it { expect(call.sign_in_user).to be false }

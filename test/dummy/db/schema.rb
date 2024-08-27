@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_08_08_013706) do
+ActiveRecord::Schema.define(version: 2024_08_25_012724) do
 
   create_table "admin_actions", charset: "utf8mb3", force: :cascade do |t|
     t.bigint "admin_user_id", null: false
@@ -51,9 +51,9 @@ ActiveRecord::Schema.define(version: 2024_08_08_013706) do
     t.string "first_name", default: "", null: false
     t.string "last_name", default: "", null: false
     t.string "phone_number"
-    t.timestamp "last_mfa_login"
+    t.timestamp "last_mfa_sms_login"
     t.boolean "email_validated", default: false
-    t.boolean "mfa_enabled", default: false, null: false
+    t.boolean "mfa_sms_enabled", default: false, null: false
     t.boolean "active", default: true, null: false
     t.string "admin"
     t.string "last_known_timezone"
@@ -73,8 +73,9 @@ ActiveRecord::Schema.define(version: 2024_08_08_013706) do
     t.string "otp_secret"
     t.string "temp_otp_secret"
     t.integer "consumed_timestep"
-    t.boolean "otp_required_for_login", default: false
+    t.boolean "mfa_otp_enabled", default: false
     t.text "otp_backup_codes"
+    t.datetime "last_mfa_otp_login"
     t.index ["active"], name: "index_users_on_active"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["phone_number"], name: "index_users_on_phone_number", unique: true

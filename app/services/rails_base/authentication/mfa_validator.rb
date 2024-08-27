@@ -4,15 +4,24 @@ module RailsBase::Authentication
 		delegate :session_mfa_user_id, to: :context
 		delegate :current_user, to: :context
 		delegate :input_reason, to: :context
+		delegate :code, to: :context
 
 		def call
-			array = convert_to_array
-			if array.length != Constants::MFA_LENGTH
-				log(level: :warn, msg: "Not enough params for MFA code. Given #{array}. Expected of length #{Constants::MFA_LENGTH}")
-				context.fail!(message: Constants::MV_FISHY, redirect_url: Constants::URL_HELPER.new_user_session_path, level: :alert)
+			if code.present?
+				log(level: :info, msg: "Raw code was passed in")
+				mfa_code = code
+			else
+				log(level: :info, msg: "Code Array was passed in. Manipulating Data first")
+				array = convert_to_array
+				if array.length != Constants::MFA_LENGTH
+					log(level: :warn, msg: "Not enough params for MFA code. Given #{array}. Expected of length #{Constants::MFA_LENGTH}")
+					context.fail!(message: Constants::MV_FISHY, redirect_url: Constants::URL_HELPER.new_user_session_path, level: :alert)
+				end
+
+				mfa_code = array.join
 			end
 
-			mfa_code = array.join
+
 			log(level: :info, msg: "mfa code received: #{mfa_code}")
 			datum = get_short_lived_datum(mfa_code)
 			log(level: :info, msg: "Datum returned with: #{datum}")
@@ -81,7 +90,10 @@ module RailsBase::Authentication
 		end
 
 		def validate!
-			raise 'Expected the params passed' if params.nil?
+			if code.nil?
+				raise 'params is not present' if params.nil?
+			end
+
 			raise 'session_mfa_user_id is not present' if session_mfa_user_id.nil?
 		end
 	end

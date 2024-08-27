@@ -19,7 +19,7 @@
              MFA enabled?
             </th>
             <td style="width: 40%">
-              <%= current_user.mfa_enabled %>
+              <%= current_user.mfa_sms_enabled %>
             </td>
             <td style="width: 20%">
               <button class="btn btn_primary btn-block show-create-modal" type="button">Modify</button>
@@ -56,7 +56,7 @@
                 <div class="row">
                   <div class="col-10 offset-1">
                     <% if RailsBase.config.mfa.enable? %>
-                      <% if current_user.mfa_enabled %>
+                      <% if current_user.mfa_sms_enabled %>
                         <button type="button" class="btn btn-block btn_info close-me" data-toggle="modal" data-target="#modifyMfamodal">
                             Modify 2fa Auth
                         </button>
@@ -77,7 +77,7 @@
                 <div class="row">
                   <div class="col-10 offset-1">
                     <% if RailsBase.config.totp.enable? %>
-                      <% if current_user.otp_required_for_login %>
+                      <% if current_user.mfa_otp_enabled %>
                         <div class="row">
                           <div class="col-12">
                             <button type="button" class="btn btn-block btn_info close-me" data-toggle="modal" data-target="#totpDisableModal">
@@ -85,6 +85,7 @@
                             </button>
                           </div>
                         </div>
+                        <%= render partial: 'rails_base/shared/totp/remove_authenticator_modal', locals: { type: @type, endpoint: @endpoint } %>
                         <br>
                         <div class="row">
                           <div class="col-12">

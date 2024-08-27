@@ -15,8 +15,7 @@ FactoryBot.define do
       otp_secret { User.generate_otp_secret }
 
       otp_backup_codes { User.generate_backup_codes }
-      otp_required_for_login { true }
-      mfa_enabled { true }
+      mfa_otp_enabled { true }
     end
 
     trait :temp_totp_enabled do
@@ -24,8 +23,7 @@ FactoryBot.define do
       otp_secret { nil }
 
       otp_backup_codes { [] }
-      otp_required_for_login { false }
-      mfa_enabled { true }
+      mfa_otp_enabled { true }
     end
   end
 end

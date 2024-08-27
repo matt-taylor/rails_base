@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module RailsBase::Authentication::Totp
+module RailsBase::Mfa::Totp
   class ValidateCode < RailsBase::ServiceBase
     include Helper
 

@@ -30,6 +30,19 @@ module RailsBase
           default: 5,
           description: 'Max number of password expires before account is locked',
         },
+        reauth_strategy: {
+          type: :klass,
+          default: -> (_val) { RailsBase::Mfa::Strategy::TimeBased },
+          custom: ->(val) { (Proc === val ? val.call(nil) : val).ancestors.include?(RailsBase::Mfa::Strategy::Base) },
+          msg: "Invalid ReAuth Strategy. Provided class must be descendent of RailsBase::Mfa::Strategy::Base",
+          description: "Value is expected to be a descendent of RailsBase::Mfa::Strategy::Base. It can be lazily loaded via a proc",
+          on_assignment: ->(val, instance) { instance.reauth_strategy = (Proc === val ? val.call(nil) : val) },
+        },
+        reauth_duration: {
+          type: :duration,
+          default: 2.days,
+          description: "When `reauth_strategy` is `time_based`, this value is the max time before MFA is required",
+        }
       }
 
       attr_accessor *DEFAULT_VALUES.keys

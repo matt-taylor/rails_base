@@ -50,9 +50,9 @@ RSpec.describe RailsBase::Authentication::DestroyUser do
     it 'soft destroys user' do
       call
 
-      expect(user.mfa_enabled).to be(false)
+      expect(user.mfa_sms_enabled).to be(false)
       expect(user.email_validated).to be(false)
-      expect(user.last_mfa_login).to be(nil)
+      expect(user.last_mfa_sms_login).to be(nil)
       expect(user.encrypted_password).to eq('')
       expect(user.phone_number).to be(nil)
     end

@@ -78,8 +78,8 @@ module RailsBase
       redirect_to RailsBase.url_routes.authenticated_root_path
     end
 
-    # POST auth/phone
-    def phone_registration
+    # POST mfa/register/sms
+    def _MOVED_METHOD_phone_registration
       result = Authentication::UpdatePhoneSendVerification.call(user: current_user, phone_number: params[:phone_number])
       if result.failure?
         render :json => { error: I18n.t('request_response.teapot.fail'), msg: result.message }.to_json, :status => 418
@@ -90,9 +90,9 @@ module RailsBase
       render :json => { status: :success, message: I18n.t('request_response.teapot.valid') }
     end
 
-    # POST auth/phone/mfa
-    def confirm_phone_registration
-      mfa_validity = Authentication::MfaValidator.call(current_user: current_user, params: params, session_mfa_user_id: @token_verifier.user_id)
+    # POST mfa/register/sms/validate
+    def _MOVED_METHOD_confirm_phone_registration
+      mfa_validity = RailsBase::Mfa::Sms::Validate.call(current_user: current_user, params: params, session_mfa_user_id: @token_verifier.user_id)
       if mfa_validity.failure?
         redirect_to RailsBase.url_routes.authenticated_root_path, alert: I18n.t('authentication.confirm_phone_registration.fail', message: mfa_validity.message)
         return
@@ -104,7 +104,7 @@ module RailsBase
     end
 
     # DELETE auth/phone/disable
-    def remove_phone_mfa
+    def _MOVED_METHOD_remove_phone_mfa
       current_user.update!(mfa_enabled: false, last_mfa_login: nil)
       redirect_to RailsBase.url_routes.authenticated_root_path, notice: I18n.t('authentication.remove_phone_mfa')
     end
@@ -145,7 +145,7 @@ module RailsBase
         return
       end
 
-      result = Authentication::MfaValidator.call(params: params, session_mfa_user_id: @token_verifier.user_id, current_user: expired_datum.user)
+      result = RailsBase::Mfa::Sms::Validate.call(params: params, session_mfa_user_id: @token_verifier.user_id, current_user: expired_datum.user)
       if result.failure?
         redirect_to(RailsBase.url_routes.new_user_password_path, alert: result.message)
         return
@@ -212,13 +212,6 @@ module RailsBase
       return false
     end
 
-    def validate_token!(purpose: Authentication::Constants::MSET_PURPOSE)
-      @token_verifier =
-        Authentication::SessionTokenVerifier.call(purpose: purpose, mfa_randomized_token: session[:mfa_randomized_token])
-      return true if @token_verifier.success?
 
-      redirect_to RailsBase.url_routes.new_user_session_path, alert: @token_verifier.message
-      return false
-    end
   end
 end

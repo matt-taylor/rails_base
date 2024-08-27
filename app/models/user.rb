@@ -6,9 +6,9 @@
 #  first_name                 :string(255)      default(""), not null
 #  last_name                  :string(255)      default(""), not null
 #  phone_number               :string(255)
-#  last_mfa_login             :datetime
+#  last_mfa_sms_login         :datetime
 #  email_validated            :boolean          default(FALSE)
-#  mfa_enabled                :boolean          default(FALSE), not null
+#  mfa_sms_enabled            :boolean          default(FALSE), not null
 #  active                     :boolean          default(TRUE), not null
 #  admin                      :string(255)
 #  last_known_timezone        :string(255)
@@ -28,8 +28,9 @@
 #  otp_secret                 :string(255)
 #  temp_otp_secret            :string(255)
 #  consumed_timestep          :integer
-#  otp_required_for_login     :boolean          default(FALSE)
+#  mfa_otp_enabled            :boolean          default(FALSE)
 #  otp_backup_codes           :text(65535)
+#  last_mfa_otp_login         :datetime
 #
 class User < RailsBase::ApplicationRecord
   # Include default devise modules. Others available are:
@@ -83,14 +84,14 @@ class User < RailsBase::ApplicationRecord
   	"#{first_name} #{last_name}"
   end
 
-  def past_mfa_time_duration?
-    return true if last_mfa_login.nil?
+  def past_mfa_sms_time_duration?
+    return true if last_mfa_sms_login.nil?
 
-    last_mfa_login < self.class.time_bound
+    last_mfa_sms_login < self.class.time_bound
   end
 
-  def set_last_mfa_login!(time: Time.zone.now)
-    update(last_mfa_login: time)
+  def set_last_mfa_sms_login!(time: Time.zone.now)
+    update(last_mfa_sms_login: time)
   end
 
   def masked_phone

@@ -3,7 +3,7 @@ require 'twilio_helper'
 RSpec.describe RailsBase::SecondaryAuthenticationController, type: :controller do
   let(:user) { User.first }
   let(:sessions) { { mfa_randomized_token: mfa_randomized_token } }
-  let(:mfa_randomized_token) { RailsBase::Authentication::MfaSetEncryptToken.call(user: user, expires_at: expires_at).encrypted_val }
+  let(:mfa_randomized_token) { RailsBase::Mfa::EncryptToken.call(user: user, expires_at: expires_at).encrypted_val }
   let(:expires_at) { Time.zone.now + 5.minutes }
 
   shared_examples 'invalid token context' do
@@ -78,7 +78,7 @@ RSpec.describe RailsBase::SecondaryAuthenticationController, type: :controller d
     subject(:static) { get(:static, session: sessions, flash: flashes) }
     let(:flashes) { nil }
     let(:mfa_randomized_token) do
-      RailsBase::Authentication::MfaSetEncryptToken.call(
+      RailsBase::Mfa::EncryptToken.call(
         user: user,
         expires_at: expires_at,
         purpose: RailsBase::Authentication::Constants::SSOVE_PURPOSE
@@ -237,7 +237,7 @@ RSpec.describe RailsBase::SecondaryAuthenticationController, type: :controller d
     subject(:after_email_login_session_new) { get(:after_email_login_session_new, session: sessions, flash: flashes) }
     let(:flashes) { nil }
     let(:mfa_randomized_token) do
-      RailsBase::Authentication::MfaSetEncryptToken.call(
+      RailsBase::Mfa::EncryptToken.call(
         user: user,
         expires_at: expires_at,
         purpose: RailsBase::Authentication::Constants::SSOVE_PURPOSE
@@ -283,7 +283,7 @@ RSpec.describe RailsBase::SecondaryAuthenticationController, type: :controller d
     let(:email) { user.email }
     let(:password) { 'password11' }
     let(:mfa_randomized_token) do
-      RailsBase::Authentication::MfaSetEncryptToken.call(
+      RailsBase::Mfa::EncryptToken.call(
         user: user,
         expires_at: expires_at,
         purpose: RailsBase::Authentication::Constants::SSOVE_PURPOSE
@@ -417,7 +417,7 @@ RSpec.describe RailsBase::SecondaryAuthenticationController, type: :controller d
       )
     end
     let(:redirect_path) { RailsBase.url_routes.authenticated_root_path }
-    let(:change_proc) { -> { user.reload.mfa_enabled } }
+    let(:change_proc) { -> { user.reload.mfa_sms_enabled } }
     let(:params) { { mfa: mfa_params } }
     let(:sessions) { { mfa_randomized_token: mfa_randomized_token } }
 
@@ -443,7 +443,7 @@ RSpec.describe RailsBase::SecondaryAuthenticationController, type: :controller d
       end
     end
 
-    it 'updates mfa_enabled' do
+    it 'updates mfa_sms_enabled' do
       expect { confirm_phone_registration }.to change { change_proc.call }.to(true)
     end
 
@@ -464,10 +464,10 @@ RSpec.describe RailsBase::SecondaryAuthenticationController, type: :controller d
 
   describe 'DELETE #remove_phone_mfa' do
     subject(:remove_phone_mfa) { delete(:remove_phone_mfa) }
-    let(:change_proc) { -> { [user.reload.mfa_enabled, user.reload.last_mfa_login] } }
+    let(:change_proc) { -> { [user.reload.mfa_sms_enabled, user.reload.last_mfa_sms_login] } }
 
     before do
-      user.update!(mfa_enabled: true, last_mfa_login: Time.zone.now)
+      user.update!(mfa_sms_enabled: true, last_mfa_sms_login: Time.zone.now)
       sign_in(user)
     end
 
@@ -507,7 +507,7 @@ RSpec.describe RailsBase::SecondaryAuthenticationController, type: :controller d
     let(:data)  { datum.data }
 
     context 'when mfa is enabled' do
-      before { user.update!(mfa_enabled: true) }
+      before { user.update!(mfa_sms_enabled: true) }
 
       it 'sends mfa to user' do
         expect(RailsBase::Authentication::SendLoginMfaToUser).to receive(:call).with(user: user, expires_at: Time.zone.now + 10.minutes).and_call_original
@@ -636,7 +636,7 @@ RSpec.describe RailsBase::SecondaryAuthenticationController, type: :controller d
         length: RailsBase::Authentication::Constants::EMAIL_LENGTH,
       )
     end
-    let(:mfa_randomized_token) { RailsBase::Authentication::MfaSetEncryptToken.call(user: user, expires_at: expires_at, purpose: RailsBase::Authentication::Constants::VFP_PURPOSE).encrypted_val }
+    let(:mfa_randomized_token) { RailsBase::Mfa::EncryptToken.call(user: user, expires_at: expires_at, purpose: RailsBase::Authentication::Constants::VFP_PURPOSE).encrypted_val }
     let(:data)  { datum.data }
     let(:params) { { data: data, mfa: mfa_params } }
     let(:sessions) { { mfa_randomized_token: mfa_randomized_token } }
@@ -720,7 +720,7 @@ RSpec.describe RailsBase::SecondaryAuthenticationController, type: :controller d
   describe 'POST #reset_password' do
     subject(:reset_password) { post(:reset_password, session: sessions, params: params) }
 
-    let(:mfa_randomized_token) { RailsBase::Authentication::MfaSetEncryptToken.call(user: user, expires_at: expires_at, purpose: RailsBase::Authentication::Constants::VFP_PURPOSE).encrypted_val }
+    let(:mfa_randomized_token) { RailsBase::Mfa::EncryptToken.call(user: user, expires_at: expires_at, purpose: RailsBase::Authentication::Constants::VFP_PURPOSE).encrypted_val }
     let(:sessions) { { mfa_randomized_token: mfa_randomized_token } }
     let(:params) { { data: data, user: user_params } }
     let(:data) { datum.data }

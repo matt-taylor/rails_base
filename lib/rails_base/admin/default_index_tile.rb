@@ -86,11 +86,11 @@ RailsBase::Admin::IndexTile.add(instance)
 # Mfa Enabled Validated Tile
 params = {
   type: :toggle,
-  value: ->(user) { user.mfa_enabled },
+  value: ->(user) { user.mfa_sms_enabled },
   on: 'Enabled',
   off: 'Disabled',
-  name: 'mfa_enabled', # name to be amended to html id
-  col_name: 'MFA Enabled?', # Expected to be the column header name
+  name: 'mfa_sms_enabled', # name to be amended to html id
+  col_name: 'MFA SMS Enabled?', # Expected to be the column header name
   disabled: -> (user, admin_user) { !RailsBase.config.admin.mfa_tile_users.call(admin_user) },
   disabled_msg: -> (user, admin_user) { 'Your admin user does not have permissions' },
   min_width: 220,

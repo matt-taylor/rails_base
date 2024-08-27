@@ -45,7 +45,7 @@ RSpec.describe RailsBase::Authentication::SsoVerifyEmail do
 		it { expect { call }.to change { user.reload.email_validated }.from(false).to(true) }
 		it { expect(call.encrypted_val).not_to be_nil }
 		it do
-			expect(RailsBase::Authentication::MfaSetEncryptToken).to receive(:call).with(mfa_params).and_call_original
+			expect(RailsBase::Mfa::EncryptToken).to receive(:call).with(mfa_params).and_call_original
 
 			call
 		end

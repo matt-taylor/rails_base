@@ -30,8 +30,9 @@ module RailsBase
         self.otp_secret = nil
         self.temp_otp_secret = nil
         self.consumed_timestep = nil
-        self.otp_required_for_login = false
+        self.mfa_otp_enabled = false
         self.otp_backup_codes = []
+        self.last_mfa_otp_login = nil
 
         save!
       end

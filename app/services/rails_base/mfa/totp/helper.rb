@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module RailsBase::Authentication::Totp
+module RailsBase::Mfa::Totp
   module Helper
     def secret
       context.otp_secret || user.reload.otp_secret

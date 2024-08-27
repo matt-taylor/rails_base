@@ -256,8 +256,8 @@ module RailsBase
         input_reason: session_reason,
         params: parse_mfa_to_obj
       }
-      result = RailsBase::Authentication::MfaValidator.call(params)
-      encrypt = RailsBase::Authentication::MfaSetEncryptToken.call(user: admin_user, purpose: session_reason, expires_at: 1.minute.from_now)
+      result =RailsBase::Mfa::Sms::Validate.call(params)
+      encrypt = RailsBase::Mfa::EncryptToken.call(user: admin_user, purpose: session_reason, expires_at: 1.minute.from_now)
 
       begin
         html = render_to_string(partial: render_partial, locals: { user: user, modify_id: modify_id })

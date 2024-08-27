@@ -1,0 +1,50 @@
+<div class="modal fade" id="totpDisableModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="exampleModalLabel">Remove TOTP as Multi Factor Authenticator</h3>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="text-center">
+          Time based One time Password is one of the the most Secure MFA option that <%= RailsBase.app_name %> provides. If you would like to remove this MFA option, please enter your credentials below and confirm. Upon Successful request, TOTP is no longer active on your account
+        </div>
+        <hr>
+        <%= form_with(url: RailsBase.url_routes.totp_register_delete_path, method: :delete) do |form| %>
+          <div id="confirmTotpAuthenticationCode">
+            <div class="totpInput">
+              <div class="input-group input-group-lg">
+                <div class="input-group-prepend">
+                  <span class="input-group-text" id="totpInput-Prepend">Password</span>
+                </div>
+                <%= form.password_field :password, id: "totpRemoval-password", class:"form-control" %>
+              </div>
+            </div>
+            <br>
+            <div class="totpInput">
+              <div class="input-group input-group-lg">
+                <div class="input-group-prepend">
+                  <span class="input-group-text" id="totpInput-Prepend">TOTP</span>
+                </div>
+                <%= form.telephone_field :totp_code, id: "totpRemoval-code", class:"form-control", placeholder: "One Time Password Value" %>
+              </div>
+            </div>
+            <br>
+            <div class="totpSubmit">
+              <div class="row">
+                <div class="col-md-6 offset-md-3">
+                  <%= form.submit "Confirm TOTP Removal", class: " btn btn_danger btn-block" %>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="mr-auto btn btn_secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

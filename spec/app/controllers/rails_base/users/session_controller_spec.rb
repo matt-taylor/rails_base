@@ -122,11 +122,11 @@ RSpec.describe RailsBase::Users::SessionsController, type: :controller do
     context 'when mfa is enabled' do
       before do
         allow(user).to receive(:email_validated).and_return(true)
-        allow(user).to receive(:mfa_enabled).and_return(true)
+        allow(user).to receive(:mfa_sms_enabled).and_return(true)
       end
 
       context 'when mfa needs reverification' do
-        before { allow(user).to receive(:past_mfa_time_duration?).and_return(true) }
+        before { allow(user).to receive(:past_mfa_sms_time_duration?).and_return(true) }
 
         it 'correctly redirects' do
           create
@@ -155,8 +155,8 @@ RSpec.describe RailsBase::Users::SessionsController, type: :controller do
 
       context 'when no reverification needed' do
         before do
-          allow(user).to receive(:past_mfa_time_duration?).and_return(false)
-          allow(user).to receive(:last_mfa_login).and_return(Time.zone.now - 30.minutes)
+          allow(user).to receive(:past_mfa_sms_time_duration?).and_return(false)
+          allow(user).to receive(:last_mfa_sms_login).and_return(Time.zone.now - 30.minutes)
         end
 
         it 'correctly redirects' do
@@ -182,7 +182,7 @@ RSpec.describe RailsBase::Users::SessionsController, type: :controller do
     context 'when mfa is disabled' do
       before do
         allow(user).to receive(:email_validated).and_return(true)
-        allow(user).to receive(:mfa_enabled).and_return(false)
+        allow(user).to receive(:mfa_sms_enabled).and_return(false)
       end
 
       it 'correctly redirects' do

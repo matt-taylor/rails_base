@@ -1,4 +1,10 @@
-<% confirm = "Disabling 2fa on your account will make it more vulnerable. Are you sure you want to disable two factor authentication via SMS text?" %>
+<%
+  code_length = RailsBase::Authentication::Constants::MFA_LENGTH
+  values = [
+    { name: '#smsRemovalPassword', criteria: { required: true }},
+    { name: '#smsRemovalCode', criteria: { required: true, pattern: :numeric, min_length: code_length }}
+  ]
+%>
 
 <div class="modal fade" id="modifyMfamodal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg" role="document">
@@ -9,8 +15,49 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-      <div class="modal-body">
-        <%= button_to "Disable 2fa", RailsBase.url_routes.remove_phone_registration_mfa_path, data: { confirm: confirm }, method: :delete, class: "btn btn_danger btn-block" %>
+      <div class="modal-body mfaSmsModalBody">
+        <div class="mfaSmsStatusDiv"></div>
+        <%= form_with(url: RailsBase.url_routes.remove_phone_registration_mfa_path, method: :delete) do |form| %>
+          <div id="confirmSmsAuthenticationCode">
+            <div class="smsInput">
+              <div class="input-group input-group-lg">
+                <div class="input-group-prepend">
+                  <span class="input-group-text" id="smsInput-Prepend">Password</span>
+                </div>
+                <%= form.password_field :password, id: "smsRemovalPassword", class:"form-control" %>
+                <div class="invalid-feedback">
+                  Password required to remove SMS option for MFA
+                </div>
+              </div>
+            </div>
+            <br>
+            <div class="smsInput">
+              <div class="input-group input-group-lg">
+                <div class="input-group-prepend">
+                  <span class="input-group-text" id="smsInput-Prepend">SMS Code</span>
+                </div>
+                <%= form.telephone_field :sms_code, id: "smsRemovalCode", class:"form-control", placeholder: "Code delivered via SMS" %>
+                <div class="invalid-feedback">
+                  SMS Code is required. At least <%= code_length %> numerics expected
+                </div>
+              </div>
+            </div>
+            <br>
+            <div class="smsSubmit">
+              <div class="row">
+                <div class="col-md-9">
+                  <%= form.submit "Confirm SMS MFA Removal", id: "confirmSmsRemovalButton", class: " btn btn_danger btn-block" %>
+                </div>
+                <div class="col-md-3">
+                  <button type="button" id="sendSmsButton" class="btn btn_warning btn-block" onclick="sendSMS()">
+                    Send SMS
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% end %>
+
       </div>
       <div class="modal-footer">
         <button type="button" class="mr-auto btn btn_secondary" data-dismiss="modal">Close</button>
@@ -18,3 +65,56 @@
     </div>
   </div>
 </div>
+
+
+
+<%= render partial: 'rails_base/shared/custom_form_validation_javascript', locals: { function_name: "mfaSmsRemoval", values: values } %>
+
+<script type="text/javascript">
+  $(`#confirmSmsRemovalButton`).prop("disabled", true)
+  $(`.mfaSmsModalBody input`).on("keypress", function() {
+    console.log( "Handler for `keypress` called." );
+    setConfirmButtonStatus()
+  });
+
+  $(`.mfaSmsModalBody input`).change(function() {
+    setConfirmButtonStatus()
+  });
+
+  function setConfirmButtonStatus(){
+    if(mfaSmsRemoval_validation_event()){
+      $(`#confirmSmsRemovalButton`).prop("disabled", false)
+    } else {
+      $(`#confirmSmsRemovalButton`).prop("disabled", true)
+    }
+  }
+
+  function setDelay(){
+    $(`#sendSmsButton`).prop("disabled", true)
+    timeoutClock = setTimeout(enableSendSMS, 5_000);
+  }
+
+  function enableSendSMS(){
+    $(`#sendSmsButton`).prop("disabled", false)
+  }
+
+  function sendSMS(){
+    $(`#sendSmsButton`).text("Resend SMS")
+    setDelay();
+    $.ajax({
+      type: "POST",
+      url: "<%= RailsBase.url_routes.sms_validate_send_path %>",
+      headers: { 'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content') },
+      dataType: 'json',
+      success: function(data) {
+        html_notice = `<p class="alert alert-success">${data.message}</p>`
+        $(`.mfaSmsStatusDiv`).html(html_notice)
+      },
+      error: function(xhr, status, error) {
+        html_notice = `<p class="alert alert-danger">${xhr.responseJSON.message}</p>`
+        $(`.mfaSmsStatusDiv`).html(html_notice)
+        console.log(xhr.responseJSON)
+      }
+    })
+  }
+</script>

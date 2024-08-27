@@ -128,6 +128,31 @@ class RailsBaseApplicationController < ActionController::Base
 
   protected
 
+  def json_validate_current_user!
+    return if current_user
+
+    render json: { error: "Unauthorized" }.to_json, :status => 401
+    return false
+  end
+
+  def validate_mfa_token!(purpose: RailsBase::Authentication::Constants::MSET_PURPOSE)
+    return true if soft_validate_mfa_token(token: session[:mfa_randomized_token], purpose: purpose)
+
+    if user_signed_in?
+      redirect_to RailsBase.url_routes.new_user_session_path, alert: @token_verifier.message
+    else
+      redirect_to RailsBase.url_routes.user_settings_path, alert: @token_verifier.message
+    end
+    return false
+  end
+
+  def soft_validate_mfa_token(token:, purpose: RailsBase::Authentication::Constants::MSET_PURPOSE)
+    @token_verifier =
+      RailsBase::Authentication::SessionTokenVerifier.call(purpose: purpose, mfa_randomized_token: token)
+
+    @token_verifier.success?
+  end
+
   def admin_get_token(encrypted_val:)
     params = {
       mfa_randomized_token: encrypted_val,
@@ -144,7 +169,7 @@ class RailsBaseApplicationController < ActionController::Base
         purpose: RailsBase::Authentication::Constants::ADMIN_REMEMBER_REASON,
         expires_at: RailsBase::Authentication::Constants::ADMIN_MAX_IDLE_TIME.from_now
       }
-      encrpytion = RailsBase::Authentication::MfaSetEncryptToken.call(params)
+      encrpytion = RailsBase::Mfa::EncryptToken.call(params)
       session[RailsBase::Authentication::Constants::ADMIN_REMEMBER_REASON] = encrpytion.encrypted_val
     end
   end

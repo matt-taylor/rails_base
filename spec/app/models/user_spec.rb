@@ -14,8 +14,8 @@ RSpec.describe User do
     it { is_expected.to eq(name) }
   end
 
-  describe '#past_mfa_time_duration?' do
-    subject(:past_mfa_time_duration) { instance.past_mfa_time_duration? }
+  describe '#past_mfa_sms_time_duration?' do
+    subject(:past_mfa_sms_time_duration) { instance.past_mfa_sms_time_duration? }
 
     context 'when assigned' do
       let(:time) { Time.zone.now }

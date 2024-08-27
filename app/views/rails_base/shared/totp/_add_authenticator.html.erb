@@ -62,7 +62,7 @@
   function retreiveSecret(){
     $.ajax({
       type: "POST",
-      url: "<%= RailsBase.url_routes.totp_secret_path %>",
+      url: "<%= RailsBase.url_routes.totp_register_secret_path %>",
       headers: { 'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content') },
       dataType: 'json',
       success: function(data) {

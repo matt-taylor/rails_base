@@ -11,7 +11,7 @@ module RailsBase::Authentication
 			context.user = data_point[:user]
 			context.encrypted_val =
 				MfaSetEncryptToken.call(user: data_point[:user], expires_at: Time.zone.now + 10.minutes, purpose: Constants::VFP_PURPOSE).encrypted_val
-			return unless data_point[:user].mfa_enabled
+			return unless data_point[:user].mfa_sms_enabled
 
 			result = SendLoginMfaToUser.call(user: data_point[:user], expires_at: Time.zone.now + 10.minutes)
 			if result.failure?

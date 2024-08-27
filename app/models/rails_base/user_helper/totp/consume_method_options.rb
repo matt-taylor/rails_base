@@ -7,7 +7,7 @@ module RailsBase
     module Totp
       module ConsumeMethodOptions
         def persist_otp_metadata!
-          reload # Ensure the user is relaoded to grab use the correct dat for the secret
+          reload # Ensure the user is relaoded to use the correct data for the secret
           metadata = otp_metadata(safe: true, use_existing_temp: true)
 
           self.otp_secret = self.otp_secret || self.temp_otp_secret
