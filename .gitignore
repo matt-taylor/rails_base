@@ -20,3 +20,4 @@ spec/examples.txt
 *.gem
 
 vendor/*
+*/**/.DS_STORE

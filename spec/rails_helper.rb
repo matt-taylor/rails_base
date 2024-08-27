@@ -90,7 +90,7 @@ RSpec.configure do |config|
       phone_number: '6508675309',
       password: "password11",
       password_confirmation: "password11",
-      otp_required_for_login: true,
+      mfa_otp_enabled: true,
       otp_secret: User.generate_otp_secret,
     }
     user = User.create!(params)

@@ -32,7 +32,7 @@ module RailsBase
         },
         reauth_strategy: {
           type: :klass,
-          default: -> (_val) { RailsBase::Mfa::Strategy::TimeBased },
+          default: -> (_val) { RailsBase::Mfa::Strategy::EveryRequest },
           custom: ->(val) { (Proc === val ? val.call(nil) : val).ancestors.include?(RailsBase::Mfa::Strategy::Base) },
           msg: "Invalid ReAuth Strategy. Provided class must be descendent of RailsBase::Mfa::Strategy::Base",
           description: "Value is expected to be a descendent of RailsBase::Mfa::Strategy::Base. It can be lazily loaded via a proc",

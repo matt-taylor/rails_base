@@ -12,7 +12,7 @@ module RailsBase
 
           self.otp_secret = self.otp_secret || self.temp_otp_secret
           self.temp_otp_secret = nil
-          self.otp_required_for_login = true
+          self.mfa_otp_enabled = true
           save!
         end
 

@@ -76,6 +76,7 @@ RSpec.describe RailsBase::SecondaryAuthenticationController, type: :controller d
 
   describe 'GET #static' do
     subject(:static) { get(:static, session: sessions, flash: flashes) }
+
     let(:flashes) { nil }
     let(:mfa_randomized_token) do
       RailsBase::Mfa::EncryptToken.call(
@@ -345,153 +346,6 @@ RSpec.describe RailsBase::SecondaryAuthenticationController, type: :controller d
     include_examples 'invalid token context'
   end
 
-  describe 'POST #phone_registration json' do
-    subject(:phone_registration) { post(:phone_registration,  params: params) }
-
-    let(:params) { { phone_number: phone_number } }
-    let(:phone_number) { '6508675310' }
-    let(:change_proc) { -> { user.reload.phone_number } }
-    before { sign_in(user) }
-
-    context 'when UpdatePhoneSendVerification fails' do
-      before { allow(TwilioHelper).to receive(:send_sms).and_raise(StandardError, 'Forced failure') }
-
-      context 'when phone is not sanitized' do
-        let(:phone_number) { 'not a phone number' }
-
-         it 'does not update phone' do
-          expect { phone_registration }.not_to change { change_proc.call }
-         end
-
-         it 'renders correctly' do
-          phone_registration
-
-          expect(JSON.parse(response.body)).to include({'error' => 'Unable to complete request'})
-          expect(response.status).to eq(418)
-        end
-      end
-
-      it 'updates phone' do
-        expect { phone_registration }.to change { change_proc.call }
-      end
-
-      it 'renders correctly' do
-        phone_registration
-
-        expect(JSON.parse(response.body)).to include({'error' => 'Unable to complete request'})
-        expect(response.status).to eq(418)
-      end
-    end
-
-    it 'updates phone' do
-      expect { phone_registration }.to change { change_proc.call }
-    end
-
-    it 'renders correctly' do
-      phone_registration
-
-      expect(JSON.parse(response.body)).to include({'message' => 'You are not a teapot'})
-      expect(response.status).to eq(200)
-    end
-
-    include_examples 'user is not logged in json'
-  end
-
-  describe 'POST #confirm_phone_registration' do
-    subject(:confirm_phone_registration) { post(:confirm_phone_registration,  params: params, session: sessions) }
-
-    let(:mfa_params) {
-      _params = {}
-      RailsBase::Authentication::Constants::MFA_LENGTH.times do |index|
-        var_name = "#{RailsBase::Authentication::Constants::MV_BASE_NAME}#{index}".to_sym
-        _params[var_name] = mfa.split('')[index]
-      end
-      _params
-    }
-    let(:mfa) { rand.to_s[2..(2+(RailsBase::Authentication::Constants::MFA_LENGTH-1))] }
-    let!(:datum) do
-      ShortLivedData.create_data_key(
-        user: user,
-        data: mfa,
-        reason: RailsBase::Authentication::Constants::MFA_REASON
-      )
-    end
-    let(:redirect_path) { RailsBase.url_routes.authenticated_root_path }
-    let(:change_proc) { -> { user.reload.mfa_sms_enabled } }
-    let(:params) { { mfa: mfa_params } }
-    let(:sessions) { { mfa_randomized_token: mfa_randomized_token } }
-
-    before { sign_in(user) }
-
-    context 'when mfa validation fails' do
-      let(:mfa_params) { nil }
-
-      it 'does not update' do
-        expect { confirm_phone_registration }.not_to change { change_proc.call }
-      end
-
-      it 'renders correctly' do
-        confirm_phone_registration
-
-        expect(response).to redirect_to(RailsBase.url_routes.authenticated_root_path)
-      end
-
-      it 'sets flash' do
-        confirm_phone_registration
-
-        expect(flash[:alert]).to include('Unable to complete request')
-      end
-    end
-
-    it 'updates mfa_sms_enabled' do
-      expect { confirm_phone_registration }.to change { change_proc.call }.to(true)
-    end
-
-    it 'redirects correct' do
-      confirm_phone_registration
-
-      expect(response).to redirect_to(RailsBase.url_routes.authenticated_root_path)
-    end
-
-    it 'sets flash' do
-      confirm_phone_registration
-
-      expect(flash[:notice]).to eq('You have succesfully enabled 2fa.')
-    end
-
-    include_examples 'invalid token context'
-  end
-
-  describe 'DELETE #remove_phone_mfa' do
-    subject(:remove_phone_mfa) { delete(:remove_phone_mfa) }
-    let(:change_proc) { -> { [user.reload.mfa_sms_enabled, user.reload.last_mfa_sms_login] } }
-
-    before do
-      user.update!(mfa_sms_enabled: true, last_mfa_sms_login: Time.zone.now)
-      sign_in(user)
-    end
-
-    it 'changes data' do
-      expect { remove_phone_mfa }.to change { change_proc.call }
-
-      expect(response).to redirect_to RailsBase.url_routes.authenticated_root_path
-    end
-
-    it 'sets flash' do
-      remove_phone_mfa
-
-      expect(flash[:notice]).to include('You have Disabled 2fa')
-    end
-
-    it 'redirects correctly' do
-      remove_phone_mfa
-
-      expect(response).to redirect_to RailsBase.url_routes.authenticated_root_path
-    end
-
-    include_examples 'user is not logged'
-  end
-
   describe 'GET #forgot_password' do
     subject(:forgot_password) { get(:forgot_password, params: params) }
 
@@ -510,7 +364,7 @@ RSpec.describe RailsBase::SecondaryAuthenticationController, type: :controller d
       before { user.update!(mfa_sms_enabled: true) }
 
       it 'sends mfa to user' do
-        expect(RailsBase::Authentication::SendLoginMfaToUser).to receive(:call).with(user: user, expires_at: Time.zone.now + 10.minutes).and_call_original
+        expect(RailsBase::Mfa::Sms::Send).to receive(:call).with(user: user, expires_at: Time.zone.now + 10.minutes).and_call_original
 
         forgot_password
       end

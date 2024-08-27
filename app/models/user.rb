@@ -72,22 +72,12 @@ class User < RailsBase::ApplicationRecord
     end
   end
 
-  def self.time_bound
-    Time.zone.now - RailsBase.config.auth.mfa_time_duration
-  end
-
   def admin
     (self[:admin].presence || ADMIN_ROLE_NONE).to_sym
   end
 
   def full_name
   	"#{first_name} #{last_name}"
-  end
-
-  def past_mfa_sms_time_duration?
-    return true if last_mfa_sms_login.nil?
-
-    last_mfa_sms_login < self.class.time_bound
   end
 
   def set_last_mfa_sms_login!(time: Time.zone.now)

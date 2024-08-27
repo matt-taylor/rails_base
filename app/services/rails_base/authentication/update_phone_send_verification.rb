@@ -22,7 +22,7 @@ module RailsBase::Authentication
 			end
 			context.expires_at = twilio_sms.short_lived_data.death_time
 			context.mfa_randomized_token =
-			  MfaSetEncryptToken.call(user: user, expires_at: context.expires_at, purpose: Constants::MSET_PURPOSE).encrypted_val
+			  RailsBase::Mfa::EncryptToken.(user: user, expires_at: context.expires_at, purpose: Constants::MSET_PURPOSE).encrypted_val
 		end
 
 		def update_user_number!

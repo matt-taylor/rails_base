@@ -139,9 +139,9 @@ class RailsBaseApplicationController < ActionController::Base
     return true if soft_validate_mfa_token(token: session[:mfa_randomized_token], purpose: purpose)
 
     if user_signed_in?
-      redirect_to RailsBase.url_routes.new_user_session_path, alert: @token_verifier.message
-    else
       redirect_to RailsBase.url_routes.user_settings_path, alert: @token_verifier.message
+    else
+      redirect_to RailsBase.url_routes.new_user_session_path, alert: @token_verifier.message
     end
     return false
   end

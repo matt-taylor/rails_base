@@ -2,9 +2,10 @@ require 'twilio_helper'
 
 RSpec.describe RailsBase::Users::SessionsController, type: :controller do
   let(:sessions) { { } }
-  let(:user) { User.first }
+  let(:user) { create(:user, :sms_enabled, password: password) }
   let(:email) { user.email }
   let(:password) { 'password11' }
+  let(:password_param) { password }
   let(:valid_heartbeat_response) { { 'success' => true, 'ttd' => ttd, 'ttl' => ttl, 'last_request' => last_request } }
   let(:last_request) { Time.zone.now.to_i }
   let(:ttd) { Devise.timeout_in.to_i + last_request }
@@ -18,7 +19,7 @@ RSpec.describe RailsBase::Users::SessionsController, type: :controller do
   end
 
   describe 'POST #create' do
-    subject(:create) { post(:create,  params: params, session: sessions) }
+    subject(:post_create) { post(:create,  params: params, session: sessions) }
 
     before do
       allow(User).to receive(:find_for_authentication).and_call_original
@@ -26,25 +27,25 @@ RSpec.describe RailsBase::Users::SessionsController, type: :controller do
       allow(TwilioHelper).to receive(:send_sms).with(message: anything, to: user.phone_number)
     end
     let(:params) { { user: user_params } }
-    let(:user_params) { { email: email, password: password } }
+    let(:user_params) { { email: email, password: password_param } }
     let(:sessions) { { } }
 
     context 'when incorrect credentials' do
       shared_examples 'incorrect credentials' do
         it 'renders new' do
-          create
+          post_create
 
           expect(response).to render_template(:new)
         end
 
         it 'sets user' do
-          create
+          post_create
 
           expect(assigns(:user)).to be_a(User)
         end
 
         it 'sets flash' do
-          create
+          post_create
 
           expect(flash[:alert]).to be_present
         end
@@ -72,19 +73,19 @@ RSpec.describe RailsBase::Users::SessionsController, type: :controller do
 
       context 'with modified password' do
         context 'when missing' do
-          let(:password) { nil }
+          let(:password_param) { nil }
 
           include_examples 'incorrect credentials'
         end
 
         context 'when empty' do
-          let(:password) { '' }
+          let(:password_param) { '' }
 
           include_examples 'incorrect credentials'
         end
 
         context 'when incorrect' do
-          let(:password) { 'this is not a password' }
+          let(:password_param) { 'this is not a password' }
 
           include_examples 'incorrect credentials'
         end
@@ -95,19 +96,19 @@ RSpec.describe RailsBase::Users::SessionsController, type: :controller do
       before { allow(user).to receive(:email_validated).and_return(false) }
 
       it 'correctly redirects' do
-        create
+        post_create
 
         expect(response).to redirect_to(RailsBase.url_routes.auth_static_path)
       end
 
       it 'correctly sets mfa token' do
-        create
+        post_create
 
         expect(session[:mfa_randomized_token]).to be_present
       end
 
       it 'correctly sets flash' do
-        create
+        post_create
 
         expect(flash[:notice]).to eq RailsBase::Authentication::Constants::STATIC_WAIT_FLASH
       end
@@ -115,7 +116,7 @@ RSpec.describe RailsBase::Users::SessionsController, type: :controller do
       it 'sends email' do
         expect(RailsBase::Authentication::SendVerificationEmail).to receive(:call).with(user: user, reason: RailsBase::Authentication::Constants::SVE_LOGIN_REASON)
 
-        create
+        post_create
       end
     end
 
@@ -129,50 +130,49 @@ RSpec.describe RailsBase::Users::SessionsController, type: :controller do
         before { allow(user).to receive(:past_mfa_sms_time_duration?).and_return(true) }
 
         it 'correctly redirects' do
-          create
+          post_create
 
-          expect(response).to redirect_to(RailsBase.url_routes.mfa_code_path)
+          expect(response).to redirect_to(RailsBase.url_routes.sms_validate_login_input_path)
         end
 
         it 'correctly sets mfa token' do
-          create
+          post_create
 
           expect(session[:mfa_randomized_token]).to be_present
         end
 
         it 'correctly sets flash' do
-          create
+          post_create
 
           expect(flash[:notice]).to include('Please check your mobile device')
         end
 
         it 'sends mfa' do
-          expect(RailsBase::Authentication::SendLoginMfaToUser).to receive(:call).with(user: user).and_call_original
+          expect(RailsBase::Mfa::Sms::Send).to receive(:call).with(user: user).and_call_original
 
-          create
+          post_create
         end
       end
 
       context 'when no reverification needed' do
         before do
-          allow(user).to receive(:past_mfa_sms_time_duration?).and_return(false)
-          allow(user).to receive(:last_mfa_sms_login).and_return(Time.zone.now - 30.minutes)
+          allow(RailsBase.config.mfa).to receive(:reauth_strategy).and_return(RailsBase::Mfa::Strategy::SkipEveryRequest)
         end
 
         it 'correctly redirects' do
-          create
+          post_create
 
           expect(response).to redirect_to(RailsBase.url_routes.authenticated_root_path)
         end
 
         it 'correctly sets mfa token' do
-          create
+          post_create
 
           expect(session[:mfa_randomized_token]).to be_nil
         end
 
         it 'correctly sets flash' do
-          create
+          post_create
 
           expect(flash[:notice]).to include('Welcome. You have succesfully signed in')
         end
@@ -186,19 +186,19 @@ RSpec.describe RailsBase::Users::SessionsController, type: :controller do
       end
 
       it 'correctly redirects' do
-        create
+        post_create
 
         expect(response).to redirect_to(RailsBase.url_routes.authenticated_root_path)
       end
 
       it 'does not set mfa token' do
-        create
+        post_create
 
         expect(session[:mfa_randomized_token]).to be_nil
       end
 
       it 'correctly sets flash' do
-        create
+        post_create
 
         expect(flash[:notice]).to include('We suggest enabling 2fa authentication to secure your account')
       end
@@ -209,13 +209,13 @@ RSpec.describe RailsBase::Users::SessionsController, type: :controller do
       let(:mfa_decision) { double('DecisionTwofaType', failure?: true, message: 'failure') }
 
       it 'correctly redirects' do
-        create
+        post_create
 
         expect(response).to redirect_to(RailsBase.url_routes.new_user_session_path)
       end
 
       it 'correctly sets flash' do
-        create
+        post_create
 
         expect(flash[:alert]).to include('failure')
       end

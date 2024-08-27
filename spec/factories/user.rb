@@ -10,6 +10,14 @@ FactoryBot.define do
     email_validated { true }
     email { Faker::Internet.email }
 
+    trait :unvalidated_email do
+      email_validated { false }
+    end
+
+    trait :sms_enabled do
+      mfa_sms_enabled { true }
+    end
+
     trait :totp_enabled do
       temp_otp_secret { nil }
       otp_secret { User.generate_otp_secret }

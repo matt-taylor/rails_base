@@ -12,46 +12,42 @@ module RailsBase::Authentication
 				email_context = validate_email_context!
 				check_success!(result: email_context)
 				log(level: :info, msg: "User #{user.id}: redirect_url: #{context.redirect_url}, sign_in_user: #{context.sign_in_user}, flash: #{context.flash}")
+				log_exit
+				return
+			end
+
+			unless RailsBase.config.mfa.enable?
+				log(level: :info, msg: "MFA is not enabled. Bypassing")
+				sign_in_user_context!
+				context.flash = { notice: "Welcome. You have succesfully signed in." }
+				log_exit
 				return
 			end
 
 			mfa_decision = RailsBase::Mfa::Decision.(user: user)
 			check_success!(result: mfa_decision)
-
+			mfa_type_result = nil
 			case mfa_decision.mfa_type
 			when RailsBase::Mfa::SMS
+				mfa_type_result = sms_enabled_context!(decision: mfa_decision)
 			when RailsBase::Mfa::OTP
 			when RailsBase::Mfa::NONE
 				# no MFA type enabled on account
 				sign_in_user_context!
 				context.flash = { notice: "Welcome. You have succesfully signed in. We suggest enabling 2fa authentication to secure your account" }
-
 			else
 				raise "Unknown MFA type provided"
 			end
+			check_success!(result: mfa_type_result)
+			log_exit
+		end
 
-			mfa_decision =
-				if user.email_validated
-					if RailsBase.config.mfa.enable? && user.mfa_sms_enabled
-						sms_enabled_context!(decision: mfa_decision)
-					else
-						# user has signed up and validated email
-						# user does not have mfa enabled
-						sign_in_user_context!
-						context.flash = { notice: "Welcome. You have succesfully signed in. We suggest enabling 2fa authentication to secure your account" }
-						nil
-					end
-				end
-
-			if mfa_decision && mfa_decision.failure?
-				log(level: :error, msg: "Service error bubbled up. Failing with: #{mfa_decision.message}")
-				context.fail!(message: mfa_decision.message)
-			end
-
+		def log_exit
 			log(level: :info, msg: "User #{user.id}: redirect_url: #{context.redirect_url}, sign_in_user: #{context.sign_in_user}, flash: #{context.flash}")
 		end
 
 		def check_success!(result:)
+			return if result.nil?
 			return if result.success?
 
 			log(level: :error, msg: "Service error bubbled up. Failing with: #{result.message}")
@@ -74,6 +70,13 @@ module RailsBase::Authentication
 			context.sign_in_user = true
 		end
 
+		def otp_enabled_context!(decision:)
+			if decision.mfa_require
+				log(level: :warn, msg: "OTP MFA required for user")
+			else
+			end
+		end
+
 		def sms_enabled_context!(decision:)
 			if decision.mfa_require
 				log(level: :warn, msg: "SMS MFA required for user")
@@ -86,9 +89,7 @@ module RailsBase::Authentication
 				result
 			else
 				sign_in_user_context!
-				mfa_free_words = distance_of_time_in_words(user.last_mfa_sms_login, User.time_bound)
-				context.flash = { notice: "Welcome. You have succesfully signed in. You will be mfa free for another #{mfa_free_words}" }
-				log(level: :info, msg: "User is mfa free for another #{mfa_free_words}")
+				context.flash = { notice: "Welcome. You have succesfully signed in via #{decision.mfa_type.to_s.upcase} MFA." }
 				nil
 			end
 		end

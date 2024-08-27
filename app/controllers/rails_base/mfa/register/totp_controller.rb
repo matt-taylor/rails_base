@@ -4,8 +4,7 @@ module RailsBase::Mfa::Register
   class TotpController < RailsBaseApplicationController
     # DELETE mfa/register/totp
     def totp_remove
-
-      result = RailsBase::Authentication::Totp::Remove.(password: params[:password], user: current_user, otp_code: params[:totp_code])
+      result = RailsBase::Mfa::Totp::Remove.(password: params[:password], user: current_user, otp_code: params[:totp_code])
 
       if result.success?
         flash[:notice] = "Successfully Removed TOTP Authentication to #{RailsBase.app_name}"
@@ -18,7 +17,7 @@ module RailsBase::Mfa::Register
 
     # POST mfa/register/totp
     def totp_secret
-      result = RailsBase::Authentication::Totp::OtpMetadata.(user: current_user)
+      result = RailsBase::Mfa::Totp::OtpMetadata.(user: current_user)
       if result.success?
         render json: result.metadata
       else
@@ -28,7 +27,7 @@ module RailsBase::Mfa::Register
 
     # POST mfa/register/totp/validate
     def totp_validate
-      result = RailsBase::Authentication::Totp::ValidateTemporaryCode.(user: current_user, otp_code: params[:totp_code])
+      result = RailsBase::Mfa::Totp::ValidateTemporaryCode.(user: current_user, otp_code: params[:totp_code])
       if result.success?
         flash[:notice] = "Successfully added an Authenticator for TOTP to #{RailsBase.app_name}"
       else

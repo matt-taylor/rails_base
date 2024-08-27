@@ -2,13 +2,13 @@ module RailsBase
   class SecondaryAuthenticationController < RailsBaseApplicationController
     before_action :authenticate_user!, only: [:remove_phone_mfa, :confirm_phone_registration]
 
-    before_action :validate_token!, only: [:resend_email, :wait, :confirm_phone_registration]
+    before_action :validate_mfa_token!, only: [:resend_email, :wait, :confirm_phone_registration]
 
     before_action :json_validate_current_user!, only: [:phone_registration]
 
     # GET auth/wait
     def static
-      return unless validate_token!(purpose: Authentication::Constants::SSOVE_PURPOSE)
+      return unless validate_mfa_token!(purpose: Authentication::Constants::SSOVE_PURPOSE)
 
       if flash[:notice].nil? && flash[:alert].nil?
         flash[:notice] = Authentication::Constants::STATIC_WAIT_FLASH
@@ -51,7 +51,7 @@ module RailsBase
 
     # GET auth/login
     def after_email_login_session_new
-      return unless validate_token!(purpose: Authentication::Constants::SSOVE_PURPOSE)
+      return unless validate_mfa_token!(purpose: Authentication::Constants::SSOVE_PURPOSE)
 
       @user = User.new
       if flash[:alert].nil? && flash[:notice].nil?
@@ -61,7 +61,7 @@ module RailsBase
 
     # POST auth/login
     def after_email_login_session_create
-      return unless validate_token!(purpose: Authentication::Constants::SSOVE_PURPOSE)
+      return unless validate_mfa_token!(purpose: Authentication::Constants::SSOVE_PURPOSE)
 
       flash[:notice] = nil
       flash[:alert] = nil
@@ -130,7 +130,7 @@ module RailsBase
 
     # POST auth/email/forgot/:data
     def forgot_password_with_mfa
-      return unless validate_token!(purpose: Authentication::Constants::VFP_PURPOSE)
+      return unless validate_mfa_token!(purpose: Authentication::Constants::VFP_PURPOSE)
 
       # datum is expired because it was used with #forgot_password method
       # we dont care, we just want to ensure the correct user (multiple verification ways)
@@ -160,7 +160,7 @@ module RailsBase
 
     # POST auth/email/reset/:data
     def reset_password
-      return unless validate_token!(purpose: Authentication::Constants::VFP_PURPOSE)
+      return unless validate_mfa_token!(purpose: Authentication::Constants::VFP_PURPOSE)
 
       result = Authentication::ModifyPassword.call(password: params[:user][:password], password_confirmation: params[:user][:password_confirmation], data: params[:data], user_id: @token_verifier.user_id, flow: :forgot_password)
       if result.failure?
@@ -211,7 +211,5 @@ module RailsBase
       render json: { error: "Unauthorized" }.to_json, :status => 401
       return false
     end
-
-
   end
 end

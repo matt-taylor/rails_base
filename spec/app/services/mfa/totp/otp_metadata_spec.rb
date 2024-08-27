@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe RailsBase::Authentication::Totp::OtpMetadata do
+RSpec.describe RailsBase::Mfa::Totp::OtpMetadata do
   describe ".call" do
     subject (:call) { described_class.call(user: user) }
 

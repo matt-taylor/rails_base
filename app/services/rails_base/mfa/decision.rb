@@ -12,10 +12,10 @@ module RailsBase::Mfa
         elsif user.mfa_sms_enabled
           execute_sms
         else
-          execute_nil
+          execute_nil("User")
         end
       else
-        execute_nil
+        execute_nil("Application")
       end
     end
 
@@ -32,19 +32,12 @@ module RailsBase::Mfa
       result = reauth_strategy_class.(user: user, force: force_mfa, mfa_type: SMS, mfa_last_used: user.last_mfa_sms_login)
       require_mfa = result.request_mfa
 
-      if require_mfa && execute?
-        sms_result = RailsBase::Mfa::Sms::Send.(user: user, expires_at: 5.minutes.from_now)
-        # Prolly need to do validation things to make sure it got sent
-      else
-        log(level: :warn, msg: "MFA is required on User. `execute=true` param must be passed to send SMS code to user")
-      end
-
       context_clues(type: SMS, require_mfa: require_mfa)
     end
 
-    def execute_nil
-      log(level: :info, msg: "User/APP does not have any MFA type enabledmfa. Skipping")
-      context_clues(type: nil, require_mfa: require_mfa)
+    def execute_nil(classify)
+      log(level: :info, msg: "#{classify} does not have any MFA type enabled. Skipping")
+      context_clues(type: NONE, require_mfa: false)
     end
 
     def context_clues(type:, require_mfa:)

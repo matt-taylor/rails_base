@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe RailsBase::Authentication::Totp::ValidateCode do
+RSpec.describe RailsBase::Mfa::Totp::ValidateCode do
   shared_examples "otp_secret present" do
     context "when otp_code is incorrect" do
       let(:otp_code) { "1234567890" }

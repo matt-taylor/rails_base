@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'velocity_limiter'
+require 'twilio_helper'
+
 module RailsBase::Mfa::Sms
   class Send < RailsBase::ServiceBase
     include ActionView::Helpers::DateHelper

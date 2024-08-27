@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe RailsBase::Authentication::Totp::ValidateTemporaryCode do
+RSpec.describe RailsBase::Mfa::Totp::ValidateTemporaryCode do
   describe ".call" do
     subject (:call) { described_class.call(user: user, otp_code: otp_code) }
 

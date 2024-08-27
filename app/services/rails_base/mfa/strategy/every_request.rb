@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module RailsBase::Mfa::Strategy
-  class EveryLogin < Base
+  class EveryRequest < Base
     def self.description
       "MFA is always requried"
     end

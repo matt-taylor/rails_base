@@ -10,10 +10,10 @@ module RailsBase::Authentication
 			log(level: :info, msg: "Validated user 2fa email #{data_point[:user].full_name}")
 			context.user = data_point[:user]
 			context.encrypted_val =
-				MfaSetEncryptToken.call(user: data_point[:user], expires_at: Time.zone.now + 10.minutes, purpose: Constants::VFP_PURPOSE).encrypted_val
+				RailsBase::Mfa::EncryptToken.(user: data_point[:user], expires_at: Time.zone.now + 10.minutes, purpose: Constants::VFP_PURPOSE).encrypted_val
 			return unless data_point[:user].mfa_sms_enabled
 
-			result = SendLoginMfaToUser.call(user: data_point[:user], expires_at: Time.zone.now + 10.minutes)
+			result = RailsBase::Mfa::Sms::Send.(user: data_point[:user], expires_at: Time.zone.now + 10.minutes)
 			if result.failure?
 				log(level: :warn, msg: "Attempted to send MFA to user from #{self.class.name}: Exiting with #{result.message}")
 				context.fail!(message: result.message, redirect_url: Constants::URL_HELPER.new_user_password_path, level: :warn)

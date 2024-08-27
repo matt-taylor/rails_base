@@ -29,7 +29,7 @@ RSpec.describe RailsBase::Authentication::VerifyForgotPassword do
 		let(:twilio_message) { double('SendLoginMfaToUser', failure?: twilio_failure, message: msg ) }
 		let(:twilio_failure) { false }
 		let(:msg) { 'false' }
-		before { allow(RailsBase::Authentication::SendLoginMfaToUser).to receive(:call).and_return(twilio_message) }
+		before { allow(RailsBase::Mfa::Sms::Send).to receive(:call).and_return(twilio_message) }
 
 		context 'when datum is invalid' do
 			before do
@@ -63,7 +63,7 @@ RSpec.describe RailsBase::Authentication::VerifyForgotPassword do
 		end
 
 		context 'when mfa enabled' do
-			before { user.update(mfa_enabled: true) }
+			before { user.update(mfa_sms_enabled: true) }
 			context 'when mfa to user fails' do
 				let(:twilio_failure) { true }
 

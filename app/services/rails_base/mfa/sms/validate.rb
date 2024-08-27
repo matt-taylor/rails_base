@@ -58,7 +58,7 @@ module RailsBase::Mfa::Sms
       # MFA does not exist for any reason type
       log(level: :warn, msg: "Could not find MFA code. Incorrect MFA code")
 
-      context.fail!(message: "Incorrect MFA code.", redirect_url: RailsBase::Authentication::Constants::URL_HELPER.mfa_code_path, level: :warn)
+      context.fail!(message: "Incorrect MFA code.", redirect_url: RailsBase::Authentication::Constants::URL_HELPER.sms_validate_login_input_path, level: :warn)
     end
 
     def validate_user_consistency?(datum)

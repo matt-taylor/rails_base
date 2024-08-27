@@ -2,13 +2,12 @@ RSpec.describe RailsBase::Authentication::DecisionTwofaType do
 	subject(:call) { described_class.call(params) }
 
 	let(:mfa_object) do
-		double('RailsBase::SendLoginMfaToUser', short_lived_data: double('ShortLivedData', death_time: death_time), failure?: !mfa_success, success?: mfa_success, message: 'msg')
+		double('RailsBase::Mfa::Sms::Send', short_lived_data: double('ShortLivedData', death_time: death_time), failure?: !mfa_success, success?: mfa_success, message: 'msg')
 	end
 	let(:death_time) { Time.zone.now }
 	let(:mfa_success) { true }
-	let(:user) { User.first }
-
 	let(:params) { { user: user} }
+	let(:user) { create(:user) }
 
 	describe '#validate!' do
 		context 'fails without user' do
@@ -19,48 +18,45 @@ RSpec.describe RailsBase::Authentication::DecisionTwofaType do
 	end
 
 	describe '#call' do
-		before { allow(user).to receive(:email_validated).and_return(false) }
-
 		context 'when email is validated' do
-			before { allow(user).to receive(:email_validated).and_return(true) }
-
 			context 'when mfa enabled' do
-				before { allow(user).to receive(:mfa_sms_enabled).and_return(true) }
+				context "with sms" do
+					let(:user) { create(:user, :sms_enabled) }
 
-				context 'when mfa expired' do
-					before do
-						allow(RailsBase::Authentication::SendLoginMfaToUser).to receive(:call).with(user: user).and_return(mfa_object)
-						allow(user).to receive(:past_mfa_sms_time_duration?).and_return(true)
+					context 'when mfa required' do
+						before do
+							allow(RailsBase::Mfa::Sms::Send).to receive(:call).with(user: user).and_return(mfa_object)
+							allow(RailsBase.config.mfa).to receive(:reauth_strategy).and_return(RailsBase::Mfa::Strategy::EveryRequest)
+						end
+
+						context 'when send fails' do
+							let(:mfa_success) { false }
+
+							it { expect(call.failure?).to eq true }
+							it { expect(call.message).to eq 'msg' }
+						end
+
+						it { expect(call.sign_in_user).to be false }
+						it { expect(call.redirect_url).to eq RailsBase::Authentication::Constants::URL_HELPER.sms_validate_login_input_path }
+						it { expect(call.set_mfa_randomized_token).to be true }
+						it { expect(call.flash).to include({notice: /\w/ }) }
+						it { expect(call.token_ttl).to eq death_time }
 					end
 
-					context 'when mfa fails' do
-						let(:mfa_success) { false }
+					context 'when mfa not required' do
+						before do
+							allow(RailsBase.config.mfa).to receive(:reauth_strategy).and_return(RailsBase::Mfa::Strategy::SkipEveryRequest)
+						end
 
-						it { expect(call.failure?).to eq true }
-						it { expect(call.message).to eq 'msg' }
+						it { expect(call.sign_in_user).to be true }
+						it { expect(call.redirect_url).to eq RailsBase::Authentication::Constants::URL_HELPER.authenticated_root_path }
+						it { expect(call.set_mfa_randomized_token).to be false }
 					end
-
-					it { expect(call.sign_in_user).to be false }
-					it { expect(call.redirect_url).to eq RailsBase::Authentication::Constants::URL_HELPER.mfa_code_path }
-					it { expect(call.set_mfa_randomized_token).to be true }
-					it { expect(call.flash).to include({notice: /\w/ }) }
-					it { expect(call.token_ttl).to eq death_time }
-				end
-
-				context 'when mfa within time' do
-					before do
-						allow(user).to receive(:past_mfa_sms_time_duration?).and_return(false)
-						allow(user).to receive(:last_mfa_sms_login).and_return(Time.zone.now)
-					end
-
-					it { expect(call.sign_in_user).to be true }
-					it { expect(call.redirect_url).to eq RailsBase::Authentication::Constants::URL_HELPER.authenticated_root_path }
-					it { expect(call.set_mfa_randomized_token).to be false }
 				end
 			end
 
 			context 'when mfa is not enabled' do
-				before { allow(user).to receive(:mfa_sms_enabled).and_return(false) }
+				let(:user) { create(:user) }
 
 				it { expect(call.sign_in_user).to be true }
 				it { expect(call.redirect_url).to eq RailsBase::Authentication::Constants::URL_HELPER.authenticated_root_path }
@@ -69,10 +65,10 @@ RSpec.describe RailsBase::Authentication::DecisionTwofaType do
 		end
 
 		context 'when email is not validated' do
+			let(:user) { create(:user, :unvalidated_email) }
 			let(:mfa_decision) { double('SendVerificationEmail', failure?: !mfa_success, success?: mfa_success, message: 'msg') }
 			before do
 				allow(RailsBase::Authentication::SendVerificationEmail).to receive(:call).with(user: user, reason: RailsBase::Authentication::Constants::SVE_LOGIN_REASON).and_return(mfa_decision)
-				allow(user).to receive(:past_mfa_sms_time_duration?).and_return(false)
 				allow(user).to receive(:last_mfa_sms_login).and_return(Time.zone.now)
 			end
 
