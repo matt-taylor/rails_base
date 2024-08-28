@@ -17,7 +17,7 @@ module RailsBase
       result = NameChange.call(
         first_name: params[:user][:first_name],
         last_name: params[:user][:last_name],
-        current_user: current_user
+        current_user: current_user,
       )
 
       if result.failure?

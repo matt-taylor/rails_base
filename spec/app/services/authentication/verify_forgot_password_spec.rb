@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+
 RSpec.describe RailsBase::Authentication::VerifyForgotPassword do
 	subject(:call) { described_class.call(params) }
 
-	let(:user) { User.first  }
+	let(:user) { create(:user)  }
 	let(:data) { datum.data  }
 	let(:params) { { data: data } }
 	let!(:datum) do
@@ -56,7 +58,7 @@ RSpec.describe RailsBase::Authentication::VerifyForgotPassword do
 			it { expect(call.success?).to be true }
 			it { expect(call.mfa_flow).to be nil }
 			it do
-				expect(RailsBase::Authentication::SendLoginMfaToUser).not_to receive(:call)
+				expect(RailsBase::Mfa::Sms::Send).not_to receive(:call)
 
 				call
 			end

@@ -273,7 +273,7 @@ RSpec.describe RailsBase::UserSettingsController, type: :controller do
     end
 
     it 'sets soft destroy' do
-      expect { destroy_user }.to change { user.reload.last_mfa_login }.to(nil)
+      expect { destroy_user }.to change { user.reload.last_mfa_sms_login }.to(nil)
         .and change { user.reload.mfa_sms_enabled }.to(false)
         .and change { user.reload.email_validated }.to(false)
         .and change { user.reload.encrypted_password }.to('')

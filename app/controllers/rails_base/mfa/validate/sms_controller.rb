@@ -2,7 +2,6 @@
 
 module RailsBase::Mfa::Validate
   class SmsController < RailsBaseApplicationController
-    # before_action :authenticate_user!
     before_action :validate_mfa_token!, only: [:sms_login_input, :sms_login]
 
     # POST mfa/validate/sms/send
@@ -28,8 +27,6 @@ module RailsBase::Mfa::Validate
         return unless authenticate_user!
 
         user = current_user
-      else
-        user = User.find(@token_verifier.user_id)
       end
 
       result = RailsBase::Mfa::Sms::Send.call(user: user)
@@ -38,7 +35,7 @@ module RailsBase::Mfa::Validate
         session[:mfa_randomized_token] =
           RailsBase::Mfa::EncryptToken.call(user: user, expires_at: 2.minutes.from_now).encrypted_val
         msg = "SMS Code succesfully sent!"
-        flash[:notice] = "SMS code succesfully sent. Please check messages"
+        flash[:notice] = "SMS Code succesfully sent. Please check messages"
         status = 200
       else
         flash[:alert] = msg = "Unable to complete Request. #{result.message}"
@@ -54,10 +51,12 @@ module RailsBase::Mfa::Validate
       end
     end
 
+    # GET mfa/validate/sms/login
     def sms_login_input
       @masked_phone = User.find(@token_verifier.user_id).masked_phone
     end
 
+    # POST mfa/validate/sms/login
     def sms_login
       mfa_validity = RailsBase::Mfa::Sms::Validate.call(params: params, session_mfa_user_id: @token_verifier.user_id)
       if mfa_validity.failure?

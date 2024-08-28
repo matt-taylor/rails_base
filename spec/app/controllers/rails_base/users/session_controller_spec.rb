@@ -1,4 +1,4 @@
-require 'twilio_helper'
+# frozen_string_literal: true
 
 RSpec.describe RailsBase::Users::SessionsController, type: :controller do
   let(:sessions) { { } }
@@ -127,7 +127,9 @@ RSpec.describe RailsBase::Users::SessionsController, type: :controller do
       end
 
       context 'when mfa needs reverification' do
-        before { allow(user).to receive(:past_mfa_sms_time_duration?).and_return(true) }
+        before do
+          allow(RailsBase.config.mfa).to receive(:reauth_strategy).and_return(RailsBase::Mfa::Strategy::EveryRequest)
+        end
 
         it 'correctly redirects' do
           post_create

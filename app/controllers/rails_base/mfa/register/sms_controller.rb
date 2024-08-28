@@ -14,7 +14,6 @@ module RailsBase::Mfa::Register
         return
       end
       session[:mfa_randomized_token] = result.mfa_randomized_token
-
       render :json => { status: :success, message: I18n.t('request_response.teapot.valid') }
     end
 
@@ -22,12 +21,11 @@ module RailsBase::Mfa::Register
     def sms_confirmation
       mfa_validity = RailsBase::Mfa::Sms::Validate.call(current_user: current_user, params: params, session_mfa_user_id: @token_verifier.user_id)
       if mfa_validity.failure?
-        redirect_to RailsBase.url_routes.authenticated_root_path, alert: I18n.t('authentication.confirm_phone_registration.fail', message: mfa_validity.message)
+        redirect_to RailsBase.url_routes.user_settings_path, alert: I18n.t('authentication.confirm_phone_registration.fail', message: mfa_validity.message)
         return
       end
 
       current_user.update!(mfa_sms_enabled: true)
-
       redirect_to RailsBase.url_routes.user_settings_path, notice: "Successfully added SMS as an MFA option on your account"
     end
 

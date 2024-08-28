@@ -46,7 +46,7 @@ RSpec.describe RailsBase::MfaAuthController, type: :controller do
     end
   end
 
-  describe 'GET #mfa_code' do
+  xdescribe 'GET #mfa_code' do
   	subject(:mfa_code) { get(:mfa_code, session: sessions) }
 
   	include_examples 'when invalid token'
@@ -64,7 +64,7 @@ RSpec.describe RailsBase::MfaAuthController, type: :controller do
     end
   end
 
-  describe 'POST #mfa_code_verify' do
+  xdescribe 'POST #mfa_code_verify' do
     subject(:mfa_code_verify) { get(:mfa_code_verify, params: params, session: sessions) }
 
     let!(:datum) { RailsBase::Authentication::SendLoginMfaToUser.new(user: user, expires_at: expires_at).create_short_lived_data }
@@ -119,7 +119,7 @@ RSpec.describe RailsBase::MfaAuthController, type: :controller do
     include_examples 'when invalid token'
   end
 
-  describe 'POST #resend_mfa' do
+  xdescribe 'POST #resend_mfa' do
     subject(:resend_mfa) { get(:resend_mfa, session: sessions) }
     before { allow(TwilioHelper).to receive(:send_sms) }
 

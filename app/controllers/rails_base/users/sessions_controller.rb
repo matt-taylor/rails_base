@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'twilio_helper'
+
 class RailsBase::Users::SessionsController < Devise::SessionsController
   prepend_before_action :protect_heartbeat, only: [:hearbeat_without_auth, :hearbeat_with_auth]
   prepend_before_action :skip_timeout, only: [:hearbeat_without_auth]

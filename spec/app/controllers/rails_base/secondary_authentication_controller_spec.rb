@@ -397,7 +397,7 @@ RSpec.describe RailsBase::SecondaryAuthenticationController, type: :controller d
     end
 
     it 'does not send mfa to user' do
-      expect(RailsBase::Authentication::SendLoginMfaToUser).not_to receive(:call)
+      expect(RailsBase::Mfa::Sms::Send).not_to receive(:call)
 
       forgot_password
     end

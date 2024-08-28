@@ -21,3 +21,4 @@ spec/examples.txt
 
 vendor/*
 */**/.DS_STORE
+*/**/.DS_Store
