@@ -37,7 +37,7 @@ module RailsBase::Mfa::Strategy
     end
 
     def validate!
-e      raise "Expected user to be a User. Received #{user.class}" unless User === user
+      raise "Expected user to be a User. Received #{user.class}" unless User === user
       raise "Expected mfa_type to be a present" if mfa_type.nil?
     end
   end

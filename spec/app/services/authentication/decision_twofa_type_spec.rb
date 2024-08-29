@@ -19,7 +19,7 @@ RSpec.describe RailsBase::Authentication::DecisionTwofaType do
 
 	describe '#call' do
 		context 'when email is validated' do
-			context 'when mfa enabled' do
+			context 'when mfa is enabled on app' do
 				context "with sms" do
 					let(:user) { create(:user, :sms_enabled) }
 
@@ -55,12 +55,21 @@ RSpec.describe RailsBase::Authentication::DecisionTwofaType do
 				end
 			end
 
-			context 'when mfa is not enabled' do
-				let(:user) { create(:user) }
+			context 'when mfa is disabled on app' do
+				before do
+					allow(RailsBase.config.mfa).to receive(:enable?).and_return(false)
+				end
+
+				it do
+					expect(RailsBase::Mfa::Decision).to_not receive(:call)
+
+					call
+				end
 
 				it { expect(call.sign_in_user).to be true }
 				it { expect(call.redirect_url).to eq RailsBase::Authentication::Constants::URL_HELPER.authenticated_root_path }
 				it { expect(call.set_mfa_randomized_token).to be false }
+				it { expect(call.flash).to include({notice: /succesfully signed in/ }) }
 			end
 		end
 

@@ -1,21 +1,21 @@
 # frozen_string_literal: true
 
 module RailsBase::Mfa
-  MFA_DECISIONS = [OTP = :otp, SMS = :sms, NONE = :none]
   class Decision < RailsBase::ServiceBase
     delegate :user, to: :context
 
     def call
-      if RailsBase.config.mfa.enable?
-        if user.mfa_otp_enabled
-          execute_otp
-        elsif user.mfa_sms_enabled
-          execute_sms
-        else
-          execute_nil("User")
-        end
-      else
+      unless RailsBase.config.mfa.enable?
         execute_nil("Application")
+        return
+      end
+
+      if user.mfa_otp_enabled
+        execute_otp
+      elsif user.mfa_sms_enabled
+        execute_sms
+      else
+        execute_nil("User")
       end
     end
 

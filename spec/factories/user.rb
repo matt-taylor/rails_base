@@ -33,5 +33,23 @@ FactoryBot.define do
       otp_backup_codes { [] }
       mfa_otp_enabled { true }
     end
+
+    trait :admin_owner do
+      sms_enabled
+      totp_enabled
+      admin { :owner }
+    end
+
+    trait :admin_super do
+      sms_enabled
+      totp_enabled
+      admin { :super }
+    end
+
+    trait :admin_view do
+      sms_enabled
+      totp_enabled
+      admin { :view_only }
+    end
   end
 end

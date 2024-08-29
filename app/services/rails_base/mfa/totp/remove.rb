@@ -26,7 +26,7 @@ module RailsBase::Mfa::Totp
         user.reset_otp!
         log(level: :info, msg: "#{lgp} TOTP successfully removed from User Account")
       rescue => e
-        context.fail!("Yikes! Unknown error occured. TOTP was not removed from the account.")
+        context.fail!(message: "Yikes! Unknown error occured. TOTP was not removed from the account.")
       end
     end
 

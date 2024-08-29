@@ -41,5 +41,18 @@ RSpec.describe RailsBase::Mfa::Totp::OtpMetadata do
         expect { call }.to_not change { user.temp_otp_secret }
       end
     end
+
+    context "when otp_token provisioning fails" do
+      let(:user) { create(:user) }
+      before do
+        allow(user).to receive(:otp_metadata).and_raise(StandardError, "I have failed you")
+      end
+
+      it do
+        expect(call.message).to include("Failed to retrieve Metadata for Code")
+        expect(call.failure?).to be(true)
+        expect(call.success?).to be(false)
+      end
+    end
   end
 end

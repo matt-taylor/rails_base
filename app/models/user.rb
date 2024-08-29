@@ -46,7 +46,7 @@ class User < RailsBase::ApplicationRecord
 
   def self._def_admin_convenience_method!(admin_method:)
     types = RailsBase.config.admin.admin_types
-    #### metods on the instance
+    #### methods on the instance
     define_method("at_least_#{admin_method}?") do
       i = types.find_index(admin.to_sym)
       i >= types.find_index(admin_method.to_sym)

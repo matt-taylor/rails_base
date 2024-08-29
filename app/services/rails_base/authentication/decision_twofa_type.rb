@@ -17,7 +17,7 @@ module RailsBase::Authentication
 			end
 
 			unless RailsBase.config.mfa.enable?
-				log(level: :info, msg: "MFA is not enabled. Bypassing")
+				log(level: :info, msg: "MFA on app is not enabled. Bypassing")
 				sign_in_user_context!
 				context.flash = { notice: "Welcome. You have succesfully signed in." }
 				log_exit
@@ -31,6 +31,7 @@ module RailsBase::Authentication
 			when RailsBase::Mfa::SMS
 				mfa_type_result = sms_enabled_context!(decision: mfa_decision)
 			when RailsBase::Mfa::OTP
+				raise
 			when RailsBase::Mfa::NONE
 				# no MFA type enabled on account
 				sign_in_user_context!

@@ -2,6 +2,8 @@
 
 module RailsBase::Mfa::Register
   class TotpController < RailsBaseApplicationController
+    before_action :authenticate_user!
+
     # DELETE mfa/register/totp
     def totp_remove
       result = RailsBase::Mfa::Totp::Remove.(password: params[:password], user: current_user, otp_code: params[:totp_code])
