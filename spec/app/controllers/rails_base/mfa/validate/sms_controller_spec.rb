@@ -117,7 +117,7 @@ RSpec.describe RailsBase::Mfa::Validate::SmsController, type: :controller do
         it do
           sms_send
 
-          expect(response).to redirect_to(RailsBase.url_routes.sms_validate_login_input_path)
+          expect(response).to redirect_to(RailsBase.url_routes.mfa_evaluation_path(type: RailsBase::Mfa::SMS))
         end
 
         it do
@@ -169,7 +169,7 @@ RSpec.describe RailsBase::Mfa::Validate::SmsController, type: :controller do
       it do
         sms_send
 
-        expect(response).to redirect_to(RailsBase.url_routes.sms_validate_login_input_path)
+        expect(response).to redirect_to(RailsBase.url_routes.mfa_evaluation_path(type: RailsBase::Mfa::SMS))
       end
     end
   end
@@ -221,13 +221,14 @@ RSpec.describe RailsBase::Mfa::Validate::SmsController, type: :controller do
 
     context "with incorrect MFA code" do
       before do
-        mfa_params[mfa_params.keys.sample] = (mfa_params[mfa_params.keys.sample].to_i + 1).to_s
+        key = mfa_params.keys.sample
+        mfa_params[key] = "X"
       end
 
       it do
         sms_login
 
-        expect(response).to redirect_to(RailsBase.url_routes.sms_validate_login_input_path)
+        expect(response).to redirect_to(RailsBase.url_routes.mfa_evaluation_path(type: RailsBase::Mfa::SMS))
       end
     end
 

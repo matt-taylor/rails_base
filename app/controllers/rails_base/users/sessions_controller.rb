@@ -15,7 +15,7 @@ class RailsBase::Users::SessionsController < Devise::SessionsController
   # POST /user/sign_in
   def create
     # Warden/Devise will try to sign the user in before we explicitly do
-    # Sign ou the user when this happens so we can sign them back in later
+    # Sign out the user when this happens so we can sign them back in later
     sign_out(current_user) if current_user
 
     authenticate = RailsBase::Authentication::AuthenticateUser.call(email: params[:user][:email], password: params[:user][:password])
@@ -42,18 +42,18 @@ class RailsBase::Users::SessionsController < Devise::SessionsController
         ).encrypted_val
     end
 
-    redirect =
-      if mfa_decision.sign_in_user
-        sign_in(authenticate.user)
-        # only referentially redirect when we know the user should sign in
-        redirect_from_reference
-      end
+    if mfa_decision.sign_in_user
+      sign_in(authenticate.user)
+      session.merge!(mfa_decision.session || {})
+      # only referentially redirect when we know the user should sign in
+      redirect_to(redirect_from_reference || RailsBase.url_routes.authenticated_root_path, mfa_decision.flash)
+      return
+    end
 
-    redirect ||= mfa_decision.redirect_url
-
-    logger.info { "Successful sign in: Redirecting to #{redirect}" }
-
-    redirect_to(redirect, mfa_decision.flash)
+    ####
+    # User needs MFA
+    ####
+    redirect_to(mfa_decision.redirect_url, mfa_decision.flash)
   end
 
   # DELETE /user/sign_out

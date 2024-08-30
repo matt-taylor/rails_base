@@ -31,11 +31,12 @@ module RailsBase::Authentication
 			when RailsBase::Mfa::SMS
 				mfa_type_result = sms_enabled_context!(decision: mfa_decision)
 			when RailsBase::Mfa::OTP
-				raise
+				totp_enabled_context!(decision: mfa_decision)
 			when RailsBase::Mfa::NONE
 				# no MFA type enabled on account
 				sign_in_user_context!
-				context.flash = { notice: "Welcome. You have succesfully signed in. We suggest enabling 2fa authentication to secure your account" }
+				context.flash = { notice: "Welcome. You have succesfully signed in." }
+				context.session = { add_mfa_button: true }
 			else
 				raise "Unknown MFA type provided"
 			end
@@ -71,17 +72,25 @@ module RailsBase::Authentication
 			context.sign_in_user = true
 		end
 
-		def otp_enabled_context!(decision:)
+		def totp_enabled_context!(decision:)
 			if decision.mfa_require
-				log(level: :warn, msg: "OTP MFA required for user")
+				log(level: :warn, msg: "TOTP MFA required for user")
+				context.redirect_url = RailsBase.url_routes.mfa_evaluation_path
+				context.set_mfa_randomized_token = true
+				context.mfa_purpose = nil # use default
+				context.flash = { notice: "Additional Verification requested" }
+				context.token_ttl = 2.minutes.from_now
 			else
+				sign_in_user_context!
+				context.flash = { notice: "Welcome. You have succesfully signed in via #{decision.mfa_type.to_s.upcase} MFA." }
+				nil
 			end
 		end
 
 		def sms_enabled_context!(decision:)
 			if decision.mfa_require
 				log(level: :warn, msg: "SMS MFA required for user")
-				context.redirect_url = Constants::URL_HELPER.sms_validate_login_input_path
+				context.redirect_url = RailsBase.url_routes.mfa_evaluation_path
 				context.set_mfa_randomized_token = true
 				context.mfa_purpose = nil # use default
 				context.flash = { notice: "Please check your mobile device. We sent an SMS for MFA verification" }

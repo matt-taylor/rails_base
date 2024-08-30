@@ -47,7 +47,7 @@ module RailsBase::Mfa::Validate
         render json: { message: msg }, status: status
         flash.clear
       else
-        redirect_to RailsBase.url_routes.sms_validate_login_input_path
+        redirect_to RailsBase.url_routes.mfa_evaluation_path(type: RailsBase::Mfa::SMS)
       end
     end
 

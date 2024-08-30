@@ -4,8 +4,6 @@ module RailsBase
 
     before_action :validate_mfa_token!, only: [:resend_email, :wait, :confirm_phone_registration]
 
-    before_action :json_validate_current_user!, only: [:phone_registration]
-
     # GET auth/wait
     def static
       return unless validate_mfa_token!(purpose: Authentication::Constants::SSOVE_PURPOSE)
@@ -76,37 +74,6 @@ module RailsBase
       sign_in(authenticate.user)
       flash[:notice] = I18n.t('authentication.after_email_login_session_create')
       redirect_to RailsBase.url_routes.authenticated_root_path
-    end
-
-    # POST mfa/register/sms
-    def _MOVED_METHOD_phone_registration
-      result = Authentication::UpdatePhoneSendVerification.call(user: current_user, phone_number: params[:phone_number])
-      if result.failure?
-        render :json => { error: I18n.t('request_response.teapot.fail'), msg: result.message }.to_json, :status => 418
-        return
-      end
-      session[:mfa_randomized_token] = result.mfa_randomized_token
-
-      render :json => { status: :success, message: I18n.t('request_response.teapot.valid') }
-    end
-
-    # POST mfa/register/sms/validate
-    def _MOVED_METHOD_confirm_phone_registration
-      mfa_validity = RailsBase::Mfa::Sms::Validate.call(current_user: current_user, params: params, session_mfa_user_id: @token_verifier.user_id)
-      if mfa_validity.failure?
-        redirect_to RailsBase.url_routes.authenticated_root_path, alert: I18n.t('authentication.confirm_phone_registration.fail', message: mfa_validity.message)
-        return
-      end
-
-      current_user.update!(mfa_enabled: true)
-
-      redirect_to RailsBase.url_routes.authenticated_root_path, notice: I18n.t('authentication.confirm_phone_registration.valid')
-    end
-
-    # DELETE auth/phone/disable
-    def _MOVED_METHOD_remove_phone_mfa
-      current_user.update!(mfa_enabled: false, last_mfa_login: nil)
-      redirect_to RailsBase.url_routes.authenticated_root_path, notice: I18n.t('authentication.remove_phone_mfa')
     end
 
     # GET auth/email/forgot/:data
@@ -201,15 +168,6 @@ module RailsBase
 
       flash[:notice] = I18n.t('authentication.sso_login.valid')
       redirect_to url
-    end
-
-    private
-
-    def json_validate_current_user!
-      return if current_user
-
-      render json: { error: "Unauthorized" }.to_json, :status => 401
-      return false
     end
   end
 end

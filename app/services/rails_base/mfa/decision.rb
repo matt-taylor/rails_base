@@ -17,6 +17,16 @@ module RailsBase::Mfa
       else
         execute_nil("User")
       end
+
+      available_mfa_options!
+    end
+
+    def available_mfa_options!
+      mfa_options = []
+      mfa_options << OTP if user.mfa_otp_enabled
+      mfa_options << SMS if user.mfa_sms_enabled
+
+      context.mfa_options = mfa_options
     end
 
     def execute_otp

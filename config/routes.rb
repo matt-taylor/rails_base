@@ -92,6 +92,8 @@ Rails.application.routes.draw do
       mfa_base_validate = "rails_base/mfa/validate"
       constraints(->(_req) { RailsBase.config.totp.enable? }) do
         scope :totp do
+          get "login", to: "#{mfa_base_validate}/totp#totp_login_input", as: :totp_validate_login_input
+          post "login", to: "#{mfa_base_validate}/totp#totp_login", as: :totp_validate_login
         end
       end
 
@@ -103,6 +105,15 @@ Rails.application.routes.draw do
         end
       end
     end
+  end
+
+  # These routes need to be outside of the scope so that they can be called independently
+  # The code itself will evaluate if it should run or not
+  scope "mfa/evaluation" do
+    get '/', to: 'rails_base/mfa/evaluation#mfa_evaluate', as: :mfa_evaluation
+    post '/', to: 'rails_base/mfa/evaluation#validate_mfa_evaluation', as: :mfa_evaluation_validate
+    get 'verify', to: 'rails_base/mfa/evaluation#mfa_evaluate_authenticated', as: :mfa_evaluation_authenticated
+    post 'verify', to: 'rails_base/mfa/evaluation#validate_mfa_evaluation_authenticated', as: :mfa_evaluation_validate_authenticated
   end
 
   ################################

@@ -134,7 +134,7 @@ RSpec.describe RailsBase::Users::SessionsController, type: :controller do
         it 'correctly redirects' do
           post_create
 
-          expect(response).to redirect_to(RailsBase.url_routes.sms_validate_login_input_path)
+          expect(response).to redirect_to(RailsBase.url_routes.mfa_evaluation_path)
         end
 
         it 'correctly sets mfa token' do
@@ -202,7 +202,13 @@ RSpec.describe RailsBase::Users::SessionsController, type: :controller do
       it 'correctly sets flash' do
         post_create
 
-        expect(flash[:notice]).to include('We suggest enabling 2fa authentication to secure your account')
+        expect(flash[:notice]).to include("Welcome. You have succesfully signed in.")
+      end
+
+      it 'correctly sets session' do
+        post_create
+
+        expect(session[:add_mfa_button]).to be(true)
       end
     end
 

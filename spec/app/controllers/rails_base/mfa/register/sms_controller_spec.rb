@@ -89,7 +89,7 @@ RSpec.describe RailsBase::Mfa::Register::SmsController, type: :controller do
       it do
         sms_confirmation
 
-        expect(flash[:alert]).to include("Incorrect MFA code")
+        expect(flash[:alert]).to include("Incorrect SMS code")
       end
     end
 

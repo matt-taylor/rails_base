@@ -1,3 +1,6 @@
+<%
+  function_name = "advancedSecurityCollapse"
+%>
 <div class="row">
   <div class="col-md-10 offset-md-1">
     <div class="row">
@@ -45,7 +48,7 @@
           <div class="row">
             <div class="col-12">
               <button id="advancedSecurity-title" class="text-center btn btn-warning btn-block" type="button" id="dropdownMenuButton" aria-haspopup="true" aria-expanded="false">
-                Advanced MFA Security Options
+                MFA Options
               </button>
             </div>
           </div>
@@ -108,7 +111,7 @@
           </div>
         </div>
 
-        <%= render partial: 'rails_base/shared/standardized_collapse', locals: { options: { id: "advancedSecurity", title_id: "advancedSecurity-title", body_id: "advancedSecurity-body", default_closed: true } } %>
+        <%= render partial: 'rails_base/shared/standardized_collapse', locals: { options: { id: "advancedSecurity", title_id: "advancedSecurity-title", body_id: "advancedSecurity-body", default_closed: true, function_name: function_name } } %>
 
       </div>
     </div>
@@ -127,3 +130,8 @@
 <%= render 'modify_password' %>
 <%= render 'destroy_user' %>
 
+<script type="text/javascript">
+  $(document).ready(function(){
+    _railsBase_goToStandardizedCollapse("openmfa", `#advancedSecurity-body`, `<%= function_name %>`)
+  })
+</script>

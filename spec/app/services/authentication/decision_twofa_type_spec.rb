@@ -37,7 +37,7 @@ RSpec.describe RailsBase::Authentication::DecisionTwofaType do
 						end
 
 						it { expect(call.sign_in_user).to be false }
-						it { expect(call.redirect_url).to eq RailsBase::Authentication::Constants::URL_HELPER.sms_validate_login_input_path }
+						it { expect(call.redirect_url).to eq RailsBase.url_routes.mfa_evaluation_path }
 						it { expect(call.set_mfa_randomized_token).to be true }
 						it { expect(call.flash).to include({notice: /\w/ }) }
 						it { expect(call.token_ttl).to eq death_time }

@@ -544,7 +544,7 @@ RSpec.describe RailsBase::SecondaryAuthenticationController, type: :controller d
         it 'sets flash' do
           forgot_password_with_mfa
 
-          expect(flash[:alert]).to include('Incorrect MFA code.')
+          expect(flash[:alert]).to include('Incorrect SMS code.')
         end
       end
     end

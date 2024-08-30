@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe RailsBase::Mfa::Sms::Validate do
   subject(:call) { described_class.call(params) }
 
@@ -61,8 +63,8 @@ RSpec.describe RailsBase::Mfa::Sms::Validate do
       before { allow(ShortLivedData).to receive(:get_by_data).with(data: mfa, reason: reason).and_return(nil) }
 
       it { expect(call.failure?).to eq true }
-      it { expect(call.message).to include('Incorrect MFA code') }
-      it { expect(call.redirect_url).to eq RailsBase::Authentication::Constants::URL_HELPER.sms_validate_login_input_path }
+      it { expect(call.message).to include('Incorrect SMS code') }
+      it { expect(call.redirect_url).to eq(RailsBase.url_routes.mfa_evaluation_path(type: RailsBase::Mfa::SMS)) }
       it { expect(call.level).to eq :warn }
     end
 

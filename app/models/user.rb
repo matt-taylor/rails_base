@@ -84,6 +84,10 @@ class User < RailsBase::ApplicationRecord
     update(last_mfa_sms_login: time)
   end
 
+  def set_last_mfa_otp_login!(time: Time.zone.now)
+    update(last_mfa_otp_login: time)
+  end
+
   def masked_phone
     return nil unless phone_number
 

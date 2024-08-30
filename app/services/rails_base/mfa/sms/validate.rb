@@ -17,7 +17,7 @@ module RailsBase::Mfa::Sms
         array = convert_to_array
         if array.length != RailsBase::Authentication::Constants::MFA_LENGTH
           log(level: :warn, msg: "Not enough params for MFA code. Given #{array}. Expected of length #{RailsBase::Authentication::Constants::MFA_LENGTH}")
-          context.fail!(message: RailsBase::Authentication::Constants::MV_FISHY, redirect_url: RailsBase::Authentication::Constants::URL_HELPER.new_user_session_path, level: :alert)
+          context.fail!(message: RailsBase::Authentication::Constants::MV_FISHY, redirect_url: RailsBase.url_routes.new_user_session_path, level: :alert)
         end
 
         mfa_code = array.join
@@ -42,7 +42,7 @@ module RailsBase::Mfa::Sms
       # However, those did not match the current user signed in
       # Something is very 🐟
       log(level: :error, msg: "Someone is a teapot. Current logged in user does not equal mfa code.")
-      context.fail!(message: 'You are a teapot', redirect_url: RailsBase::Authentication::Constants::URL_HELPER.signout_path, level: :warn)
+      context.fail!(message: 'You are a teapot', redirect_url: RailsBase.url_routes.signout_path, level: :warn)
     end
 
     def validate_datum?(datum)
@@ -52,13 +52,13 @@ module RailsBase::Mfa::Sms
         # MFA is either expired or the incorrect reason. Either way it does not match
         msg = "Errors with MFA: #{datum[:invalid_reason].join(", ")}. Please login again"
         log(level: :warn, msg: msg)
-        context.fail!(message: msg, redirect_url: RailsBase::Authentication::Constants::URL_HELPER.new_user_session_path, level: :warn)
+        context.fail!(message: msg, redirect_url: RailsBase.url_routes.new_user_session_path, level: :warn)
       end
 
       # MFA does not exist for any reason type
       log(level: :warn, msg: "Could not find MFA code. Incorrect MFA code")
 
-      context.fail!(message: "Incorrect MFA code.", redirect_url: RailsBase::Authentication::Constants::URL_HELPER.sms_validate_login_input_path, level: :warn)
+      context.fail!(message: "Incorrect SMS code.", redirect_url: RailsBase.url_routes.mfa_evaluation_path(type: RailsBase::Mfa::SMS), level: :warn)
     end
 
     def validate_user_consistency?(datum)
@@ -67,7 +67,7 @@ module RailsBase::Mfa::Sms
 
       # MFA session token user does not match the datum user
       # Something is very 🐟
-      context.fail!(message: RailsBase::Authentication::Constants::MV_FISHY, redirect_url: RailsBase::Authentication::Constants::URL_HELPER.new_user_session_path, level: :alert)
+      context.fail!(message: RailsBase::Authentication::Constants::MV_FISHY, redirect_url: RailsBase.url_routes.new_user_session_path, level: :alert)
     end
 
     def get_short_lived_datum(mfa_code)
