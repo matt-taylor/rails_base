@@ -4,8 +4,8 @@ module RailsBase::Mfa
   class EvaluationController < RailsBaseApplicationController
     before_action :authenticate_user!, only: [:mfa_evaluate_authenticated]
     before_action :validate_mfa_with_event!
-    OTP_TEMPLATE = "rails_base/mfa/validate/totp/totp_login_input"
-    SMS_TEMPLATE = "rails_base/mfa/validate/sms/sms_login_input"
+    OTP_TEMPLATE = "rails_base/mfa/validate/totp/totp_event_input"
+    SMS_TEMPLATE = "rails_base/mfa/validate/sms/sms_event_input"
 
     # GET mfa/:event
     def mfa_with_event
@@ -40,14 +40,7 @@ module RailsBase::Mfa
       # Provided input is an allowed type for the current user
       return provided.to_sym if allowed.include?(provided.to_sym)
 
-      # Provided input was not allowed
-      # Assign the flash accordingly
-      if flash[:alert].nil? || session[:mfa_evauluate_stopper]
-        flash[:alert] = "Unknown MFA type #{provided}. Using #{default} instead"
-      else
-        session[:mfa_evauluate_stopper] = true
-        flash[:alert] += " -- Unknown MFA type #{provided}. Using #{default} instead"
-      end
+      flash[:alert] = "Unknown MFA type #{provided}. Using #{default} instead"
 
       return default
     end

@@ -121,26 +121,21 @@ RSpec.describe RailsBase::Users::SessionsController, type: :controller do
     end
 
     context 'when mfa is enabled' do
-      before do
-        allow(user).to receive(:email_validated).and_return(true)
-        allow(user).to receive(:mfa_sms_enabled).and_return(true)
-      end
-
       context 'when mfa needs reverification' do
         before do
           allow(RailsBase.config.mfa).to receive(:reauth_strategy).and_return(RailsBase::Mfa::Strategy::EveryRequest)
         end
 
-        it 'correctly redirects' do
+        it do
           post_create
 
-          expect(response).to redirect_to(RailsBase.url_routes.mfa_evaluation_path)
+          expect(response).to redirect_to(RailsBase.url_routes.mfa_with_event_path(mfa_event: :login))
         end
 
-        it 'correctly sets mfa token' do
+        it 'correctly creates login mfa_event' do
           post_create
 
-          expect(session[:mfa_randomized_token]).to be_present
+          expect(mfe_events_from_session).to include("login")
         end
 
         it 'correctly sets flash' do
@@ -182,10 +177,7 @@ RSpec.describe RailsBase::Users::SessionsController, type: :controller do
     end
 
     context 'when mfa is disabled' do
-      before do
-        allow(user).to receive(:email_validated).and_return(true)
-        allow(user).to receive(:mfa_sms_enabled).and_return(false)
-      end
+      let(:user) { create(:user, password: password) }
 
       it 'correctly redirects' do
         post_create

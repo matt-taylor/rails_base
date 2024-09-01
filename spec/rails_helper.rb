@@ -55,6 +55,26 @@ module ControllerHelper
   def user_signed_in?
     !!current_user
   end
+
+  def mfa_event_session_hash(mfa_event:)
+    {
+      :"__#{RailsBase.app_name}_mfa_events" => {
+        mfa_event.event.to_s => mfa_event.to_hash.to_json
+      }
+    }
+  end
+
+  def mfa_event_from_session(event_name:)
+    mfa_event = session.dig(:"__#{RailsBase.app_name}_mfa_events", event_name.to_s)
+    RailsBase::MfaEvent.new(**JSON.parse(mfa_event).deep_symbolize_keys)
+  end
+
+  def mfe_events_from_session
+    mfa_events = session.dig(:"__#{RailsBase.app_name}_mfa_events")
+    return [] unless Hash === mfa_events
+
+    mfa_events.keys
+  end
 end
 
 

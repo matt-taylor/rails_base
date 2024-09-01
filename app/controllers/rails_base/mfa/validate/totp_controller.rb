@@ -24,7 +24,7 @@ module RailsBase::Mfa::Validate
       end
 
       if @__rails_base_mfa_event.set_satiated_on_success
-        logger.info("\n\nSatiating MFA Event\n\n")
+        logger.info("Satiating MFA Event")
         @__rails_base_mfa_event.satiated!
       end
 

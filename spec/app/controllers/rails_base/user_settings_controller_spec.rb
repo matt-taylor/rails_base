@@ -18,6 +18,36 @@ RSpec.describe RailsBase::UserSettingsController, type: :controller do
     end
   end
 
+  describe "#GET index" do
+    subject(:index) { get(:index) }
+
+    context "when sms enabled" do
+      let(:user) { create(:user, :sms_enabled) }
+
+      it "adds disable sms event" do
+        index
+
+        expect(mfe_events_from_session).to include(RailsBase::MfaEvent::DISABLE_SMS_EVENT.to_s)
+      end
+    end
+
+    context "when sms disabled" do
+      let(:user) { create(:user) }
+
+      it "adds enable sms event" do
+        index
+
+        expect(mfe_events_from_session).to include(RailsBase::MfaEvent::ENABLE_SMS_EVENT.to_s)
+      end
+    end
+
+    it do
+      index
+
+      expect(response).to render_template(:index)
+    end
+  end
+
   describe 'POST #edit_name' do
     subject(:edit_name) { post(:edit_name, params: params) }
 

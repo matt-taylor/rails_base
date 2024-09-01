@@ -3,7 +3,6 @@ module RailsBase::Authentication
 		delegate :data, to: :context
 
 		def call
-			mfa_flow = false
 			data_point = short_lived_data
 			validate_datum?(data_point)
 

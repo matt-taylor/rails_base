@@ -73,7 +73,6 @@
 <script type="text/javascript">
   $(`#confirmSmsRemovalButton`).prop("disabled", true)
   $(`.mfaSmsModalBody input`).on("keypress", function() {
-    console.log( "Handler for `keypress` called." );
     setConfirmButtonStatus()
   });
 
@@ -103,7 +102,7 @@
     setDelay();
     $.ajax({
       type: "POST",
-      url: "<%= RailsBase.url_routes.sms_validate_send_event_path(mfa_event: RailsBase::MfaEvent::ENABLE_SMS_EVENT) %>",
+      url: "<%= RailsBase.url_routes.sms_validate_send_event_path(mfa_event: RailsBase::MfaEvent::DISABLE_SMS_EVENT) %>",
       headers: { 'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content') },
       dataType: 'json',
       success: function(data) {

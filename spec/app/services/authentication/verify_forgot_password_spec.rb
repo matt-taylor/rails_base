@@ -43,7 +43,7 @@ RSpec.describe RailsBase::Authentication::VerifyForgotPassword do
 
 			it { expect(call.failure?).to be true }
 			it { expect(call.message).to include('Errors with email validation') }
-			it { expect(call.redirect_url).to eq(RailsBase::Authentication::Constants::URL_HELPER.new_user_password_path) }
+			it { expect(call.redirect_url).to eq(RailsBase.url_routes.new_user_password_path) }
 		end
 
 		context 'when datum is incorrect' do
@@ -51,32 +51,29 @@ RSpec.describe RailsBase::Authentication::VerifyForgotPassword do
 
 			it { expect(call.failure?).to be true }
 			it { expect(call.message).to eq(RailsBase::Authentication::Constants::MV_FISHY) }
-			it { expect(call.redirect_url).to eq(RailsBase::Authentication::Constants::URL_HELPER.authenticated_root_path) }
-		end
-
-		context 'when mfa disbled' do
-			it { expect(call.success?).to be true }
-			it { expect(call.mfa_flow).to be nil }
-			it do
-				expect(RailsBase::Mfa::Sms::Send).not_to receive(:call)
-
-				call
-			end
+			it { expect(call.redirect_url).to eq(RailsBase.url_routes.authenticated_root_path) }
 		end
 
 		context 'when mfa enabled' do
-			before { user.update(mfa_sms_enabled: true) }
-			context 'when mfa to user fails' do
-				let(:twilio_failure) { true }
+			context "with totp primary" do
+				let(:user) { create(:user, :totp_enabled, :sms_enabled)  }
 
-				it { expect(call.failure?).to be true }
-				it { expect(call.message).to eq(msg) }
-				it { expect(call.redirect_url).to eq(RailsBase::Authentication::Constants::URL_HELPER.new_user_password_path) }
+				it { expect(call.success?).to be true }
+				it { expect(call.mfa_flow).to be true }
+				it { expect(call.user.id).to be user.id }
 			end
 
+			context "with sms primary" do
+				let(:user) { create(:user, :sms_enabled)  }
 
-			it { expect(call.success?).to be true }
-			it { expect(call.mfa_flow).to be true }
+				it { expect(call.success?).to be true }
+				it { expect(call.mfa_flow).to be true }
+				it { expect(call.user.id).to be user.id }
+			end
 		end
+
+		it { expect(call.success?).to be true }
+		it { expect(call.mfa_flow).to be false }
+		it { expect(call.user.id).to be user.id }
 	end
 end

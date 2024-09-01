@@ -9,8 +9,14 @@ module RailsBase
     def index
       @type = :rest
       @endpoint = RailsBase.url_routes.totp_register_validate_path
-      add_mfa_event_to_session(event: RailsBase::MfaEvent.sms_enable(user: current_user))
-      add_mfa_event_to_session(event: RailsBase::MfaEvent.sms_disable(user: current_user))
+
+      if current_user.mfa_sms_enabled
+        clear_mfa_event_from_session!(event_name: RailsBase::MfaEvent::ENABLE_SMS_EVENT)
+        add_mfa_event_to_session(event: RailsBase::MfaEvent.sms_disable(user: current_user))
+      else
+        clear_mfa_event_from_session!(event_name: RailsBase::MfaEvent::DISABLE_SMS_EVENT)
+        add_mfa_event_to_session(event: RailsBase::MfaEvent.sms_enable(user: current_user))
+      end
     end
 
     # POST user/settings/edit/name

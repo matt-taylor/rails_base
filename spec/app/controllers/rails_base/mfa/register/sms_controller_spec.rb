@@ -4,7 +4,6 @@ require 'twilio_helper'
 
 RSpec.describe RailsBase::Mfa::Register::SmsController, type: :controller do
   let(:mfa_randomized_token) { RailsBase::Mfa::EncryptToken.call(user: user, expires_at: 5.minutes.from_now).encrypted_val }
-  let(:sessions) { { mfa_randomized_token: mfa_randomized_token } }
   let(:user) { create(:user, phone_number: nil) }
   let(:phone_number) { Faker::PhoneNumber.phone_number }
   before do
@@ -13,7 +12,7 @@ RSpec.describe RailsBase::Mfa::Register::SmsController, type: :controller do
   end
 
   describe "#POST sms_registration" do
-    subject(:sms_registration) { post(:sms_registration, params: { phone_number: phone_number }, session: sessions, format: :json) }
+    subject(:sms_registration) { post(:sms_registration, params: { phone_number: phone_number }, format: :json) }
 
     context "when phone update fails" do
       let(:phone_number) { "not a phone number" }
@@ -51,8 +50,9 @@ RSpec.describe RailsBase::Mfa::Register::SmsController, type: :controller do
   end
 
   describe "#POST sms_confirmation" do
-    subject(:sms_confirmation) { post(:sms_confirmation, params: params, session: sessions) }
+    subject(:sms_confirmation) { post(:sms_confirmation, params:, session: mfa_event_session_hash(mfa_event:)) }
 
+    let(:mfa_event) { RailsBase::MfaEvent.sms_enable(user:) }
     let(:datum) { RailsBase::Mfa::Sms::Send.new(user: user, expires_at: 5.minutes.from_now).create_short_lived_data }
     let(:mfa_code) { datum.data }
     let(:mfa_params) do
@@ -65,13 +65,37 @@ RSpec.describe RailsBase::Mfa::Register::SmsController, type: :controller do
     end
     let(:params) { { mfa: mfa_params } }
 
-    context "with invalid/missing mfa token" do
-      let(:mfa_randomized_token) { "Bad token" }
+    context "with invalid mfa event" do
+      context "with invalid name" do
+        let(:mfa_event) { RailsBase::MfaEvent.login_event(user:) }
 
-      it do
-        sms_confirmation
+        it do
+          sms_confirmation
 
-        expect(response).to redirect_to(RailsBase.url_routes.user_settings_path)
+          expect(response).to redirect_to(RailsBase.url_routes.unauthenticated_root_path)
+        end
+
+        it do
+          sms_confirmation
+
+          expect(flash[:alert]).to include("Unauthorized MFA event")
+        end
+      end
+
+      context "with expired event" do
+        before { Timecop.travel(mfa_event.death_time + 1.minute) }
+
+        it do
+          sms_confirmation
+
+          expect(flash[:alert]).to include("MFA event for #{mfa_event.event}")
+        end
+
+        it do
+          sms_confirmation
+
+          expect(response).to redirect_to(RailsBase.url_routes.user_settings_path)
+        end
       end
     end
 
@@ -100,14 +124,49 @@ RSpec.describe RailsBase::Mfa::Register::SmsController, type: :controller do
   end
 
   describe "#DELETE sms_removal" do
-    subject(:sms_removal) { delete(:sms_removal, params: params, session: sessions) }
+    subject(:sms_removal) { delete(:sms_removal, params: params, session: mfa_event_session_hash(mfa_event:)) }
 
+    let(:mfa_event) { RailsBase::MfaEvent.sms_disable(user:) }
     let(:password) { "password123" }
     let(:input_password) { password }
     let(:user) { create(:user, :sms_enabled, password: password) }
     let(:datum) { RailsBase::Mfa::Sms::Send.new(user: user, expires_at: 5.minutes.from_now).create_short_lived_data }
     let(:mfa_code) { datum.data }
     let(:params) { { password: input_password, sms_code: mfa_code } }
+
+    context "with invalid mfa event" do
+      context "with invalid name" do
+        let(:mfa_event) { RailsBase::MfaEvent.login_event(user:) }
+
+        it do
+          sms_removal
+
+          expect(response).to redirect_to(RailsBase.url_routes.unauthenticated_root_path)
+        end
+
+        it do
+          sms_removal
+
+          expect(flash[:alert]).to include("Unauthorized MFA event")
+        end
+      end
+
+      context "with expired event" do
+        before { Timecop.travel(mfa_event.death_time + 1.minute) }
+
+        it do
+          sms_removal
+
+          expect(flash[:alert]).to include("MFA event for #{mfa_event.event}")
+        end
+
+        it do
+          sms_removal
+
+          expect(response).to redirect_to(RailsBase.url_routes.user_settings_path)
+        end
+      end
+    end
 
     context "with incorrect password" do
       let(:input_password) { "incorrect Password" }

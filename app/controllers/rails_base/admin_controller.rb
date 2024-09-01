@@ -173,6 +173,8 @@ module RailsBase
         @_admin_action_struct = false
         render json: { success: false, message: update.message }, status: 404
       end
+
+      session[:mfa_randomized_token] = nil
     end
 
     # POST admin/update/name
@@ -201,6 +203,8 @@ module RailsBase
         @_admin_action_struct = false
         render json: { success: false, message: "Failed to change #{user.id} name" }, status: 404
       end
+
+      session[:mfa_randomized_token] = nil
     end
 
     # POST admin/update/email
@@ -223,6 +227,8 @@ module RailsBase
         @_admin_action_struct = false
         render json: { success: false, message: result.message }, status: 404
       end
+
+      session[:mfa_randomized_token] = nil
     end
 
     # POST admin/update/phone

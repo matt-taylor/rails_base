@@ -1,7 +1,24 @@
 # frozen_string_literal: true
 
 RSpec.describe RailsBase::Mfa::Sms::Validate do
-  subject(:call) { described_class.call(params) }
+  subject(:call) { described_class.call(**params) }
+
+  let(:mfa_event) do
+    RailsBase::MfaEvent.new(
+      death_time: 1.minute.from_now,
+      event:,
+      flash_notice:,
+      invalid_redirect:,
+      redirect:,
+      sign_in_user:,
+      user:,
+    )
+  end
+  let(:event) { Faker::Lorem.word }
+  let(:redirect) { RailsBase.url_routes.user_settings_path }
+  let(:invalid_redirect) { RailsBase.url_routes.unauthenticated_root_path }
+  let(:sign_in_user) { false }
+  let(:flash_notice) { "this is a flash message on success" }
 
   let(:user) { create(:user, :sms_enabled) }
   let(:current_user) { user }
@@ -20,9 +37,10 @@ RSpec.describe RailsBase::Mfa::Sms::Validate do
 
   let(:params) do
     {
-      current_user: current_user,
+      current_user:,
       params: input_params,
-      session_mfa_user_id: session_mfa_user_id,
+      session_mfa_user_id:,
+      mfa_event:
     }
   end
 
@@ -64,7 +82,7 @@ RSpec.describe RailsBase::Mfa::Sms::Validate do
 
       it { expect(call.failure?).to eq true }
       it { expect(call.message).to include('Incorrect SMS code') }
-      it { expect(call.redirect_url).to eq(RailsBase.url_routes.mfa_evaluation_path(type: RailsBase::Mfa::SMS)) }
+      it { expect(call.redirect_url).to eq(RailsBase.url_routes.mfa_with_event_path(mfa_event: mfa_event.event, type: RailsBase::Mfa::SMS)) }
       it { expect(call.level).to eq :warn }
     end
 

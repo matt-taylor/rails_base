@@ -16,11 +16,6 @@ module RailsBase
     def remove_me
     end
 
-    def testing_route
-      Rails.logger.error("This will cause an error to be thrown")
-      raise ArgumentError, 'Boo'
-    end
-
     # POST auth/resend_email
     def resend_email
       user = User.find @token_verifier.user_id
@@ -110,8 +105,8 @@ module RailsBase
       else
         logger.error("MFA Event was not satiated. Kicking user back to root")
         clear_mfa_event_from_session!(event_name: @__rails_base_mfa_event.event)
-        flash[:alert] = "Unauthorized access"
         session.clear
+        flash[:alert] = "Unauthorized access"
         redirect_to(RailsBase.url_routes.unauthenticated_root_path)
       end
     end
@@ -123,11 +118,12 @@ module RailsBase
       unless @__rails_base_mfa_event.satiated?
         logger.error("MFA Event was not satiated. Kicking user back to root")
         clear_mfa_event_from_session!(event_name: @__rails_base_mfa_event.event)
-        flash[:alert] = "Unauthorized access"
         session.clear
+        flash[:alert] = "Unauthorized access"
         redirect_to(RailsBase.url_routes.unauthenticated_root_path)
         return
       end
+
       result = Authentication::ModifyPassword.call(password: params[:user][:password], password_confirmation: params[:user][:password_confirmation], data: params[:data], user_id: @__rails_base_mfa_event.user_id, flow: :forgot_password)
       if result.failure?
         redirect_to RailsBase.url_routes.new_user_password_path, alert: result.message

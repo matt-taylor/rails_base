@@ -3,12 +3,31 @@
 require 'twilio_helper'
 
 RSpec.describe RailsBase::Mfa::Validate::SmsController, type: :controller do
-  let(:mfa_randomized_token) { RailsBase::Mfa::EncryptToken.call(user: user, expires_at: 5.minutes.from_now).encrypted_val }
-  let(:sessions) { { mfa_randomized_token: mfa_randomized_token } }
   let(:user) { create(:user, :sms_enabled) }
+  let(:session) { mfa_event_session_hash(mfa_event:) }
+  let(:mfa_event) do
+    RailsBase::MfaEvent.new(
+      death_time: 1.minute.from_now,
+      event:,
+      flash_notice:,
+      invalid_redirect:,
+      redirect:,
+      set_satiated_on_success:,
+      sign_in_user:,
+      user:,
+    )
+  end
+  let(:params) { { mfa_event: input_event } }
+  let(:event) { Faker::Lorem.word }
+  let(:input_event) { event }
+  let(:redirect) { RailsBase.url_routes.user_settings_path }
+  let(:invalid_redirect) { RailsBase.url_routes.unauthenticated_root_path }
+  let(:sign_in_user) { false }
+  let(:flash_notice) { "this is a flash message on success" }
+  let(:set_satiated_on_success) { false }
 
-  describe "#POST sms_send" do
-    subject(:sms_send) { post(:sms_send, session: sessions, format: format) }
+  describe "#POST sms_event_send" do
+    subject(:sms_event_send) { post(:sms_event_send, params:, session:, format:) }
 
     let(:sign_user_in) { false }
 
@@ -17,65 +36,93 @@ RSpec.describe RailsBase::Mfa::Validate::SmsController, type: :controller do
       allow(TwilioHelper).to receive(:send_sms)
     end
 
-    context "when invalid mfa token" do
-      let(:mfa_randomized_token) { "Some Incorrect token Value" }
+    context "with invalid mfa event" do
+      context "with invalid name" do
+        let(:input_event) { "this_is_not_the_correct_event_name" }
 
-      context "with json format" do
-        let(:format) { :json }
+        context "with json" do
+          let(:format) { :json }
 
-        it "removes mfa value" do
-          sms_send
+          it "400 status" do
+            sms_event_send
 
-          expect(session[:mfa_randomized_token]).to be_nil
+            expect(response.status).to eq(400)
+          end
+
+          it do
+            sms_event_send
+
+            expect(response.body).to include("Unauthorized MFA event")
+          end
         end
 
-        it "400 status" do
-          sms_send
+        context "with html" do
+          let(:format) { :html }
 
-          expect(response.status).to eq(400)
-        end
+          it do
+            sms_event_send
 
-        it do
-          sms_send
+            expect(response).to redirect_to(RailsBase.url_routes.new_user_session_path)
+          end
 
-          expect(response.body).to include("Authorization token has expired")
+          it do
+            sms_event_send
+
+            expect(flash[:alert]).to include("Unauthorized MFA event")
+          end
         end
       end
 
-      context "with html format" do
-        let(:format) { :html }
-        it "removes mfa value" do
-          sms_send
+      context "with expired event" do
+        before { Timecop.travel(mfa_event.death_time + 1.minute) }
 
-          expect(session[:mfa_randomized_token]).to be_nil
+        context "with json" do
+          let(:format) { :json }
+
+          it "400 status" do
+            sms_event_send
+
+            expect(response.status).to eq(400)
+          end
+
+          it do
+            sms_event_send
+
+            expect(response.body).to include("MFA event for #{input_event}")
+          end
         end
 
-        it do
-          sms_send
+        context "with html" do
+          let(:format) { :html }
 
-          expect(response).to redirect_to(RailsBase.url_routes.new_user_session_path)
-        end
+          it do
+            sms_event_send
 
-        it do
-          sms_send
+            expect(response).to redirect_to(invalid_redirect)
+          end
 
-          expect(flash[:alert]).to include("Authorization token has expired")
+          it do
+            sms_event_send
+
+            expect(flash[:alert]).to include("MFA event for #{input_event}")
+          end
         end
       end
     end
 
     context "when user not authenticated" do
       let(:format) { :json }
-      # this only happens with json as we know HTML is unauthenticated
+      # JSON requests MUST only come from authenticated users
+      # HTML requests may* come from unauthed or authenticated users (primarily unauthed)
       context "with json format" do
         it "401 status" do
-          sms_send
+          sms_event_send
 
           expect(response.status).to eq(401)
         end
 
         it do
-          sms_send
+          sms_event_send
 
           expect(response.body).to include("You need to sign in or sign up before continuing")
         end
@@ -92,19 +139,19 @@ RSpec.describe RailsBase::Mfa::Validate::SmsController, type: :controller do
         let(:sign_user_in) { true }
 
         it "400 status" do
-          sms_send
+          sms_event_send
 
           expect(response.status).to eq(400)
         end
 
         it do
-          sms_send
+          sms_event_send
 
           expect(response.body).to include("Unable to complete Request")
         end
 
         it "clears flash" do
-          sms_send
+          sms_event_send
 
           expect(flash.keys).to eq([])
         end
@@ -114,13 +161,13 @@ RSpec.describe RailsBase::Mfa::Validate::SmsController, type: :controller do
         let(:format) { :html }
 
         it do
-          sms_send
+          sms_event_send
 
-          expect(response).to redirect_to(RailsBase.url_routes.mfa_evaluation_path(type: RailsBase::Mfa::SMS))
+          expect(response).to redirect_to(RailsBase.url_routes.mfa_with_event_path(mfa_event: input_event, type: RailsBase::Mfa::SMS))
         end
 
         it do
-          sms_send
+          sms_event_send
 
           expect(flash[:alert]).to include("Unable to complete Request")
         end
@@ -131,72 +178,84 @@ RSpec.describe RailsBase::Mfa::Validate::SmsController, type: :controller do
       let(:format) { :json }
       let(:sign_user_in) { true }
 
-      it "sets mfa value" do
-        sms_send
-
-        expect(session[:mfa_randomized_token]).to_not eq(mfa_randomized_token)
-      end
-
       it "200 status" do
-        sms_send
+        sms_event_send
 
         expect(response.status).to eq(200)
       end
 
       it do
-        sms_send
+        sms_event_send
 
-        expect(response.body).to include("SMS Code succesfully sent!")
+        expect(response.body).to include("SMS Code succesfully sent. Please check messages")
       end
     end
 
     context "with html format (success)" do
       let(:format) { :html }
 
-      it "sets mfa value" do
-        sms_send
-
-        expect(session[:mfa_randomized_token]).to_not eq(mfa_randomized_token)
-      end
-
       it do
-        sms_send
+        sms_event_send
 
         expect(flash[:notice]).to include("SMS Code succesfully sent")
       end
 
       it do
-        sms_send
+        sms_event_send
 
-        expect(response).to redirect_to(RailsBase.url_routes.mfa_evaluation_path(type: RailsBase::Mfa::SMS))
+        expect(response).to redirect_to(RailsBase.url_routes.mfa_with_event_path(mfa_event: input_event, type: RailsBase::Mfa::SMS))
       end
     end
   end
 
-  describe "#GET sms_login_input" do
-    subject(:sms_login_input) { get(:sms_login_input, session: sessions) }
+  describe "#GET sms_event_input" do
+    subject(:sms_event_input) { get(:sms_event_input, session:, params:) }
 
-    context "with invalid/missing mfa token" do
-      let(:mfa_randomized_token) { "Bad token" }
+    context "with invalid mfa event" do
+      context "with invalid name" do
+        let(:input_event) { "this_is_not_the_correct_event_name" }
 
-      it do
-        sms_login_input
+        it do
+          sms_event_input
 
-        expect(response).to redirect_to(RailsBase.url_routes.new_user_session_path)
+          expect(response).to redirect_to(RailsBase.url_routes.unauthenticated_root_path)
+        end
+
+        it do
+          sms_event_input
+
+          expect(flash[:alert]).to include("Unauthorized MFA event")
+        end
+      end
+
+      context "with expired event" do
+        before { Timecop.travel(mfa_event.death_time + 1.minute) }
+
+        it do
+          sms_event_input
+
+          expect(response).to redirect_to(invalid_redirect)
+        end
+
+        it do
+          sms_event_input
+
+          expect(flash[:alert]).to include("MFA event for #{input_event}")
+        end
       end
     end
 
     it do
-      sms_login_input
+      sms_event_input
 
-      expect(response).to render_template(:sms_login_input)
+      expect(response).to render_template(:sms_event_input)
     end
   end
 
-  describe "#POST sms_login" do
-    subject(:sms_login) { get(:sms_login, params: params, session: sessions) }
+  describe "#POST sms_event" do
+    subject(:sms_event) { post(:sms_event, params:, session:) }
 
-    let(:datum) { RailsBase::Mfa::Sms::Send.new(user: user, expires_at: 5.minutes.from_now).create_short_lived_data }
+    let(:datum) { RailsBase::Mfa::Sms::Send.new(user:, expires_at: 5.minutes.from_now).create_short_lived_data }
     let(:mfa_code) { datum.data }
     let(:mfa_params) do
       _params = {}
@@ -206,15 +265,39 @@ RSpec.describe RailsBase::Mfa::Validate::SmsController, type: :controller do
       end
       _params
     end
-    let(:params) { { mfa: mfa_params } }
+    let(:params) { super().merge(mfa: mfa_params) }
 
-    context "with invalid/missing mfa token" do
-      let(:mfa_randomized_token) { "Bad token" }
+    context "with invalid mfa event" do
+      context "with invalid name" do
+        let(:input_event) { "this_is_not_the_correct_event_name" }
 
-      it do
-        sms_login
+        it do
+          sms_event
 
-        expect(response).to redirect_to(RailsBase.url_routes.new_user_session_path)
+          expect(response).to redirect_to(RailsBase.url_routes.unauthenticated_root_path)
+        end
+
+        it do
+          sms_event
+
+          expect(flash[:alert]).to include("Unauthorized MFA event")
+        end
+      end
+
+      context "with expired event" do
+        before { Timecop.travel(mfa_event.death_time + 1.minute) }
+
+        it do
+          sms_event
+
+          expect(response).to redirect_to(invalid_redirect)
+        end
+
+        it do
+          sms_event
+
+          expect(flash[:alert]).to include("MFA event for #{input_event}")
+        end
       end
     end
 
@@ -225,28 +308,60 @@ RSpec.describe RailsBase::Mfa::Validate::SmsController, type: :controller do
       end
 
       it do
-        sms_login
+        sms_event
 
-        expect(response).to redirect_to(RailsBase.url_routes.mfa_evaluation_path(type: RailsBase::Mfa::SMS))
+        expect(response).to redirect_to(RailsBase.url_routes.mfa_with_event_path(mfa_event: input_event, type: RailsBase::Mfa::SMS))
       end
     end
 
-    it "signs in user" do
-      sms_login
+    context "when mfa event signs user in" do
+      let(:sign_in_user) { true }
 
-      expect(user_signed_in?).to be(true)
+      it "signs in user" do
+        sms_event
+
+        expect(user_signed_in?).to be(true)
+      end
+
+      it "signs in correct user" do
+        sms_event
+
+        expect(current_user.id).to eq(user.id)
+      end
+    end
+
+    context "when mfa event sets satiated" do
+      let(:set_satiated_on_success) { true }
+
+      it "satiates event and persists to session" do
+        sms_event
+
+        expect(mfa_event_from_session(event_name: input_event).satiated?).to eq(true)
+      end
+    end
+
+    it "does not satiate event" do
+      sms_event
+
+      expect(mfa_event_from_session(event_name: input_event).satiated?).to eq(false)
+    end
+
+    it "does not sign in user" do
+      sms_event
+
+      expect(user_signed_in?).to be(false)
     end
 
     it do
-      sms_login
+      sms_event
 
-      expect(response).to redirect_to(RailsBase.url_routes.authenticated_root_path)
+      expect(response).to redirect_to(redirect)
     end
 
     it do
-      sms_login
+      sms_event
 
-      expect(flash[:notice]).to include("Welcome #{user.full_name}")
+      expect(flash[:notice]).to include(flash_notice)
     end
   end
 end

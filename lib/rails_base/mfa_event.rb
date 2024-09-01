@@ -2,22 +2,21 @@
 
 module RailsBase
   class MfaEvent
-    ENABLE_SMS_EVENT = :enable
-    DISABLE_SMS_EVENT = :disable
+    ENABLE_SMS_EVENT = :sms_enable
+    DISABLE_SMS_EVENT = :sms_disable
     FORGOT_PASSWORD = :forgot_password
     ADMIN_VERIFY = :admin_verify
 
     class InvalidParameter < ArgumentError; end
 
     attr_reader :set_satiated_on_success, :satiated, :access_count, :flash_notice, :sign_in_user,
-      :invalid_redirect, :ttl, :user_id, :event, :description, :death_time, :redirect, :params
+      :invalid_redirect, :ttl, :user_id, :event, :description, :death_time, :redirect, :params, :access_count_max
 
     def self.admin_actions(user:)
       params = {
         user: user,
         event: ADMIN_VERIFY,
-        description: "MFA needed to complete admin actions",
-        ttl: 2.minutes,
+        ttl: 30.seconds,
         redirect: "",
         invalid_redirect: "",
         flash_notice: "",
@@ -30,8 +29,7 @@ module RailsBase
       params = {
         user: user,
         event: :login,
-        description: "MFA needed to login to #{RailsBase.app_name}",
-        ttl: 2.minutes,
+        ttl: 1.minutes,
         redirect: RailsBase.url_routes.authenticated_root_path,
         invalid_redirect: RailsBase.url_routes.unauthenticated_root_path,
         sign_in_user: true,
@@ -46,10 +44,9 @@ module RailsBase
       params = {
         user: user,
         event: ENABLE_SMS_EVENT,
-        description: "To enable MFA for SMS",
         ttl: 5.minutes,
-        invalid_redirect: "",
-        redirect: "",
+        invalid_redirect: RailsBase.url_routes.user_settings_path,
+        redirect: RailsBase.url_routes.user_settings_path,
         flash_notice: ""
       }
 
@@ -60,7 +57,6 @@ module RailsBase
       params = {
         user: user,
         event: DISABLE_SMS_EVENT,
-        description: "To disable MFA for SMS",
         ttl: 5.minutes,
         invalid_redirect: RailsBase.url_routes.user_settings_path,
         redirect: RailsBase.url_routes.user_settings_path,
@@ -74,8 +70,7 @@ module RailsBase
       params = {
         user: user,
         event: FORGOT_PASSWORD,
-        description: "Forgot Password",
-        ttl: 1.hour || 5.minutes,
+        ttl: 2.minutes,
         invalid_redirect: RailsBase.url_routes.unauthenticated_root_path,
         redirect: RailsBase.url_routes.reset_password_input_path(data:),
         flash_notice: "MFA success. You may now reset your forgotten password",
@@ -85,35 +80,40 @@ module RailsBase
       new(**params)
     end
 
-    def initialize(event:, flash_notice:, description:, redirect:, ttl: nil, death_time: nil, user_id: nil, user: nil, invalid_redirect: nil, sign_in_user: false, access_count: 0, satiated: false, **params)
-      @sign_in_user = sign_in_user
-
-      @ttl = ttl
+    def initialize(event:, flash_notice:, redirect:, ttl: nil, death_time: nil, user_id: nil, user: nil, invalid_redirect: nil, sign_in_user: false, access_count: 0, access_count_max: nil, satiated: false, set_satiated_on_success: true)
       @death_time = begin
         raw = (death_time || ttl&.from_now)
         Time.zone.parse(raw.to_s) rescue nil
       end
-      @user_id = user_id || user.id rescue nil
 
       @access_count = access_count
+      @access_count_max = access_count_max
       @event = event
       @flash_notice = flash_notice
-      @description = description
-      @redirect = redirect
       @invalid_redirect = invalid_redirect || RailsBase.url_routes.authenticated_root_path
-      @clear_after_use = params.fetch(:clear_after_use, true)
-      @access_count_max = params.fetch(:access_count_max, nil)
+      @redirect = redirect
       @satiated = satiated
-      @set_satiated_on_success = params.fetch(:set_satiated_on_success, true)
-      @params = params
+      @set_satiated_on_success = set_satiated_on_success
+      @sign_in_user = sign_in_user
+      @user_id = user_id || user.id rescue nil
 
       validate_data!
-
-      increase_access_count!
     end
 
-    def clear_after_use
-      params.fetch(:clear_after_use, true)
+    def to_hash
+      {
+        access_count:,
+        access_count_max:,
+        death_time:,
+        event:,
+        flash_notice:,
+        invalid_redirect:,
+        redirect:,
+        satiated:,
+        set_satiated_on_success:,
+        sign_in_user:,
+        user_id:,
+      }
     end
 
     def access_count
@@ -154,31 +154,12 @@ module RailsBase
       arr
     end
 
-    def to_hash
-      {
-        death_time:,
-        description:,
-        event:,
-        redirect:,
-        ttl:,
-        user_id:,
-        invalid_redirect:,
-        sign_in_user:,
-        flash_notice:,
-        access_count:,
-        satiated:,
-        **params.deep_symbolize_keys,
-      }
-    end
-
     private
 
     def validate_data!
       raise_event!(value: @event, name: :event, klass: [String, Symbol])
-      raise_event!(value: @description, name: :description, klass: [String])
       raise_event!(value: @death_time, name: :death_time, klass: [ActiveSupport::TimeWithZone])
       raise_event!(value: @redirect, name: :redirect, klass: [String])
-      raise_event!(value: @params, name: :params, klass: [Hash])
       raise_event!(value: @user_id, name: :user, klass: [Integer])
       raise_event!(value: @flash_notice, name: :flash_notice, klass: [String])
       raise_event!(value: @access_count, name: :access_count, klass: [Integer])

@@ -6,7 +6,7 @@ class RailsBaseApplicationController < ActionController::Base
   before_action :is_timeout_error?
   before_action :admin_reset_impersonation_session!
   before_action :footer_mode_case
-  before_action :clear_expired_mfa_events_from_session!
+  after_action :clear_expired_mfa_events_from_session!
 
   before_action :populate_admin_actions, if: -> { RailsBase.config.admin.enable_actions? }
   after_action :capture_admin_action
@@ -137,7 +137,7 @@ class RailsBaseApplicationController < ActionController::Base
 
     session[:"__#{RailsBase.app_name}_mfa_events"] ||= {}
     # nested hashes in the session are string keys -- ensure it gets converted to a string during assignment to avoid confusion
-    session[:"__#{RailsBase.app_name}_mfa_events"][event.event.to_s] = event.to_hash
+    session[:"__#{RailsBase.app_name}_mfa_events"][event.event.to_s] = event.to_hash.to_json
   end
 
   def clear_mfa_event_from_session!(event_name:)
@@ -152,7 +152,7 @@ class RailsBaseApplicationController < ActionController::Base
     return true if mfa_events.nil?
 
     mfa_events.each do |event_name, metadata|
-      event_object = RailsBase::MfaEvent.new(**metadata.deep_symbolize_keys)
+      event_object = RailsBase::MfaEvent.new(**JSON.parse(metadata).deep_symbolize_keys)
       if event_object.valid_by_death_time?
         add_mfa_event_to_session(event: event_object)
       else
@@ -160,7 +160,7 @@ class RailsBaseApplicationController < ActionController::Base
       end
 
     end
-  rescue
+  rescue => e
     logger.error("Oh know! We may have just removed all MFA events. Re-Auth is now required")
     true
   end
@@ -175,7 +175,8 @@ class RailsBaseApplicationController < ActionController::Base
   def validate_mfa_with_event!(mfa_event_name: params[:mfa_event])
     return true if soft_mfa_with_event(mfa_event_name:)
 
-    redirect_to(@__rails_base_mfa_event.invalid_redirect, alert: @__rails_base_mfa_event_invalid_reason)
+    redirect = @__rails_base_mfa_event&.invalid_redirect || RailsBase.url_routes.unauthenticated_root_path
+    redirect_to(redirect, alert: @__rails_base_mfa_event_invalid_reason)
     false
   end
 
@@ -186,7 +187,7 @@ class RailsBaseApplicationController < ActionController::Base
       @__rails_base_mfa_event_invalid_reason = "Unauthorized MFA event"
       return false
     end
-    @__rails_base_mfa_event = RailsBase::MfaEvent.new(**mfa_event.deep_symbolize_keys)
+    @__rails_base_mfa_event = RailsBase::MfaEvent.new(**JSON.parse(mfa_event).deep_symbolize_keys)
 
     if @__rails_base_mfa_event.valid?
       @__rails_base_mfa_event.increase_access_count!

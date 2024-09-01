@@ -1,27 +1,65 @@
 # frozen_string_literal: true
 
 RSpec.describe RailsBase::Mfa::EvaluationController, type: :controller do
-  let(:mfa_randomized_token) { RailsBase::Mfa::EncryptToken.call(user: user, expires_at: 5.minutes.from_now).encrypted_val }
-  let(:session_input) { { mfa_randomized_token: mfa_randomized_token } }
+  let(:session) { mfa_event_session_hash(mfa_event:) }
+  let(:mfa_event) do
+    RailsBase::MfaEvent.new(
+      death_time: 1.minute.from_now,
+      event:,
+      flash_notice:,
+      invalid_redirect:,
+      redirect:,
+      set_satiated_on_success:,
+      sign_in_user:,
+      user:,
+    )
+  end
 
-  describe "# GET mfa_evaluate" do
-    subject(:mfa_evaluate) { get(:mfa_evaluate, params:, session: session_input) }
+  let(:params) { { mfa_event: input_event } }
+  let(:event) { Faker::Lorem.word }
+  let(:input_event) { event }
+  let(:redirect) { RailsBase.url_routes.user_settings_path }
+  let(:invalid_redirect) { RailsBase.url_routes.unauthenticated_root_path }
+  let(:sign_in_user) { false }
+  let(:flash_notice) { "this is a flash message on success" }
+  let(:set_satiated_on_success) { false }
+  let(:user) { create(:user) }
 
-    let(:params) { {} }
 
-    context "with invalid user" do
-      let(:mfa_randomized_token) { "Invalid mfa token" }
+  describe "# GET mfa_with_event" do
+    subject(:mfa_with_event) { get(:mfa_with_event, params:, session:) }
 
-      it do
-        mfa_evaluate
+    context "with invalid mfa event" do
+      context "with invalid name" do
+        let(:input_event) { "this_is_not_the_correct_event_name" }
 
-        expect(response).to redirect_to(RailsBase.url_routes.new_user_session_path)
+        it do
+          mfa_with_event
+
+          expect(response).to redirect_to(RailsBase.url_routes.unauthenticated_root_path)
+        end
+
+        it do
+          mfa_with_event
+
+          expect(flash[:alert]).to include("Unauthorized MFA event")
+        end
       end
 
-      it do
-        mfa_evaluate
+      context "with expired event" do
+        before { Timecop.travel(mfa_event.death_time + 1.minute) }
 
-        expect(flash[:alert]).to include("Authorization token has expired")
+        it do
+          mfa_with_event
+
+          expect(flash[:alert]).to include("MFA event for #{input_event}")
+        end
+
+        it do
+          mfa_with_event
+
+          expect(response).to redirect_to(RailsBase.url_routes.unauthenticated_root_path)
+        end
       end
     end
 
@@ -30,7 +68,7 @@ RSpec.describe RailsBase::Mfa::EvaluationController, type: :controller do
         let(:user) { create(:user, :totp_enabled) }
 
         it do
-          mfa_evaluate
+          mfa_with_event
 
           expect(response).to render_template(described_class::OTP_TEMPLATE)
         end
@@ -40,7 +78,7 @@ RSpec.describe RailsBase::Mfa::EvaluationController, type: :controller do
         let(:user) { create(:user, :sms_enabled) }
 
         it do
-          mfa_evaluate
+          mfa_with_event
 
           expect(response).to render_template(described_class::SMS_TEMPLATE)
         end
@@ -50,7 +88,7 @@ RSpec.describe RailsBase::Mfa::EvaluationController, type: :controller do
         let(:user) { create(:user, :totp_enabled, :sms_enabled) }
 
         it do
-          mfa_evaluate
+          mfa_with_event
 
           expect(response).to render_template(described_class::OTP_TEMPLATE)
         end
@@ -64,7 +102,7 @@ RSpec.describe RailsBase::Mfa::EvaluationController, type: :controller do
         let(:params) { super().merge(type: RailsBase::Mfa::SMS.to_s) }
 
         it do
-          mfa_evaluate
+          mfa_with_event
 
           expect(response).to render_template(described_class::SMS_TEMPLATE)
         end
@@ -74,7 +112,7 @@ RSpec.describe RailsBase::Mfa::EvaluationController, type: :controller do
         let(:params) { super().merge(type: RailsBase::Mfa::OTP.to_s) }
 
         it do
-          mfa_evaluate
+          mfa_with_event
 
           expect(response).to render_template(described_class::OTP_TEMPLATE)
         end
@@ -87,25 +125,15 @@ RSpec.describe RailsBase::Mfa::EvaluationController, type: :controller do
         let(:params) { super().merge(type: RailsBase::Mfa::SMS.to_s) }
 
         it do
-          mfa_evaluate
+          mfa_with_event
 
           expect(response).to render_template(described_class::OTP_TEMPLATE)
         end
 
-        it "correct alert when called multiple times" do
-          flash[:alert] = "something"
-          expect(session[:mfa_evauluate_stopper]).to be_nil
+        it "sets flash" do
+          mfa_with_event
 
-          get(:mfa_evaluate, params:, session: session_input, flash: { alert: "something" })
-          expect(response).to render_template(described_class::OTP_TEMPLATE)
-          expect(flash[:alert]).to include("something")
-          expect(flash[:alert]).to include("-- Unknown MFA type")
-          expect(session[:mfa_evauluate_stopper]).to eq(true)
-
-          get(:mfa_evaluate, params:, session: session_input, flash: { alert: "something" })
-          expect(response).to render_template(described_class::OTP_TEMPLATE)
-          expect(flash[:alert]).to_not include("something")
-          expect(flash[:alert]).to include("Unknown MFA type")
+          expect(flash[:alert]).to include("Unknown MFA type #{RailsBase::Mfa::SMS}")
         end
       end
 
@@ -114,28 +142,17 @@ RSpec.describe RailsBase::Mfa::EvaluationController, type: :controller do
         let(:params) { super().merge(type: RailsBase::Mfa::OTP.to_s) }
 
         it do
-          mfa_evaluate
+          mfa_with_event
 
           expect(response).to render_template(described_class::SMS_TEMPLATE)
         end
 
-        it "correct alert when called multiple times" do
-          flash[:alert] = "something"
-          expect(session[:mfa_evauluate_stopper]).to be_nil
+        it "sets flash" do
+          mfa_with_event
 
-          get(:mfa_evaluate, params:, session: session_input, flash: { alert: "something" })
-          expect(response).to render_template(described_class::SMS_TEMPLATE)
-          expect(flash[:alert]).to include("something")
-          expect(flash[:alert]).to include("-- Unknown MFA type")
-          expect(session[:mfa_evauluate_stopper]).to eq(true)
-
-          get(:mfa_evaluate, params:, session: session_input, flash: { alert: "something" })
-          expect(response).to render_template(described_class::SMS_TEMPLATE)
-          expect(flash[:alert]).to_not include("something")
-          expect(flash[:alert]).to include("Unknown MFA type")
+          expect(flash[:alert]).to include("Unknown MFA type #{RailsBase::Mfa::OTP}")
         end
       end
-
     end
   end
 end
