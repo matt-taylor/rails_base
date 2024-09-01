@@ -2,21 +2,20 @@
 
 module RailsBase::Mfa::Validate
   class SmsController < RailsBaseApplicationController
-    before_action :validate_mfa_token!, only: [:sms_login_input, :sms_login]
+    before_action :validate_mfa_with_event!, only: [:sms_event_input, :sms_event]
 
-    # POST mfa/validate/sms/send
-    def sms_send
-      if soft_validate_mfa_token(token: session[:mfa_randomized_token])
-        user = User.find(@token_verifier.user_id)
+    # POST mfa/validate/sms/:mfa_event/send
+    def sms_event_send
+      if soft_mfa_with_event
+        user = User.find(@__rails_base_mfa_event.user_id)
       else
-        session[:mfa_randomized_token] = nil
         if request.format.json?
-          render json: { message: @token_verifier.message }, status: 400
+          render json: { message: @__rails_base_mfa_event_invalid_reason }, status: 400
         else
-          # SMS SEND via HTML should only come from unauthed page
-          flash[:alert] = @token_verifier.message
+          flash[:alert] = @__rails_base_mfa_event_invalid_reason
+          redirect = @__rails_base_mfa_event&.invalid_redirect || RailsBase.url_routes.new_user_session_path
 
-          redirect_to RailsBase.url_routes.new_user_session_path, email: params.dig(:user,:email)
+          redirect_to redirect, email: params.dig(:user,:email)
         end
         return
       end
@@ -32,42 +31,47 @@ module RailsBase::Mfa::Validate
       result = RailsBase::Mfa::Sms::Send.call(user: user)
 
       if result.success?
-        session[:mfa_randomized_token] =
-          RailsBase::Mfa::EncryptToken.call(user: user, expires_at: 2.minutes.from_now).encrypted_val
-        msg = "SMS Code succesfully sent!"
-        flash[:notice] = "SMS Code succesfully sent. Please check messages"
+        flash[:notice] = msg = "SMS Code succesfully sent. Please check messages"
         status = 200
       else
         flash[:alert] = msg = "Unable to complete Request. #{result.message}"
         status = 400
       end
 
-
       if request.format.json?
         render json: { message: msg }, status: status
         flash.clear
       else
-        redirect_to RailsBase.url_routes.mfa_evaluation_path(type: RailsBase::Mfa::SMS)
+        redirect_to RailsBase.url_routes.mfa_with_event_path(mfa_event: @__rails_base_mfa_event.event, type: RailsBase::Mfa::SMS)
       end
     end
 
-    # GET mfa/validate/sms/login
-    def sms_login_input
-      @masked_phone = User.find(@token_verifier.user_id).masked_phone
+    # GET mfa/validate/sms/:mfa_event
+    def sms_event_input
+      @masked_phone = User.find(@__rails_base_mfa_event.user_id).masked_phone
     end
 
-    # POST mfa/validate/sms/login
-    def sms_login
-      mfa_validity = RailsBase::Mfa::Sms::Validate.call(params: params, session_mfa_user_id: @token_verifier.user_id)
+    # POST mfa/validate/sms/:mfa_event
+    def sms_event
+      mfa_validity = RailsBase::Mfa::Sms::Validate.call(mfa_event: @__rails_base_mfa_event, params: params, session_mfa_user_id: @__rails_base_mfa_event.user_id)
       if mfa_validity.failure?
         redirect_to(mfa_validity.redirect_url, alert: mfa_validity.message)
         return
       end
 
       mfa_validity.user.set_last_mfa_sms_login!
+      if @__rails_base_mfa_event.sign_in_user
+        logger.info("Logging User in")
+        sign_in(mfa_validity.user)
+      end
 
-      sign_in(mfa_validity.user)
-      redirect_to RailsBase.url_routes.authenticated_root_path, notice: "Welcome #{mfa_validity.user.full_name}"
+      if @__rails_base_mfa_event.set_satiated_on_success
+        logger.info("\n\nSatiating MFA Event\n\n")
+        @__rails_base_mfa_event.satiated!
+      end
+
+      add_mfa_event_to_session(event: @__rails_base_mfa_event)
+      redirect_to @__rails_base_mfa_event.redirect, notice: @__rails_base_mfa_event.flash_notice
     end
   end
 end

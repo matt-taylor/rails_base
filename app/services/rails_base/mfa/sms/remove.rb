@@ -6,6 +6,7 @@ module RailsBase::Mfa::Sms
     delegate :session_mfa_user_id, to: :context
     delegate :current_user, to: :context
     delegate :sms_code, to: :context
+    delegate :mfa_event, to: :context
 
     def call
       password_result = RailsBase::Authentication::AuthenticateUser.(email: current_user.email, current_user: current_user, password: password)
@@ -14,7 +15,7 @@ module RailsBase::Mfa::Sms
         context.fail!(message: password_result.message)
       end
 
-      validate_code = Validate.(sms_code: sms_code, session_mfa_user_id: session_mfa_user_id, current_user: current_user)
+      validate_code = Validate.(mfa_event:,sms_code:, session_mfa_user_id:, current_user:)
 
       if validate_code.failure?
         log(level: :warn, msg: "Unable to confirm SMS OTP code. Will not remove")

@@ -13,7 +13,6 @@ RSpec.describe RailsBase::Mfa::Validate::SmsController, type: :controller do
     let(:sign_user_in) { false }
 
     before do
-      @request.env["devise.mapping"] = Devise.mappings[:user]
       sign_in(user) if sign_user_in
       allow(TwilioHelper).to receive(:send_sms)
     end
@@ -230,6 +229,12 @@ RSpec.describe RailsBase::Mfa::Validate::SmsController, type: :controller do
 
         expect(response).to redirect_to(RailsBase.url_routes.mfa_evaluation_path(type: RailsBase::Mfa::SMS))
       end
+    end
+
+    it "signs in user" do
+      sms_login
+
+      expect(user_signed_in?).to be(true)
     end
 
     it do

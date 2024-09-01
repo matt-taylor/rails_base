@@ -4,10 +4,7 @@ RSpec.describe RailsBase::UserSettingsController, type: :controller do
   let(:user) { User.first }
   let(:params) { { user: user_params } }
 
-  before do
-    @request.env["devise.mapping"] = Devise.mappings[:user]
-    sign_in(user)
-  end
+  before { sign_in(user) }
 
   shared_examples 'not signed in' do
     context 'when not signed in' do

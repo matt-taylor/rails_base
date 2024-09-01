@@ -77,7 +77,8 @@ RSpec.describe RailsBase::Mfa::Register::SmsController, type: :controller do
 
     context "with incorrect code" do
       before do
-        mfa_params[mfa_params.keys.sample] = (mfa_params[mfa_params.keys.sample].to_i + 1).to_s
+        key = mfa_params.keys.sample
+        mfa_params[key] = "X"
       end
 
       it do

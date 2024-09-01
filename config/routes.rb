@@ -65,7 +65,7 @@ Rails.application.routes.draw do
   post 'auth/login', to: 'rails_base/secondary_authentication#after_email_login_session_create', as: :login_after_email_session_create
   post 'auth/resend_email', to: 'rails_base/secondary_authentication#resend_email', as: :resend_email_verification
   get 'auth/password/forgot/:data', to: 'rails_base/secondary_authentication#forgot_password', as: :forgot_password_auth
-  post 'auth/password/forgot/:data', to: 'rails_base/secondary_authentication#forgot_password_with_mfa', as: :forgot_password_with_mfa_auth
+  get 'auth/password/reset/:data', to: 'rails_base/secondary_authentication#reset_password_input', as: :reset_password_input
   post 'auth/password/reset/:data', to: 'rails_base/secondary_authentication#reset_password', as: :reset_password_auth
 
   constraints(->(_req) { RailsBase.config.mfa.enable? }) do
@@ -92,16 +92,16 @@ Rails.application.routes.draw do
       mfa_base_validate = "rails_base/mfa/validate"
       constraints(->(_req) { RailsBase.config.totp.enable? }) do
         scope :totp do
-          get "login", to: "#{mfa_base_validate}/totp#totp_login_input", as: :totp_validate_login_input
-          post "login", to: "#{mfa_base_validate}/totp#totp_login", as: :totp_validate_login
+          get ":mfa_event", to: "#{mfa_base_validate}/totp#totp_event_input", as: :totp_validate_event_input
+          post ":mfa_event", to: "#{mfa_base_validate}/totp#totp_event", as: :totp_validate_event
         end
       end
 
       constraints(->(_req) { RailsBase.config.twilio.enable? }) do
         scope :sms do
-          post "send", to: "#{mfa_base_validate}/sms#sms_send", as: :sms_validate_send
-          post "login", to: "#{mfa_base_validate}/sms#sms_login", as: :sms_validate_login
-          get "login", to: "#{mfa_base_validate}/sms#sms_login_input", as: :sms_validate_login_input
+          post ":mfa_event/send", to: "#{mfa_base_validate}/sms#sms_event_send", as: :sms_validate_send_event
+          post ":mfa_event", to: "#{mfa_base_validate}/sms#sms_event", as: :sms_validate_event
+          get ":mfa_event", to: "#{mfa_base_validate}/sms#sms_event_input", as: :sms_validate_event_input
         end
       end
     end
@@ -110,10 +110,7 @@ Rails.application.routes.draw do
   # These routes need to be outside of the scope so that they can be called independently
   # The code itself will evaluate if it should run or not
   scope "mfa/evaluation" do
-    get '/', to: 'rails_base/mfa/evaluation#mfa_evaluate', as: :mfa_evaluation
-    post '/', to: 'rails_base/mfa/evaluation#validate_mfa_evaluation', as: :mfa_evaluation_validate
-    get 'verify', to: 'rails_base/mfa/evaluation#mfa_evaluate_authenticated', as: :mfa_evaluation_authenticated
-    post 'verify', to: 'rails_base/mfa/evaluation#validate_mfa_evaluation_authenticated', as: :mfa_evaluation_validate_authenticated
+    get ':mfa_event', to: 'rails_base/mfa/evaluation#mfa_with_event', as: :mfa_with_event
   end
 
   ################################

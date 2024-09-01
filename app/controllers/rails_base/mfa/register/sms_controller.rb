@@ -3,7 +3,8 @@
 module RailsBase::Mfa::Register
   class SmsController < RailsBaseApplicationController
     before_action :authenticate_user!
-    before_action :validate_mfa_token!, only: [:sms_removal, :sms_confirmation]
+    before_action ->() { validate_mfa_with_event!(mfa_event_name: RailsBase::MfaEvent::ENABLE_SMS_EVENT) }, only: [:sms_confirmation]
+    before_action ->() { validate_mfa_with_event!(mfa_event_name: RailsBase::MfaEvent::DISABLE_SMS_EVENT) }, only: [:sms_removal]
     before_action :json_validate_current_user!, only: [:sms_registration]
 
     # POST mfa/register/sms
@@ -19,7 +20,7 @@ module RailsBase::Mfa::Register
 
     # POST mfa/register/sms/validate
     def sms_confirmation
-      mfa_validity = RailsBase::Mfa::Sms::Validate.call(current_user: current_user, params: params, session_mfa_user_id: @token_verifier.user_id)
+      mfa_validity = RailsBase::Mfa::Sms::Validate.call(mfa_event: @__rails_base_mfa_event, current_user: current_user, params: params, session_mfa_user_id: @__rails_base_mfa_event.user_id)
       if mfa_validity.failure?
         redirect_to RailsBase.url_routes.user_settings_path, alert: I18n.t('authentication.confirm_phone_registration.fail', message: mfa_validity.message)
         return
@@ -31,7 +32,7 @@ module RailsBase::Mfa::Register
 
     # DELETE mfa/register/sms
     def sms_removal
-      result = RailsBase::Mfa::Sms::Remove.(current_user: current_user, session_mfa_user_id: @token_verifier.user_id, password: params[:password], sms_code: params[:sms_code])
+      result = RailsBase::Mfa::Sms::Remove.(mfa_event: @__rails_base_mfa_event, current_user: current_user, session_mfa_user_id: @__rails_base_mfa_event.user_id, password: params[:password], sms_code: params[:sms_code])
       if result.success?
         flash[:notice] = "Successfully removed SMS as an MFA option on your account"
       else

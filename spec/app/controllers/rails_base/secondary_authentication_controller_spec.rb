@@ -336,11 +336,12 @@ RSpec.describe RailsBase::SecondaryAuthenticationController, type: :controller d
     end
 
     it 'logs user in' do
+      expect(user_signed_in?).to be(false)
       expect(request.session["warden.user.user.key"]).to be_nil
 
       after_email_login_session_create
 
-      expect(session["warden.user.user.key"][0]).to eq([user.id])
+      expect(user_signed_in?).to be(true)
     end
 
     include_examples 'invalid token context'

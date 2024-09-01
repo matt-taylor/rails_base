@@ -7,6 +7,7 @@ module RailsBase::Mfa::Sms
     delegate :current_user, to: :context
     delegate :input_reason, to: :context
     delegate :sms_code, to: :context
+    delegate :mfa_event, to: :context
 
     def call
       if sms_code.present?
@@ -58,7 +59,7 @@ module RailsBase::Mfa::Sms
       # MFA does not exist for any reason type
       log(level: :warn, msg: "Could not find MFA code. Incorrect MFA code")
 
-      context.fail!(message: "Incorrect SMS code.", redirect_url: RailsBase.url_routes.mfa_evaluation_path(type: RailsBase::Mfa::SMS), level: :warn)
+      context.fail!(message: "Incorrect SMS code.", redirect_url: RailsBase.url_routes.mfa_with_event_path(mfa_event: mfa_event.event, type: RailsBase::Mfa::SMS), level: :warn)
     end
 
     def validate_user_consistency?(datum)
@@ -95,6 +96,8 @@ module RailsBase::Mfa::Sms
       if sms_code.nil?
         raise 'params is not present' if params.nil?
       end
+
+      raise 'mfa_event is expected to be a RailsBase::MfaEvent' unless RailsBase::MfaEvent === mfa_event
 
       raise 'session_mfa_user_id is not present' if session_mfa_user_id.nil?
     end

@@ -10,7 +10,9 @@ module RailsBase
     include AdminHelper
 
     # GET admin
-    def index; end
+    def index
+      add_mfa_event_to_session(event: RailsBase::MfaEvent.admin_actions(user: current_user))
+    end
 
     # GET admin/config
     def show_config
@@ -265,6 +267,8 @@ module RailsBase
 
     # POST admin/validate_intent/verify
     def verify_2fa
+      return unless validate_mfa_with_event_json!(mfa_event_name: RailsBase::MfaEvent::ADMIN_VERIFY)
+
       unless modify_id = params[:modify_id]
         logger.warn("Failed to find #{modify_id} in payload")
         render json: { success: false, message: 'Hmm. Something fishy happend. Failed to find text to modify' }, status: 404
@@ -284,6 +288,7 @@ module RailsBase
       end
 
       params = {
+        mfa_event: @__rails_base_mfa_event,
         session_mfa_user_id: admin_user.id,
         current_user: admin_user,
         input_reason: session_reason,
@@ -299,9 +304,10 @@ module RailsBase
         logger.warn("Failed to render html correctly")
         html = nil
       end
+
       if html.nil?
         logger.warn("Failed to find render html correctly")
-        render json: { success: false, message: 'Apologies. Wee are struggling to render the page. Please try again later' }, status: 500
+        render json: { success: false, message: 'Apologies. We are struggling to render the page. Please try again later' }, status: 500
         return
       end
 

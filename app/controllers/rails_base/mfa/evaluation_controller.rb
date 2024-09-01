@@ -2,15 +2,14 @@
 
 module RailsBase::Mfa
   class EvaluationController < RailsBaseApplicationController
-    before_action :validate_mfa_token!, only: [:mfa_evaluate, :validate_mfa_evaluation]
     before_action :authenticate_user!, only: [:mfa_evaluate_authenticated]
+    before_action :validate_mfa_with_event!
     OTP_TEMPLATE = "rails_base/mfa/validate/totp/totp_login_input"
     SMS_TEMPLATE = "rails_base/mfa/validate/sms/sms_login_input"
 
-    # User is not expected to be logged in yet
-    # GET mfa/evaluation
-    def mfa_evaluate
-      user = User.find(@token_verifier.user_id)
+    # GET mfa/:event
+    def mfa_with_event
+      user = User.find(@__rails_base_mfa_event.user_id)
       decision = RailsBase::Mfa::Decision.(user: user)
       mfa_type = mfa_decision(provided: params[:type], default: decision.mfa_type, allowed: decision.mfa_options)
 
@@ -20,7 +19,7 @@ module RailsBase::Mfa
 
         {
           text: "Switch MFA to #{type}",
-          ** RailsBase::Mfa.mfa_link(mfa: type)
+          ** RailsBase::Mfa.mfa_link(mfa_event: @__rails_base_mfa_event.event, mfa: type)
         }
       end.compact
 
@@ -30,19 +29,6 @@ module RailsBase::Mfa
       when RailsBase::Mfa::SMS
         render SMS_TEMPLATE
       end
-    end
-
-    # User is not expected to be logged in yet
-    # POST mfa/evaluation
-    def validate_mfa_evaluation
-    end
-
-    # GET mfa/evaluation/verify
-    def mfa_evaluate_authenticated
-    end
-
-    # POST mfa/evaluation/verify
-    def validate_mfa_evaluation_authenticated
     end
 
     private

@@ -6,6 +6,7 @@ class RailsBaseApplicationController < ActionController::Base
   before_action :is_timeout_error?
   before_action :admin_reset_impersonation_session!
   before_action :footer_mode_case
+  before_action :clear_expired_mfa_events_from_session!
 
   before_action :populate_admin_actions, if: -> { RailsBase.config.admin.enable_actions? }
   after_action :capture_admin_action
@@ -127,6 +128,74 @@ class RailsBaseApplicationController < ActionController::Base
   end
 
   protected
+
+  def add_mfa_event_to_session(event:)
+    unless RailsBase::MfaEvent === event
+      logger.error("Failed to add MFA event to session. Unexpected event passed")
+      return false
+    end
+
+    session[:"__#{RailsBase.app_name}_mfa_events"] ||= {}
+    # nested hashes in the session are string keys -- ensure it gets converted to a string during assignment to avoid confusion
+    session[:"__#{RailsBase.app_name}_mfa_events"][event.event.to_s] = event.to_hash
+  end
+
+  def clear_mfa_event_from_session!(event_name:)
+    session[:"__#{RailsBase.app_name}_mfa_events"] ||= {}
+    session[:"__#{RailsBase.app_name}_mfa_events"].delete(event_name.to_s)
+
+    true
+  end
+
+  def clear_expired_mfa_events_from_session!
+    mfa_events = session.delete(:"__#{RailsBase.app_name}_mfa_events")
+    return true if mfa_events.nil?
+
+    mfa_events.each do |event_name, metadata|
+      event_object = RailsBase::MfaEvent.new(**metadata.deep_symbolize_keys)
+      if event_object.valid_by_death_time?
+        add_mfa_event_to_session(event: event_object)
+      else
+        logger.warn("MFA event: [#{event_name}] is no longer valid. Ejecting from session ")
+      end
+
+    end
+  rescue
+    logger.error("Oh know! We may have just removed all MFA events. Re-Auth is now required")
+    true
+  end
+
+  def validate_mfa_with_event_json!(mfa_event_name: params[:mfa_event])
+    return true if soft_mfa_with_event(mfa_event_name:)
+
+    render json: { error: "Unauthorized. Incorrect Event" }.to_json, :status => 401
+    false
+  end
+
+  def validate_mfa_with_event!(mfa_event_name: params[:mfa_event])
+    return true if soft_mfa_with_event(mfa_event_name:)
+
+    redirect_to(@__rails_base_mfa_event.invalid_redirect, alert: @__rails_base_mfa_event_invalid_reason)
+    false
+  end
+
+  def soft_mfa_with_event(mfa_event_name: params[:mfa_event])
+    # nested hashes in the session are string keys -- ensure it gets converted to a string during lookup
+    mfa_event = session.dig(:"__#{RailsBase.app_name}_mfa_events", mfa_event_name.to_s)
+    if mfa_event.nil?
+      @__rails_base_mfa_event_invalid_reason = "Unauthorized MFA event"
+      return false
+    end
+    @__rails_base_mfa_event = RailsBase::MfaEvent.new(**mfa_event.deep_symbolize_keys)
+
+    if @__rails_base_mfa_event.valid?
+      @__rails_base_mfa_event.increase_access_count!
+      return true
+    end
+    @__rails_base_mfa_event_invalid_reason = "MFA event for #{mfa_event_name} is invalid. #{@__rails_base_mfa_event.event}"
+
+    false
+  end
 
   def json_validate_current_user!
     return if current_user

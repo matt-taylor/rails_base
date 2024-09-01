@@ -84,52 +84,51 @@ module RailsBase
         redirect_to result.redirect_url, alert: result.message
         return
       end
-      session[:mfa_randomized_token] = result.encrypted_val
-      flash[:notice] =
-        if @mfa_flow = result.mfa_flow
-          I18n.t('authentication.forgot_password.2fa')
-        else
-          I18n.t('authentication.forgot_password.base')
-        end
-      @user = result.user
-      @data = params[:data]
+
+      event = RailsBase::MfaEvent.forgot_password(user: result.user, data: params[:data])
+      if result.mfa_flow
+        flash[:notice] = "MFA required to reset password"
+        redirect_to(RailsBase.url_routes.mfa_with_event_path(mfa_event: event.event))
+      else
+        # Requirements to continue were satiatet..we can let the user reset their password
+        event.satiated!
+        flash[:notice] = "Datum valid. Reset your password"
+        redirect_to(RailsBase.url_routes.reset_password_input_path(data: params[:data]))
+      end
+
+      # Upload event to the session as a last step to ensure we capture if it was satiated or not
+      add_mfa_event_to_session(event:)
     end
 
-    # POST auth/email/forgot/:data
-    def forgot_password_with_mfa
-      return unless validate_mfa_token!(purpose: Authentication::Constants::VFP_PURPOSE)
+    # GET auth/password/reset/:data
+    def reset_password_input
+      return unless validate_mfa_with_event!(mfa_event_name: RailsBase::MfaEvent::FORGOT_PASSWORD)
 
-      # datum is expired because it was used with #forgot_password method
-      # we dont care, we just want to ensure the correct user (multiple verification ways)
-      # -- validate user by datum
-      # -- validate user by short lived token
-      # -- validate user by mfa_token
-      # -- When all match by user and within the lifetime of the short lived token... we b gucci uber super secure/over engineered
-      expired_datum = ShortLivedData.get_by_data(data: params[:data], reason: Authentication::Constants::VFP_REASON)
-
-      unless expired_datum
-        redirect_to(RailsBase.url_routes.new_user_password_path, alert: I18n.t('authentication.forgot_password_with_mfa.expired_datum'))
-        return
+      if @__rails_base_mfa_event.satiated?
+        @data = params[:data]
+        @user = User.find(@__rails_base_mfa_event.user_id)
+      else
+        logger.error("MFA Event was not satiated. Kicking user back to root")
+        clear_mfa_event_from_session!(event_name: @__rails_base_mfa_event.event)
+        flash[:alert] = "Unauthorized access"
+        session.clear
+        redirect_to(RailsBase.url_routes.unauthenticated_root_path)
       end
-
-      result = RailsBase::Mfa::Sms::Validate.call(params: params, session_mfa_user_id: @token_verifier.user_id, current_user: expired_datum.user)
-      if result.failure?
-        redirect_to(RailsBase.url_routes.new_user_password_path, alert: result.message)
-        return
-      end
-
-      @mfa_flow = false
-      @data = params[:data]
-      @user = result.user
-      flash[:notice] = I18n.t('authentication.forgot_password_with_mfa.valid_mfa')
-      render :forgot_password
     end
 
     # POST auth/email/reset/:data
     def reset_password
-      return unless validate_mfa_token!(purpose: Authentication::Constants::VFP_PURPOSE)
+      return unless validate_mfa_with_event!(mfa_event_name: RailsBase::MfaEvent::FORGOT_PASSWORD)
 
-      result = Authentication::ModifyPassword.call(password: params[:user][:password], password_confirmation: params[:user][:password_confirmation], data: params[:data], user_id: @token_verifier.user_id, flow: :forgot_password)
+      unless @__rails_base_mfa_event.satiated?
+        logger.error("MFA Event was not satiated. Kicking user back to root")
+        clear_mfa_event_from_session!(event_name: @__rails_base_mfa_event.event)
+        flash[:alert] = "Unauthorized access"
+        session.clear
+        redirect_to(RailsBase.url_routes.unauthenticated_root_path)
+        return
+      end
+      result = Authentication::ModifyPassword.call(password: params[:user][:password], password_confirmation: params[:user][:password_confirmation], data: params[:data], user_id: @__rails_base_mfa_event.user_id, flow: :forgot_password)
       if result.failure?
         redirect_to RailsBase.url_routes.new_user_password_path, alert: result.message
         return

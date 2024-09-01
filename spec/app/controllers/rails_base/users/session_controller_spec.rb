@@ -248,12 +248,13 @@ RSpec.describe RailsBase::Users::SessionsController, type: :controller do
 
     it 'correctly signs out' do
       # ensure user is signed in
-      expect(session["warden.user.user.key"][0]).to eq([user.id])
+      expect(user_signed_in?).to be(true)
+      expect(current_user.id).to eq(user.id)
 
       destroy
 
       # ensure user is signed out
-      expect(session["warden.user.user.key"]).to be_nil
+      expect(user_signed_in?).to be(false)
     end
   end
 

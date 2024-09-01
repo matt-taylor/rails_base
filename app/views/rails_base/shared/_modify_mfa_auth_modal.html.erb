@@ -103,7 +103,7 @@
     setDelay();
     $.ajax({
       type: "POST",
-      url: "<%= RailsBase.url_routes.sms_validate_send_path %>",
+      url: "<%= RailsBase.url_routes.sms_validate_send_event_path(mfa_event: RailsBase::MfaEvent::ENABLE_SMS_EVENT) %>",
       headers: { 'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content') },
       dataType: 'json',
       success: function(data) {

@@ -4,7 +4,6 @@ module RailsBase::Authentication
 
 		def call
 			user = User.find_for_authentication(email: email)
-
 			if user.nil?
 				log(level: :warn, msg: "Failed to find email assocaited to #{email}. Not sending email")
 				context.fail!(message: "Failed to send forget password to #{email}", redirect_url: '')

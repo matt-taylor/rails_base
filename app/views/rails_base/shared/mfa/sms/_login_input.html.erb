@@ -1,10 +1,10 @@
 
 <div class="row" >
   <div class="col-md-8 offset-md-2">
-    <%= render partial: 'rails_base/shared/mfa_input_layout', locals: { url: RailsBase.url_routes.sms_validate_login_path, size: 30, masked_phone: @masked_phone }%>
+    <%= render partial: 'rails_base/shared/mfa_input_layout', locals: { url: RailsBase.url_routes.sms_validate_event_path(mfa_event: mfa_event.event), size: 30, masked_phone: @masked_phone }%>
     <br>
     <div class="text-center">
-      <%= button_to 'Resend MFA', RailsBase.url_routes.sms_validate_send_path, method: :post, class: 'btn btn_warning', style: 'width: 25%;'  %>
+      <%= button_to 'Resend MFA', RailsBase.url_routes.sms_validate_send_event_path(mfa_event: mfa_event.event), method: :post, class: 'btn btn_warning', style: 'width: 25%;'  %>
     </div>
   </div>
 </div>

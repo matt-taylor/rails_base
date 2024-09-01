@@ -12,7 +12,7 @@
     <div class="row">
       <div class="col">
         <div class="totpComfirmation">
-          <%= render partial: 'rails_base/shared/totp/confirm_code', locals: { endpoint: RailsBase.url_routes.totp_validate_login_path, type: :rest } %>
+          <%= render partial: 'rails_base/shared/totp/confirm_code', locals: { endpoint: endpoint, type: :rest } %>
         </div>
       </div>
     </div>

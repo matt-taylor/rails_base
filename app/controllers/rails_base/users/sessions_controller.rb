@@ -53,6 +53,7 @@ class RailsBase::Users::SessionsController < Devise::SessionsController
     ####
     # User needs MFA
     ####
+    add_mfa_event_to_session(event: RailsBase::MfaEvent.login_event(user: authenticate.user))
     redirect_to(mfa_decision.redirect_url, mfa_decision.flash)
   end
 

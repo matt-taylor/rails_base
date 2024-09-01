@@ -75,9 +75,7 @@ module RailsBase::Authentication
 		def totp_enabled_context!(decision:)
 			if decision.mfa_require
 				log(level: :warn, msg: "TOTP MFA required for user")
-				context.redirect_url = RailsBase.url_routes.mfa_evaluation_path
-				context.set_mfa_randomized_token = true
-				context.mfa_purpose = nil # use default
+				context.redirect_url = RailsBase.url_routes.mfa_with_event_path(mfa_event: :login)
 				context.flash = { notice: "Additional Verification requested" }
 				context.token_ttl = 2.minutes.from_now
 			else
@@ -90,9 +88,7 @@ module RailsBase::Authentication
 		def sms_enabled_context!(decision:)
 			if decision.mfa_require
 				log(level: :warn, msg: "SMS MFA required for user")
-				context.redirect_url = RailsBase.url_routes.mfa_evaluation_path
-				context.set_mfa_randomized_token = true
-				context.mfa_purpose = nil # use default
+				context.redirect_url = RailsBase.url_routes.mfa_with_event_path(mfa_event: :login)
 				context.flash = { notice: "Please check your mobile device. We sent an SMS for MFA verification" }
 				result = RailsBase::Mfa::Sms::Send.call(user: user)
 				context.token_ttl = result.short_lived_data.death_time if result.success?
