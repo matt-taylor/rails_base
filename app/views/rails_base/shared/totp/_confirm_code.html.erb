@@ -1,0 +1,31 @@
+<%
+  case type
+  when :ajax
+    partial = "rails_base/shared/totp/confirm_code_ajax"
+    endpoint = endpoint
+  when :rest
+    partial = "rails_base/shared/totp/confirm_code_rest"
+    endpoint = endpoint
+  else
+    raise "type must be of [:ajax, :rest]"
+  end
+%>
+<%= form_with(url: endpoint, method: :post) do |f| %>
+  <div id="confirmTotpAuthenticationCode">
+    <br>
+    <div class="totpInput">
+      <div class="input-group input-group-lg">
+        <div class="input-group-prepend">
+          <span class="input-group-text" id="totpInput-Prepend">OTP</span>
+        </div>
+        <%= f.telephone_field :totp_code, id: "totpInput-Input", class:"form-control", placeholder: "One Time Password Value" %>
+      </div>
+    </div>
+    <br>
+    <div class="totpSubmit">
+      <%= render partial: partial, locals: { endpoint: endpoint, form: f } %>
+    </div>
+  </div>
+<% end %>
+
+

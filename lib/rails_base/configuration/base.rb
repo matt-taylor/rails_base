@@ -22,6 +22,7 @@ module RailsBase
         duration: -> (val) { [ActiveSupport::Duration].include?(val.class) },
         hash: -> (val) { [Hash].include?(val.class) },
         integer: -> (val) { [Integer].include?(val.class) },
+        integer_nil: -> (val) { [Integer, NilClass].include?(val.class) },
         klass: -> (_val) { true },
         path: -> (val) { [Pathname].include?(val.class) },
         proc: -> (val) { [Proc].include?(val.class) },

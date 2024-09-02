@@ -41,9 +41,9 @@ class RailsBase::NameChange < RailsBase::ServiceBase
 		return if admin_user_id
 
 		RailsBase::EmailVerificationMailer.event(
-			user: current_user,
-			event: "Succesfull name change",
-			msg: "We changed the name on your account from #{original_name} to #{context.name_change}."
+			current_user,
+			"Succesfull name change",
+			"We changed the name on your account from #{original_name} to #{context.name_change}."
 		).deliver_me
 	end
 

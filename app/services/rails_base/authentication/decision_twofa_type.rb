@@ -8,28 +8,52 @@ module RailsBase::Authentication
 			# default return values
 			context.set_mfa_randomized_token = false
 			context.sign_in_user = false
-
-			mfa_decision =
-				if user.email_validated
-					if RailsBase.config.mfa.enable? && user.mfa_enabled
-						mfa_enabled_context!
-					else
-						# user has signed up and validated email
-						# user does not have mfa enabled
-						sign_in_user_context!
-						context.flash = { notice: "Welcome. You have succesfully signed in. We suggest enabling 2fa authentication to secure your account" }
-						nil
-					end
-				else
-					validate_email_context!
-				end
-
-			if mfa_decision && mfa_decision.failure?
-				log(level: :error, msg: "Service error bubbled up. Failing with: #{mfa_decision.message}")
-				context.fail!(message: mfa_decision.message)
+			unless user.email_validated
+				email_context = validate_email_context!
+				check_success!(result: email_context)
+				log(level: :info, msg: "User #{user.id}: redirect_url: #{context.redirect_url}, sign_in_user: #{context.sign_in_user}, flash: #{context.flash}")
+				log_exit
+				return
 			end
 
+			unless RailsBase.config.mfa.enable?
+				log(level: :info, msg: "MFA on app is not enabled. Bypassing")
+				sign_in_user_context!
+				context.flash = { notice: "Welcome. You have succesfully signed in." }
+				log_exit
+				return
+			end
+
+			mfa_decision = RailsBase::Mfa::Decision.(user: user)
+			check_success!(result: mfa_decision)
+			mfa_type_result = nil
+			case mfa_decision.mfa_type
+			when RailsBase::Mfa::SMS
+				mfa_type_result = sms_enabled_context!(decision: mfa_decision)
+			when RailsBase::Mfa::OTP
+				totp_enabled_context!(decision: mfa_decision)
+			when RailsBase::Mfa::NONE
+				# no MFA type enabled on account
+				sign_in_user_context!
+				context.flash = { notice: "Welcome. You have succesfully signed in." }
+				context.session = { add_mfa_button: true }
+			else
+				raise "Unknown MFA type provided"
+			end
+			check_success!(result: mfa_type_result)
+			log_exit
+		end
+
+		def log_exit
 			log(level: :info, msg: "User #{user.id}: redirect_url: #{context.redirect_url}, sign_in_user: #{context.sign_in_user}, flash: #{context.flash}")
+		end
+
+		def check_success!(result:)
+			return if result.nil?
+			return if result.success?
+
+			log(level: :error, msg: "Service error bubbled up. Failing with: #{result.message}")
+			context.fail!(message: result.message)
 		end
 
 		def validate_email_context!
@@ -48,23 +72,30 @@ module RailsBase::Authentication
 			context.sign_in_user = true
 		end
 
-		def mfa_enabled_context!
-			if user.past_mfa_time_duration?
-				# user has signed up and validated email
-				# user has mfa enabled
-				log(level: :warn, msg: "User needs to go through mfa flow. #{user.last_mfa_login} < #{User.time_bound}")
-				context.redirect_url = Constants::URL_HELPER.mfa_code_path
-				context.set_mfa_randomized_token = true
-				context.mfa_purpose = nil # use default
-				context.flash = { notice: "Please check your mobile device. We sent an SMS for 2fa verification" }
-				result = SendLoginMfaToUser.call(user: user)
+		def totp_enabled_context!(decision:)
+			if decision.mfa_require
+				log(level: :warn, msg: "TOTP MFA required for user")
+				context.redirect_url = RailsBase.url_routes.mfa_with_event_path(mfa_event: :login)
+				context.flash = { notice: "Additional Verification requested" }
+				context.token_ttl = 2.minutes.from_now
+			else
+				sign_in_user_context!
+				context.flash = { notice: "Welcome. You have succesfully signed in via #{decision.mfa_type.to_s.upcase} MFA." }
+				nil
+			end
+		end
+
+		def sms_enabled_context!(decision:)
+			if decision.mfa_require
+				log(level: :warn, msg: "SMS MFA required for user")
+				context.redirect_url = RailsBase.url_routes.mfa_with_event_path(mfa_event: :login)
+				context.flash = { notice: "Please check your mobile device. We sent an SMS for MFA verification" }
+				result = RailsBase::Mfa::Sms::Send.call(user: user)
 				context.token_ttl = result.short_lived_data.death_time if result.success?
 				result
 			else
 				sign_in_user_context!
-				mfa_free_words = distance_of_time_in_words(user.last_mfa_login, User.time_bound)
-				context.flash = { notice: "Welcome. You have succesfully signed in. You will be mfa free for another #{mfa_free_words}" }
-				log(level: :info, msg: "User is mfa free for another #{mfa_free_words}")
+				context.flash = { notice: "Welcome. You have succesfully signed in via #{decision.mfa_type.to_s.upcase} MFA." }
 				nil
 			end
 		end

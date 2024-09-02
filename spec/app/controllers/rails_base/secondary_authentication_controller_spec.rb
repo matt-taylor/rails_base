@@ -3,7 +3,7 @@ require 'twilio_helper'
 RSpec.describe RailsBase::SecondaryAuthenticationController, type: :controller do
   let(:user) { User.first }
   let(:sessions) { { mfa_randomized_token: mfa_randomized_token } }
-  let(:mfa_randomized_token) { RailsBase::Authentication::MfaSetEncryptToken.call(user: user, expires_at: expires_at).encrypted_val }
+  let(:mfa_randomized_token) { RailsBase::Mfa::EncryptToken.call(user: user, expires_at: expires_at).encrypted_val }
   let(:expires_at) { Time.zone.now + 5.minutes }
 
   shared_examples 'invalid token context' do
@@ -76,9 +76,10 @@ RSpec.describe RailsBase::SecondaryAuthenticationController, type: :controller d
 
   describe 'GET #static' do
     subject(:static) { get(:static, session: sessions, flash: flashes) }
+
     let(:flashes) { nil }
     let(:mfa_randomized_token) do
-      RailsBase::Authentication::MfaSetEncryptToken.call(
+      RailsBase::Mfa::EncryptToken.call(
         user: user,
         expires_at: expires_at,
         purpose: RailsBase::Authentication::Constants::SSOVE_PURPOSE
@@ -237,7 +238,7 @@ RSpec.describe RailsBase::SecondaryAuthenticationController, type: :controller d
     subject(:after_email_login_session_new) { get(:after_email_login_session_new, session: sessions, flash: flashes) }
     let(:flashes) { nil }
     let(:mfa_randomized_token) do
-      RailsBase::Authentication::MfaSetEncryptToken.call(
+      RailsBase::Mfa::EncryptToken.call(
         user: user,
         expires_at: expires_at,
         purpose: RailsBase::Authentication::Constants::SSOVE_PURPOSE
@@ -278,12 +279,13 @@ RSpec.describe RailsBase::SecondaryAuthenticationController, type: :controller d
 
   describe 'POST #after_email_login_session_create' do
     subject(:after_email_login_session_create) { post(:after_email_login_session_create, session: sessions, params: params) }
+
     let(:params) { { user: user_params} }
     let(:user_params) { { email: email, password: password } }
     let(:email) { user.email }
     let(:password) { 'password11' }
     let(:mfa_randomized_token) do
-      RailsBase::Authentication::MfaSetEncryptToken.call(
+      RailsBase::Mfa::EncryptToken.call(
         user: user,
         expires_at: expires_at,
         purpose: RailsBase::Authentication::Constants::SSOVE_PURPOSE
@@ -335,166 +337,21 @@ RSpec.describe RailsBase::SecondaryAuthenticationController, type: :controller d
     end
 
     it 'logs user in' do
+      expect(user_signed_in?).to be(false)
       expect(request.session["warden.user.user.key"]).to be_nil
 
       after_email_login_session_create
 
-      expect(session["warden.user.user.key"][0]).to eq([user.id])
+      expect(user_signed_in?).to be(true)
     end
 
     include_examples 'invalid token context'
-  end
-
-  describe 'POST #phone_registration json' do
-    subject(:phone_registration) { post(:phone_registration,  params: params) }
-
-    let(:params) { { phone_number: phone_number } }
-    let(:phone_number) { '6508675310' }
-    let(:change_proc) { -> { user.reload.phone_number } }
-    before { sign_in(user) }
-
-    context 'when UpdatePhoneSendVerification fails' do
-      before { allow(TwilioHelper).to receive(:send_sms).and_raise(StandardError, 'Forced failure') }
-
-      context 'when phone is not sanitized' do
-        let(:phone_number) { 'not a phone number' }
-
-         it 'does not update phone' do
-          expect { phone_registration }.not_to change { change_proc.call }
-         end
-
-         it 'renders correctly' do
-          phone_registration
-
-          expect(JSON.parse(response.body)).to include({'error' => 'Unable to complete request'})
-          expect(response.status).to eq(418)
-        end
-      end
-
-      it 'updates phone' do
-        expect { phone_registration }.to change { change_proc.call }
-      end
-
-      it 'renders correctly' do
-        phone_registration
-
-        expect(JSON.parse(response.body)).to include({'error' => 'Unable to complete request'})
-        expect(response.status).to eq(418)
-      end
-    end
-
-    it 'updates phone' do
-      expect { phone_registration }.to change { change_proc.call }
-    end
-
-    it 'renders correctly' do
-      phone_registration
-
-      expect(JSON.parse(response.body)).to include({'message' => 'You are not a teapot'})
-      expect(response.status).to eq(200)
-    end
-
-    include_examples 'user is not logged in json'
-  end
-
-  describe 'POST #confirm_phone_registration' do
-    subject(:confirm_phone_registration) { post(:confirm_phone_registration,  params: params, session: sessions) }
-
-    let(:mfa_params) {
-      _params = {}
-      RailsBase::Authentication::Constants::MFA_LENGTH.times do |index|
-        var_name = "#{RailsBase::Authentication::Constants::MV_BASE_NAME}#{index}".to_sym
-        _params[var_name] = mfa.split('')[index]
-      end
-      _params
-    }
-    let(:mfa) { rand.to_s[2..(2+(RailsBase::Authentication::Constants::MFA_LENGTH-1))] }
-    let!(:datum) do
-      ShortLivedData.create_data_key(
-        user: user,
-        data: mfa,
-        reason: RailsBase::Authentication::Constants::MFA_REASON
-      )
-    end
-    let(:redirect_path) { RailsBase.url_routes.authenticated_root_path }
-    let(:change_proc) { -> { user.reload.mfa_enabled } }
-    let(:params) { { mfa: mfa_params } }
-    let(:sessions) { { mfa_randomized_token: mfa_randomized_token } }
-
-    before { sign_in(user) }
-
-    context 'when mfa validation fails' do
-      let(:mfa_params) { nil }
-
-      it 'does not update' do
-        expect { confirm_phone_registration }.not_to change { change_proc.call }
-      end
-
-      it 'renders correctly' do
-        confirm_phone_registration
-
-        expect(response).to redirect_to(RailsBase.url_routes.authenticated_root_path)
-      end
-
-      it 'sets flash' do
-        confirm_phone_registration
-
-        expect(flash[:alert]).to include('Unable to complete request')
-      end
-    end
-
-    it 'updates mfa_enabled' do
-      expect { confirm_phone_registration }.to change { change_proc.call }.to(true)
-    end
-
-    it 'redirects correct' do
-      confirm_phone_registration
-
-      expect(response).to redirect_to(RailsBase.url_routes.authenticated_root_path)
-    end
-
-    it 'sets flash' do
-      confirm_phone_registration
-
-      expect(flash[:notice]).to eq('You have succesfully enabled 2fa.')
-    end
-
-    include_examples 'invalid token context'
-  end
-
-  describe 'DELETE #remove_phone_mfa' do
-    subject(:remove_phone_mfa) { delete(:remove_phone_mfa) }
-    let(:change_proc) { -> { [user.reload.mfa_enabled, user.reload.last_mfa_login] } }
-
-    before do
-      user.update!(mfa_enabled: true, last_mfa_login: Time.zone.now)
-      sign_in(user)
-    end
-
-    it 'changes data' do
-      expect { remove_phone_mfa }.to change { change_proc.call }
-
-      expect(response).to redirect_to RailsBase.url_routes.authenticated_root_path
-    end
-
-    it 'sets flash' do
-      remove_phone_mfa
-
-      expect(flash[:notice]).to include('You have Disabled 2fa')
-    end
-
-    it 'redirects correctly' do
-      remove_phone_mfa
-
-      expect(response).to redirect_to RailsBase.url_routes.authenticated_root_path
-    end
-
-    include_examples 'user is not logged'
   end
 
   describe 'GET #forgot_password' do
     subject(:forgot_password) { get(:forgot_password, params: params) }
 
+    let(:user) { create(:user) }
     let!(:datum) do
       ShortLivedData.create_data_key(
         user: user,
@@ -507,71 +364,53 @@ RSpec.describe RailsBase::SecondaryAuthenticationController, type: :controller d
     let(:data)  { datum.data }
 
     context 'when mfa is enabled' do
-      before { user.update!(mfa_enabled: true) }
+      let(:user) { create(:user, :totp_enabled) }
 
-      it 'sends mfa to user' do
-        expect(RailsBase::Authentication::SendLoginMfaToUser).to receive(:call).with(user: user, expires_at: Time.zone.now + 10.minutes).and_call_original
-
+      it do
         forgot_password
+
+        expect(response).to redirect_to(RailsBase.url_routes.mfa_with_event_path(mfa_event: :forgot_password))
       end
 
-      it 'assigns correctly' do
+      it "sets mfa_event in session" do
         forgot_password
 
-        expect(assigns(:data)).to eq(data)
-        expect(assigns(:user)).to eq(user)
-        expect(assigns(:mfa_flow)).to eq(true)
+        expect(mfe_events_from_session).to include("forgot_password")
       end
 
-      it 'sets mfa token' do
+      it "sets flash" do
         forgot_password
 
-        expect(session[:mfa_randomized_token]).to be_present
-      end
-
-      it 'renders correctly' do
-        forgot_password
-
-        expect(response).to render_template(:forgot_password)
-      end
-
-      it 'sets flash' do
-        forgot_password
-
-        expect(flash[:notice]).to eq('2 Factor Authentication is required for this account')
+        expect(flash[:notice]).to eq("MFA required to reset password")
       end
     end
 
-    it 'does not send mfa to user' do
-      expect(RailsBase::Authentication::SendLoginMfaToUser).not_to receive(:call)
+    context "when mfa is disabled" do
+      let(:user) { create(:user) }
 
-      forgot_password
-    end
+      it do
+        forgot_password
 
-    it 'assigns correctly' do
-      forgot_password
+        expect(response).to redirect_to(RailsBase.url_routes.reset_password_input_path(data: data))
+      end
 
-      expect(assigns(:data)).to eq(data)
-      expect(assigns(:user)).to eq(user)
-      expect(assigns(:mfa_flow)).to be_nil
-    end
+      it "sets mfa_event in session" do
+        forgot_password
 
-    it 'sets mfa token' do
-      forgot_password
+        expect(mfe_events_from_session).to include("forgot_password")
+      end
 
-      expect(session[:mfa_randomized_token]).to be_present
-    end
+      it "satiates mfa_event in session" do
+        forgot_password
 
-    it 'renders correctly' do
-      forgot_password
+        expect(mfa_event_from_session(event_name: "forgot_password").satiated?).to eq(true)
+      end
 
-      expect(response).to render_template(:forgot_password)
-    end
+      it "sets flash" do
+        forgot_password
 
-    it 'sets flash' do
-      forgot_password
-
-      expect(flash[:notice]).to eq('Please enter your new password')
+        expect(flash[:notice]).to eq("Datum valid. Reset your password")
+      end
     end
 
     context 'when VerifyForgotPassword fails' do
@@ -609,25 +448,10 @@ RSpec.describe RailsBase::SecondaryAuthenticationController, type: :controller d
     end
   end
 
-  describe 'POST #forgot_password_with_mfa' do
-    subject(:forgot_password_with_mfa) { post(:forgot_password_with_mfa, params: params, session: sessions) }
+  describe "#GET reset_password_input" do
+    subject(:reset_password_input) { get(:reset_password_input, params: { data: }, session: mfa_event_session_hash(mfa_event:)) }
 
-    let(:mfa_params) {
-      _params = {}
-      RailsBase::Authentication::Constants::MFA_LENGTH.times do |index|
-        var_name = "#{RailsBase::Authentication::Constants::MV_BASE_NAME}#{index}".to_sym
-        _params[var_name] = mfa.split('')[index]
-      end
-      _params
-    }
-    let(:mfa) { rand.to_s[2..(2+(RailsBase::Authentication::Constants::MFA_LENGTH-1))] }
-    let!(:mfa_datum) do
-      ShortLivedData.create_data_key(
-        user: user,
-        data: mfa,
-        reason: RailsBase::Authentication::Constants::MFA_REASON
-      )
-    end
+    let(:mfa_event) { RailsBase::MfaEvent.forgot_password(user:, data:)  }
     let!(:datum) do
       ShortLivedData.create_data_key(
         user: user,
@@ -636,92 +460,74 @@ RSpec.describe RailsBase::SecondaryAuthenticationController, type: :controller d
         length: RailsBase::Authentication::Constants::EMAIL_LENGTH,
       )
     end
-    let(:mfa_randomized_token) { RailsBase::Authentication::MfaSetEncryptToken.call(user: user, expires_at: expires_at, purpose: RailsBase::Authentication::Constants::VFP_PURPOSE).encrypted_val }
     let(:data)  { datum.data }
-    let(:params) { { data: data, mfa: mfa_params } }
-    let(:sessions) { { mfa_randomized_token: mfa_randomized_token } }
 
-    context 'when short lived data fails to match' do
-      let(:data)  { datum.data + '0' }
+    context "with invalid mfa event" do
+      context "with wrong event set" do
+        let(:mfa_event) { RailsBase::MfaEvent.sms_enable(user:)  }
 
-      it 'redirects correctly' do
-        forgot_password_with_mfa
+        it do
+          reset_password_input
 
-        expect(response).to redirect_to(RailsBase.url_routes.new_user_password_path)
-      end
-
-      it 'sets flash' do
-        forgot_password_with_mfa
-
-        expect(flash[:alert]).to include('Unauthorized. Incorrect Data parameter')
-      end
-    end
-
-    context 'when mfa does not match' do
-      context 'when does not exist' do
-        let(:mfa_params) { nil }
-
-        it 'redirects correctly' do
-          forgot_password_with_mfa
-
-          expect(response).to redirect_to(RailsBase.url_routes.new_user_password_path)
+          expect(response).to redirect_to(RailsBase.url_routes.unauthenticated_root_path)
         end
 
-        it 'sets flash' do
-          forgot_password_with_mfa
+        it do
+          reset_password_input
 
-          expect(flash[:alert]).to include(RailsBase::Authentication::Constants::MV_FISHY)
+          expect(flash[:alert]).to include("Unauthorized MFA event")
         end
       end
 
-      context 'when incorrect mfa' do
-        let(:mfa_params) do
-          val = super()[super().keys.first]
-          super()[super().keys.first] = "#{val.to_i + 1}"
-          super()
+      context "with expired event" do
+        before { Timecop.travel(mfa_event.death_time + 1.minute) }
+
+        it do
+          reset_password_input
+
+          expect(flash[:alert]).to include("MFA event for forgot_password")
         end
 
-        it 'redirects correctly' do
-          forgot_password_with_mfa
+        it do
+          reset_password_input
 
-          expect(response).to redirect_to(RailsBase.url_routes.new_user_password_path)
-        end
-
-        it 'sets flash' do
-          forgot_password_with_mfa
-
-          expect(flash[:alert]).to include('Incorrect MFA code.')
+          expect(response).to redirect_to(RailsBase.url_routes.unauthenticated_root_path)
         end
       end
     end
 
-    it 'renders correct' do
-      forgot_password_with_mfa
+    context "when mfa_event is not satiated" do
+      it do
+        reset_password_input
 
-      expect(response).to render_template(:forgot_password)
+        expect(response).to redirect_to(RailsBase.url_routes.unauthenticated_root_path)
+      end
+
+      it do
+        reset_password_input
+
+        expect(flash[:alert]).to include("Unauthorized access")
+      end
     end
 
-    it 'assigns correct' do
-      forgot_password_with_mfa
+    context "when mfa_event is satiated" do
+      before { mfa_event.satiated! }
 
-      expect(assigns(:mfa_flow)).to eq(false)
-      expect(assigns(:user)).to eq(user)
+      it do
+        reset_password_input
+
+        expect(response).to render_template(:reset_password_input)
+      end
     end
-
-    it 'sets flash correct' do
-      forgot_password_with_mfa
-
-      expect(flash[:notice]).to eq('Successful MFA code. Please reset your password')
-    end
-
-    include_examples 'invalid token context'
   end
 
   describe 'POST #reset_password' do
-    subject(:reset_password) { post(:reset_password, session: sessions, params: params) }
+    subject(:reset_password) { post(:reset_password, session:  mfa_event_session_hash(mfa_event:), params:) }
 
-    let(:mfa_randomized_token) { RailsBase::Authentication::MfaSetEncryptToken.call(user: user, expires_at: expires_at, purpose: RailsBase::Authentication::Constants::VFP_PURPOSE).encrypted_val }
-    let(:sessions) { { mfa_randomized_token: mfa_randomized_token } }
+    before { mfa_event.satiated! if satiate_event }
+
+    let(:mfa_event) { RailsBase::MfaEvent.forgot_password(user:, data:)  }
+    let(:satiate_event) { true }
     let(:params) { { data: data, user: user_params } }
     let(:data) { datum.data }
     let!(:datum) do
@@ -754,6 +560,40 @@ RSpec.describe RailsBase::SecondaryAuthenticationController, type: :controller d
       end
     end
 
+    context "with invalid mfa event" do
+      context "with wrong event set" do
+        let(:mfa_event) { RailsBase::MfaEvent.sms_enable(user:)  }
+
+        it do
+          reset_password
+
+          expect(response).to redirect_to(RailsBase.url_routes.unauthenticated_root_path)
+        end
+
+        it do
+          reset_password
+
+          expect(flash[:alert]).to include("Unauthorized MFA event")
+        end
+      end
+
+      context "with expired event" do
+        before { Timecop.travel(mfa_event.death_time + 1.minute) }
+
+        it do
+          reset_password
+
+          expect(flash[:alert]).to include("MFA event for forgot_password")
+        end
+
+        it do
+          reset_password
+
+          expect(response).to redirect_to(RailsBase.url_routes.unauthenticated_root_path)
+        end
+      end
+    end
+
     context 'when password is invalid' do
       context 'when passwords do not match' do
         let(:password_confirmation) { password + '1' }
@@ -777,27 +617,41 @@ RSpec.describe RailsBase::SecondaryAuthenticationController, type: :controller d
       include_examples 'password reset_fails'
     end
 
-    it 'redirects correctly' do
-      subject
+    context "when mfa_event is not satiated" do
+      let(:satiate_event) { false }
+
+      it "sets the flash" do
+        reset_password
+
+        expect(flash[:alert]).to include("Unauthorized access")
+      end
+
+      it do
+        reset_password
+
+        expect(response).to redirect_to(RailsBase.url_routes.unauthenticated_root_path)
+      end
+    end
+
+    it do
+      reset_password
 
       expect(response).to redirect_to(RailsBase.url_routes.authenticated_root_path)
     end
 
     it 'sets the flash' do
-      subject
+      reset_password
 
       expect(flash[:notice]).to include('Password succesfully changed. Please login')
     end
 
     it 'changes password' do
-      expect { subject }.to change { user.reload.encrypted_password }
+      expect { reset_password }.to change { user.reload.encrypted_password }
     end
-
-    include_examples 'invalid token context'
   end
 
   describe 'GET #sso_login' do
-    subject(:reset_password) { post(:sso_login, params: { data: data }) }
+    subject(:sso_login) { post(:sso_login, params: { data: data }) }
 
     before { sign_out(user) }
     let(:data) { sso_datum.data }

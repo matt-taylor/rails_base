@@ -64,18 +64,53 @@ Rails.application.routes.draw do
   get 'auth/login', to: 'rails_base/secondary_authentication#after_email_login_session_new', as: :login_after_email
   post 'auth/login', to: 'rails_base/secondary_authentication#after_email_login_session_create', as: :login_after_email_session_create
   post 'auth/resend_email', to: 'rails_base/secondary_authentication#resend_email', as: :resend_email_verification
-  delete 'auth/phone/mfa', to: 'rails_base/secondary_authentication#remove_phone_mfa', as: :remove_phone_registration_mfa
   get 'auth/password/forgot/:data', to: 'rails_base/secondary_authentication#forgot_password', as: :forgot_password_auth
-  post 'auth/password/forgot/:data', to: 'rails_base/secondary_authentication#forgot_password_with_mfa', as: :forgot_password_with_mfa_auth
+  get 'auth/password/reset/:data', to: 'rails_base/secondary_authentication#reset_password_input', as: :reset_password_input
   post 'auth/password/reset/:data', to: 'rails_base/secondary_authentication#reset_password', as: :reset_password_auth
 
   constraints(->(_req) { RailsBase.config.mfa.enable? }) do
-    get 'mfa_verify', to: 'rails_base/mfa_auth#mfa_code', as: :mfa_code
-    post 'mfa_verify', to: 'rails_base/mfa_auth#mfa_code_verify', as: :mfa_code_verify
-    post 'resend_mfa', to: 'rails_base/mfa_auth#resend_mfa', as: :resend_mfa
+    scope "mfa/register" do
+      mfa_base_register = "rails_base/mfa/register"
+      constraints(->(_req) { RailsBase.config.totp.enable? }) do
+        scope :totp do
+          delete "/", to: "#{mfa_base_register}/totp#totp_remove", as: :totp_register_delete
+          post "/", to: "#{mfa_base_register}/totp#totp_secret", as: :totp_register_secret
+          post "validate", to: "#{mfa_base_register}/totp#totp_validate", as: :totp_register_validate
+        end
+      end
 
-    post 'auth/phone', to: 'rails_base/secondary_authentication#phone_registration', as: :phone_registration
-    post 'auth/phone/mfa', to: 'rails_base/secondary_authentication#confirm_phone_registration', as: :phone_registration_mfa_code
+      constraints(->(_req) { RailsBase.config.twilio.enable? }) do
+        scope :sms do
+          delete "/", to: "#{mfa_base_register}/sms#sms_removal", as: :remove_phone_registration_mfa
+          post "/", to: "#{mfa_base_register}/sms#sms_registration", as: :phone_registration
+          post "validate", to: "#{mfa_base_register}/sms#sms_confirmation", as: :phone_registration_mfa_code
+        end
+      end
+    end
+
+    scope "mfa/validate" do
+      mfa_base_validate = "rails_base/mfa/validate"
+      constraints(->(_req) { RailsBase.config.totp.enable? }) do
+        scope :totp do
+          get ":mfa_event", to: "#{mfa_base_validate}/totp#totp_event_input", as: :totp_validate_event_input
+          post ":mfa_event", to: "#{mfa_base_validate}/totp#totp_event", as: :totp_validate_event
+        end
+      end
+
+      constraints(->(_req) { RailsBase.config.twilio.enable? }) do
+        scope :sms do
+          post ":mfa_event/send", to: "#{mfa_base_validate}/sms#sms_event_send", as: :sms_validate_send_event
+          post ":mfa_event", to: "#{mfa_base_validate}/sms#sms_event", as: :sms_validate_event
+          get ":mfa_event", to: "#{mfa_base_validate}/sms#sms_event_input", as: :sms_validate_event_input
+        end
+      end
+    end
+  end
+
+  # These routes need to be outside of the scope so that they can be called independently
+  # The code itself will evaluate if it should run or not
+  scope "mfa/evaluation" do
+    get ':mfa_event', to: 'rails_base/mfa/evaluation#mfa_with_event', as: :mfa_with_event
   end
 
   ################################

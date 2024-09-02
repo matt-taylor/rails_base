@@ -3,82 +3,49 @@ require 'rails_base/configuration/base'
 module RailsBase
   module Configuration
     class Mfa < Base
-      MFA_MIN_LENGTH = 4
-      MFA_MAX_LENGTH = 8
+      MFA_TYPE_OPTIONS = [ DEFAULT_TYPE = :totp, :twilio ]
       DEFAULT_VALUES = {
         enable: {
           type: :boolean,
           default: ENV.fetch('MFA_ENABLE', 'true')=='true',
-          description: 'Enable MFA and SMS verification. When not enabled, there are some interesting consequences',
+          description: 'Enable MFA with SMS or TOTP verification. When not enabled, there are some interesting consequences',
         },
-        mfa_length: {
+        enable_twilio: {
+          type: :boolean,
+          default: true,
+          description: 'Add Twilio as an MFA option.',
+        },
+        enable_totp: {
+          type: :boolean,
+          default: true,
+          description: 'Add TOTP as an MFA option.',
+        },
+        max_attempts_before_password_expire: {
           type: :integer,
           default: 5,
-          custom: ->(val) { val > MFA_MIN_LENGTH && val < MFA_MAX_LENGTH },
-          msg: "Must be an integer greater than #{MFA_MIN_LENGTH} and less than #{MFA_MAX_LENGTH}",
-          description: 'Length of MFA verification',
+          description: 'Max MFA attempts before password expires and password must get re-entered',
         },
-        twilio_sid: {
-          type: :string,
-          default: ENV.fetch('TWILIO_ACCOUNT_SID',''),
-          secret: true,
-          description: 'Twilio SID',
-        },
-        twilio_auth_token: {
-          type: :string,
-          default: ENV.fetch('TWILIO_AUTH_TOKEN', ''),
-          secret: true,
-          description: 'Twilio Auth Token',
-        },
-        twilio_from_number: {
-          type: :string,
-          default: ENV.fetch('TWILIO_FROM_NUMBER', ''),
-          description: 'Number that we send MFA\'s From',
-        },
-        twilio_velocity_max: {
+        max_password_expires_before_account_locked: {
           type: :integer,
-          default: ENV.fetch('TWILIO_VELOCITY_MAX', 5).to_i,
-          description: 'Max number of SMS we send to a user in a sliding window',
-
+          default: 5,
+          description: 'Max number of password expires before account is locked',
         },
-        twilio_velocity_max_in_frame: {
+        reauth_strategy: {
+          type: :klass,
+          default: -> (_val) { RailsBase::Mfa::Strategy::EveryRequest },
+          custom: ->(val) { (Proc === val ? val.call(nil) : val).ancestors.include?(RailsBase::Mfa::Strategy::Base) },
+          msg: "Invalid ReAuth Strategy. Provided class must be descendent of RailsBase::Mfa::Strategy::Base",
+          description: "Value is expected to be a descendent of RailsBase::Mfa::Strategy::Base. It can be lazily loaded via a proc",
+          on_assignment: ->(val, instance) { instance.reauth_strategy = (Proc === val ? val.call(nil) : val) },
+        },
+        reauth_duration: {
           type: :duration,
-          default: ENV.fetch('TWILIO_VELOCITY_MAX_IN_FRAME', 1).to_i.hours,
-          description: 'Sliding window for twilio_velocity_max',
-        },
-        twilio_velocity_frame: {
-          type: :duration,
-          default: ENV.fetch('TWILIO_VELOCITY_FRAME', 5).to_i.hours,
-          description: 'Debug purposes. How long to keep admin_velocity_max attempts',
-        },
-        active_job_queue: {
-          type: :string,
-          default: 'twilio_sms',
-          description: 'The active job queue to send twilio messages from. Ensure that adapter is bound to the queue',
+          default: 2.days,
+          description: "When `reauth_strategy` is `time_based`, this value is the max time before MFA is required",
         }
       }
 
       attr_accessor *DEFAULT_VALUES.keys
-
-      private
-
-      def custom_validations
-        enforce_twilio!
-      end
-
-      def enforce_twilio!
-        return unless enable == true
-
-        return if twilio_sid.present? &&
-          twilio_auth_token.present? &&
-          twilio_from_number.present?
-
-        raise InvalidConfiguration, "twilio_sid twilio_auth_token twilio_from_number need to be present when `mfa.enabled`"
-      end
-
-      def default_values
-        DEFAULT_VALUES
-      end
     end
   end
 end

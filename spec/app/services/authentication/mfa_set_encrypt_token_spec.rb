@@ -1,4 +1,4 @@
-RSpec.describe RailsBase::Authentication::MfaSetEncryptToken do
+RSpec.describe RailsBase::Mfa::EncryptToken do
 	subject(:call) { described_class.call(params) }
 
 	let(:user) { User.first }

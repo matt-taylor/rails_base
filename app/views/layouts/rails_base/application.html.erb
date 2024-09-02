@@ -83,12 +83,28 @@
         <%= render partial: 'rails_base/shared/logged_out_header'%>
       <% end %>
       <% if notice %>
-      <div class="alert alert-success alert-dismissible fade show" role="alert">
-        <%= notice %>
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
+        <% if session.delete(:add_mfa_button) %>
+          <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <div class="row">
+              <div class="col-md-6">
+                <%= notice %>
+              </div>
+              <div class="col-md-6">
+                <%= link_to "Enable MFA", RailsBase.url_routes.user_settings_path(openmfa: true), method: :get, class: "btn btn-light float-right" %>
+              </div>
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+          </div>
+        <% else %>
+          <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <%= notice %>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+        <% end %>
       <% end %>
       <% if alert %>
         <div class="alert alert-danger alert-dismissible fade show" role="alert">

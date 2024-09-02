@@ -14,7 +14,7 @@ module RailsBase::Authentication
 			# requires a bit of a restructure that I dont have time for
 			update_user_number!
 
-			twilio_sms = SendLoginMfaToUser.call(user: user.reload)
+			twilio_sms = RailsBase::Mfa::Sms::Send.call(user: user.reload)
 
 			if twilio_sms.failure?
 				log(level: :error, msg: "Failed with #{twilio_sms.message}")
@@ -22,7 +22,7 @@ module RailsBase::Authentication
 			end
 			context.expires_at = twilio_sms.short_lived_data.death_time
 			context.mfa_randomized_token =
-			  MfaSetEncryptToken.call(user: user, expires_at: context.expires_at, purpose: Constants::MSET_PURPOSE).encrypted_val
+			  RailsBase::Mfa::EncryptToken.(user: user, expires_at: context.expires_at, purpose: Constants::MSET_PURPOSE).encrypted_val
 		end
 
 		def update_user_number!

@@ -1,8 +1,10 @@
-require 'twilio_helper'
-require 'velocity_limiter'
+# frozen_string_literal: true
 
-module RailsBase::Authentication
-  class SendLoginMfaToUser < RailsBase::ServiceBase
+require 'velocity_limiter'
+require 'twilio_helper'
+
+module RailsBase::Mfa::Sms
+  class Send < RailsBase::ServiceBase
     include ActionView::Helpers::DateHelper
     include VelocityLimiter
 
@@ -24,12 +26,16 @@ module RailsBase::Authentication
     end
 
     def send_twilio!(code)
-      TwilioJob.perform_later(message: message(code), to: user.phone_number)
-      log(level: :info, msg: "Sent twilio message to #{user.phone_number}")
+      TwilioJob.perform_later(message: message(code), to: phone_number)
+      log(level: :info, msg: "Sent twilio message to #{phone_number}")
     rescue StandardError => e
       log(level: :error, msg: "Error caught #{e.class.name}")
-      log(level: :error, msg: "Failed to send sms to #{user.phone_number}")
+      log(level: :error, msg: "Failed to send sms to #{phone_number}")
       context.fail!(message: "Failed to send sms. Please retry logging in.")
+    end
+
+    def phone_number
+      context.phone_number || user.phone_number
     end
 
     def message(code)
@@ -40,25 +46,25 @@ module RailsBase::Authentication
       params = {
         user: user,
         max_use: MAX_USE_COUNT,
-        reason: Constants::MFA_REASON,
+        reason: RailsBase::Authentication::Constants::MFA_REASON,
         data_use: DATA_USE,
-        ttl: Constants::SLMTU_TTL,
+        ttl: RailsBase::Authentication::Constants::SLMTU_TTL,
         expires_at: expires_at,
-        length: Constants::MFA_LENGTH,
+        length: RailsBase::Authentication::Constants::MFA_LENGTH,
       }
       ShortLivedData.create_data_key(**params)
     end
 
     def velocity_max_in_frame
-      RailsBase.config.mfa.twilio_velocity_max_in_frame
+      RailsBase.config.twilio.twilio_velocity_max_in_frame
     end
 
     def velocity_max
-      RailsBase.config.mfa.twilio_velocity_max
+      RailsBase.config.twilio.twilio_velocity_max
     end
 
     def velocity_frame
-      RailsBase.config.mfa.twilio_velocity_frame
+      RailsBase.config.twilio.twilio_velocity_frame
     end
 
     def cache_key
@@ -71,7 +77,7 @@ module RailsBase::Authentication
         raise "Expected expires_at to be a ActiveSupport::TimeWithZone. Given #{expires_at.class}"
       end
 
-      raise NoPhoneNumber, "No phone for user [#{user.id}] [#{user.phone_number}]" if user.phone_number.nil?
+      raise NoPhoneNumber, "No phone for user [#{user.id}] [#{phone_number}]" if phone_number.nil?
     end
   end
 end

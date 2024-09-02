@@ -1,0 +1,17 @@
+<% if mfa_options.length > 0 %>
+<br>
+<div class="row">
+  <div class="col-md-6 offset-3">
+    <hr>
+  </div>
+</div>
+<% end %>
+
+<% mfa_options.each do |metadata| %>
+  <br>
+  <div class="row">
+    <div class="col-md-6 offset-md-3">
+      <%= link_to metadata[:text], metadata[:link], method: metadata[:method], class: "btn btn-warning btn-block" %>
+    </div>
+  </div>
+<% end %>

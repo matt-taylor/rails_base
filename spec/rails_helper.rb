@@ -44,80 +44,91 @@ rescue ActiveRecord::PendingMigrationError => e
   exit 1
 end
 
+module ControllerHelper
+  def current_user
+    user_info = request.session["warden.user.user.key"]
+    return nil if user_info.nil?
+
+    User.find(user_info[0][0])
+  end
+
+  def user_signed_in?
+    !!current_user
+  end
+
+  def mfa_event_session_hash(mfa_event:)
+    {
+      :"__#{RailsBase.app_name}_mfa_events" => {
+        mfa_event.event.to_s => mfa_event.to_hash.to_json
+      }
+    }
+  end
+
+  def mfa_event_from_session(event_name:)
+    mfa_event = session.dig(:"__#{RailsBase.app_name}_mfa_events", event_name.to_s)
+    RailsBase::MfaEvent.new(**JSON.parse(mfa_event).deep_symbolize_keys)
+  end
+
+  def mfe_events_from_session
+    mfa_events = session.dig(:"__#{RailsBase.app_name}_mfa_events")
+    return [] unless Hash === mfa_events
+
+    mfa_events.keys
+  end
+end
+
+
 RSpec.configure do |config|
   # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
   config.fixture_path = "#{::Rails.root}/spec/fixtures"
 
-  # If you're not using ActiveRecord, or you'd prefer not to run each of your
-  # examples within a transaction, remove the following line or assign false
-  # instead of true.
   config.use_transactional_fixtures = true
-
-  # You can uncomment this line to turn off ActiveRecord support entirely.
-  # config.use_active_record = false
-
-  # RSpec Rails can automatically mix in different behaviours to your tests
-  # based on their file location, for example enabling you to call `get` and
-  # `post` in specs under `spec/controllers`.
-  #
-  # You can disable this behaviour by removing the line below, and instead
-  # explicitly tag your specs with their type, e.g.:
-  #
-  #     RSpec.describe UsersController, type: :controller do
-  #       # ...
-  #     end
-  #
-  # The different available types are documented in the features, such as in
-  # https://relishapp.com/rspec/rspec-rails/docs
   config.infer_spec_type_from_file_location!
 
-  # Filter lines from Rails gems in backtraces.
   config.filter_rails_from_backtrace!
-  # arbitrary gems may also be filtered via:
-  # config.filter_gems_from_backtrace("gem name")
 
   config.include Devise::Test::ControllerHelpers, type: :controller
+  config.include ControllerHelper, type: :controller
 
   config.before(:suite) do
     # seed the DB --- yeah I know. there are better ways to do this
     #
-    if User.count != 3
-      User.delete_all
+    User.delete_all
 
-      params = {
-        email: "some.guy@gmail.com",
-        first_name: 'Some',
-        last_name: 'Guy',
-        phone_number: '6508675309',
-        password: "password11",
-        password_confirmation: "password11"
-      }
-      User.create!(params)
+    params = {
+      email: "some.guy@gmail.com",
+      first_name: 'Some',
+      last_name: 'Guy',
+      phone_number: '6508675309',
+      password: "password11",
+      password_confirmation: "password11",
+      mfa_otp_enabled: true,
+      otp_secret: User.generate_otp_secret,
+    }
+    user = User.create!(params)
+    user.generate_otp_backup_codes!
 
-      params = {
-        email: "some.guy2@gmail.com",
-        first_name: 'Some2',
-        last_name: 'Guy2',
-        phone_number: '4158675309',
-        password: "password22",
-        password_confirmation: "password22"
-      }
+    params = {
+      email: "some.guy2@gmail.com",
+      first_name: 'Some2',
+      last_name: 'Guy2',
+      phone_number: '4158675309',
+      password: "password22",
+      password_confirmation: "password22"
+    }
+    User.create!(params)
 
-      User.create!(params)
-
-      params = {
-        email: "some.guy3@gmail.com",
-        first_name: 'Some3',
-        last_name: 'Guy3',
-        phone_number: '4158675300',
-        password: "password33",
-        password_confirmation: "password33",
-        admin: :owner,
-        active: true
-      }
-
-      User.create!(params)
-    end
+    params = {
+      email: "some.guy3@gmail.com",
+      first_name: 'Some3',
+      last_name: 'Guy3',
+      phone_number: '4158675300',
+      password: "password33",
+      password_confirmation: "password33",
+      admin: :owner,
+      active: true
+    }
+    User.create!(params)
   end
 
   require 'timecop'

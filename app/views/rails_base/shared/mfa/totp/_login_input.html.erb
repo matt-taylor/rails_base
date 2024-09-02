@@ -1,0 +1,22 @@
+<div class="row text-center">
+  <div class="col-md-10 offset-md-1">
+    <div class="h1"> One Time Password</div>
+    <div class="row">
+      <div class="col">
+        MFA is required on your account before you can proceed. Please use the gnerated code from provided by your Password Manager.
+      </div>
+    </div>
+
+    <hr>
+
+    <div class="row">
+      <div class="col">
+        <div class="totpComfirmation">
+          <%= render partial: 'rails_base/shared/totp/confirm_code', locals: { endpoint: endpoint, type: :rest } %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%= render partial: 'rails_base/mfa/switch_mfa_type', locals: { mfa_options: mfa_options } %>

@@ -6,9 +6,9 @@
 #  first_name                 :string(255)      default(""), not null
 #  last_name                  :string(255)      default(""), not null
 #  phone_number               :string(255)
-#  last_mfa_login             :datetime
+#  last_mfa_sms_login         :datetime
 #  email_validated            :boolean          default(FALSE)
-#  mfa_enabled                :boolean          default(FALSE), not null
+#  mfa_sms_enabled            :boolean          default(FALSE), not null
 #  active                     :boolean          default(TRUE), not null
 #  admin                      :string(255)
 #  last_known_timezone        :string(255)
@@ -25,6 +25,12 @@
 #  last_sign_in_ip            :string(255)
 #  created_at                 :datetime         not null
 #  updated_at                 :datetime         not null
+#  otp_secret                 :string(255)
+#  temp_otp_secret            :string(255)
+#  consumed_timestep          :integer
+#  mfa_otp_enabled            :boolean          default(FALSE)
+#  otp_backup_codes           :text(65535)
+#  last_mfa_otp_login         :datetime
 #
 class User < RailsBase::ApplicationRecord
   # Include default devise modules. Others available are:
@@ -33,13 +39,14 @@ class User < RailsBase::ApplicationRecord
          :recoverable, :rememberable, :validatable, :timeoutable, :trackable
 
   include RailsBase::UserConstants
+  include RailsBase::UserHelper::Totp
 
   validate :enforce_owner, if: :will_save_change_to_admin?
   validate :enforce_admin_type, if: :will_save_change_to_admin?
 
   def self._def_admin_convenience_method!(admin_method:)
     types = RailsBase.config.admin.admin_types
-    #### metods on the instance
+    #### methods on the instance
     define_method("at_least_#{admin_method}?") do
       i = types.find_index(admin.to_sym)
       i >= types.find_index(admin_method.to_sym)
@@ -65,8 +72,16 @@ class User < RailsBase::ApplicationRecord
     end
   end
 
-  def self.time_bound
-    Time.zone.now - RailsBase.config.auth.mfa_time_duration
+  def self.masked_number(phone_number)
+    return nil unless phone_number
+
+    "(#{phone_number[0]}**) ****-**#{phone_number[-2..-1]}"
+  end
+
+  def self.readable_phone_number(phone_number)
+    return nil unless phone_number
+
+    "(#{phone_number[0..2]}) #{phone_number[3..5]}-#{phone_number[6..-1]}"
   end
 
   def admin
@@ -77,20 +92,20 @@ class User < RailsBase::ApplicationRecord
   	"#{first_name} #{last_name}"
   end
 
-  def past_mfa_time_duration?
-    return true if last_mfa_login.nil?
-
-    last_mfa_login < self.class.time_bound
+  def set_last_mfa_sms_login!(time: Time.zone.now)
+    update(last_mfa_sms_login: time)
   end
 
-  def set_last_mfa_login!(time: Time.zone.now)
-    update(last_mfa_login: time)
+  def set_last_mfa_otp_login!(time: Time.zone.now)
+    update(last_mfa_otp_login: time)
   end
 
   def masked_phone
-    return nil unless phone_number
+    User.masked_number(phone_number)
+  end
 
-    "(#{phone_number[0]}**) ****-**#{phone_number[-2..-1]}"
+  def readable_phone
+     User.readable_phone_number(phone_number)
   end
 
   def soft_destroy_user!

@@ -59,21 +59,57 @@ params = {
 }
 RailsBase::Admin::ActionHelper.new(**params).add!
 
+proc = Proc.new do |req, params, admin_user, user, title, struct|
+  actions_mapping = {
+    sms_registration: 'MFA Attempt to Register new SMS number',
+    sms_confirmation: 'MFA Confirm new SMS number',
+    sms_removal: 'MFA SMS removed',
+  }
 
+  if actions_mapping.keys.include?(params[:action].to_sym)
+    {
+      admin_user: admin_user,
+      user: user,
+      action: actions_mapping[params[:action].to_sym] ,
+      original_attribute: struct&.original_attribute,
+      new_attribute: struct&.new_attribute
+    }
+  else
+    nil
+  end
+end
+# All SMS register actions
 params = {
-  proc: nil,
-  title: 'Removed Phone from account',
-  controller: RailsBase::SecondaryAuthenticationController,
-  action: 'remove_phone_mfa',
+  proc: proc,
+  controller: RailsBase::Mfa::Register::SmsController,
   default: true
 }
 RailsBase::Admin::ActionHelper.new(**params).add!
 
+
+proc = Proc.new do |req, params, admin_user, user, title, struct|
+  actions_mapping = {
+    totp_remove: 'MFA TOTP remove',
+    totp_secret: 'MFA TOTP Attempt to add new Authenticator',
+    totp_validate: 'MFA TOTP Authenticator added',
+  }
+
+  if actions_mapping.keys.include?(params[:action].to_sym)
+    {
+      admin_user: admin_user,
+      user: user,
+      action: actions_mapping[params[:action].to_sym] ,
+      original_attribute: struct&.original_attribute,
+      new_attribute: struct&.new_attribute
+    }
+  else
+    nil
+  end
+end
+# All TOTP register actions
 params = {
-  proc: nil,
-  title: 'Setting Phone on account',
-  controller: RailsBase::SecondaryAuthenticationController,
-  action: 'phone_registration',
+  proc: proc,
+  controller: RailsBase::Mfa::Register::TotpController,
   default: true
 }
 RailsBase::Admin::ActionHelper.new(**params).add!

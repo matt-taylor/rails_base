@@ -4,10 +4,7 @@ RSpec.describe RailsBase::UserSettingsController, type: :controller do
   let(:user) { User.first }
   let(:params) { { user: user_params } }
 
-  before do
-    @request.env["devise.mapping"] = Devise.mappings[:user]
-    sign_in(user)
-  end
+  before { sign_in(user) }
 
   shared_examples 'not signed in' do
     context 'when not signed in' do
@@ -18,6 +15,36 @@ RSpec.describe RailsBase::UserSettingsController, type: :controller do
 
         expect(response).to redirect_to(RailsBase.url_routes.unauthenticated_root_path)
       end
+    end
+  end
+
+  describe "#GET index" do
+    subject(:index) { get(:index) }
+
+    context "when sms enabled" do
+      let(:user) { create(:user, :sms_enabled) }
+
+      it "adds disable sms event" do
+        index
+
+        expect(mfe_events_from_session).to include(RailsBase::MfaEvent::DISABLE_SMS_EVENT.to_s)
+      end
+    end
+
+    context "when sms disabled" do
+      let(:user) { create(:user) }
+
+      it "adds enable sms event" do
+        index
+
+        expect(mfe_events_from_session).to include(RailsBase::MfaEvent::ENABLE_SMS_EVENT.to_s)
+      end
+    end
+
+    it do
+      index
+
+      expect(response).to render_template(:index)
     end
   end
 
@@ -237,9 +264,9 @@ RSpec.describe RailsBase::UserSettingsController, type: :controller do
     let(:params) { { data: datum.data } }
     before do
       user.update(
-        mfa_enabled: true,
+        mfa_sms_enabled: true,
         email_validated: true,
-        last_mfa_login: Time.now,
+        last_mfa_sms_login: Time.now,
       )
     end
 
@@ -273,8 +300,8 @@ RSpec.describe RailsBase::UserSettingsController, type: :controller do
     end
 
     it 'sets soft destroy' do
-      expect { destroy_user }.to change { user.reload.last_mfa_login }.to(nil)
-        .and change { user.reload.mfa_enabled }.to(false)
+      expect { destroy_user }.to change { user.reload.last_mfa_sms_login }.to(nil)
+        .and change { user.reload.mfa_sms_enabled }.to(false)
         .and change { user.reload.email_validated }.to(false)
         .and change { user.reload.encrypted_password }.to('')
         .and change { user.reload.phone_number }.to(nil)

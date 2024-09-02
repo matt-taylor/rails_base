@@ -2,7 +2,7 @@ RSpec.describe RailsBase::NameChange do
 	subject(:call) { described_class.call(params) }
 
 	let(:instance) { described_class.new(params) }
-	let(:current_user) { User.first }
+	let(:current_user) { create(:user) }
 
 	let(:params) {
 		{
@@ -33,6 +33,17 @@ RSpec.describe RailsBase::NameChange do
 	end
 
 	describe '#call' do
+		context "with admin_id" do
+			let(:params) { super().merge(admin_user_id: current_user.id) }
+
+			it 'does not send email' do
+				expect(RailsBase::EmailVerificationMailer).to_not receive(:event)
+
+				call
+			end
+			it { expect(call.success?).to be true }
+		end
+
 		context 'when velocity limit reached' do
 			before do
 				instance.vl_write!(Array.new(instance.velocity_max, Time.zone.now))
@@ -50,7 +61,7 @@ RSpec.describe RailsBase::NameChange do
 		end
 
 		it 'sends email' do
-			expect(RailsBase::EmailVerificationMailer).to receive(:event).with(user: current_user, event: /Succesfull name change/, msg: anything).and_call_original
+			expect(RailsBase::EmailVerificationMailer).to receive(:event).with(current_user,/Succesfull name change/, anything).and_call_original
 
 			call
 		end

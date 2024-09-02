@@ -32,7 +32,7 @@ module RailsBase::Authentication
         token_type: token_type,
         url_redirect: url_redirect
       }
-      datum = SingleSignOnCreate.call(**params)
+      datum = SingleSignOnCreate.(**params)
       context.fail!(message: 'Failed to create SSO token. Try again') if datum.failure?
 
       url = sso_url(data: datum.data.data)

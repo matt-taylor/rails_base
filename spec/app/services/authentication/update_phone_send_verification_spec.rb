@@ -24,7 +24,7 @@ RSpec.describe RailsBase::Authentication::UpdatePhoneSendVerification do
 		let(:twilio_message) { double('SendLoginMfaToUser', failure?: twilio_failure, message: msg, short_lived_data: sld ) }
 		let(:twilio_failure) { false }
 		let(:msg) { 'false' }
-		before { allow(RailsBase::Authentication::SendLoginMfaToUser).to receive(:call).and_return(twilio_message) }
+		before { allow(RailsBase::Mfa::Sms::Send).to receive(:call).and_return(twilio_message) }
 
 		context 'when santized_phone fails' do
 			let(:phone_number) { '8675309' }

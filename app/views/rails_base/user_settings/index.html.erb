@@ -1,3 +1,6 @@
+<%
+  function_name = "advancedSecurityCollapse"
+%>
 <div class="row">
   <div class="col-md-10 offset-md-1">
     <div class="row">
@@ -19,7 +22,7 @@
              MFA enabled?
             </th>
             <td style="width: 40%">
-              <%= current_user.mfa_enabled %>
+              <%= current_user.mfa_sms_enabled %>
             </td>
             <td style="width: 20%">
               <button class="btn btn_primary btn-block show-create-modal" type="button">Modify</button>
@@ -39,6 +42,81 @@
         </tbody>
       </table>
     </div>
+    <div class='row'>
+      <div class='col'>
+        <div id="advancedSecurity">
+          <div class="row">
+            <div class="col-12">
+              <button id="advancedSecurity-title" class="text-center btn btn-warning btn-block" type="button" id="dropdownMenuButton" aria-haspopup="true" aria-expanded="false">
+                MFA Options
+              </button>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-12">
+              <div id="advancedSecurity-body" class="collapseable-body">
+                <br>
+                <div class="row">
+                  <div class="col-10 offset-1">
+                    <% if RailsBase.config.mfa.enable? %>
+                      <% if current_user.mfa_sms_enabled %>
+                        <button type="button" class="btn btn-block btn_info close-me" data-toggle="modal" data-target="#modifyMfamodal">
+                            Modify 2fa Auth
+                        </button>
+                        <%= render partial: 'rails_base/shared/modify_mfa_auth_modal'%>
+                      <% else %>
+                        <button type="button" class="btn btn-block btn_info close-me" data-toggle="modal" data-target="#enableMfamodal">
+                          Enable 2fa Auth
+                        </button>
+                        <%= render partial: 'rails_base/shared/enable_mfa_auth_modal'%>
+                      <% end %>
+                    <% end %>
+                  </div>
+                </div>
+                <div class="row"><div class="col-6 offset-3">
+                  <hr>
+                </div></div>
+
+                <div class="row">
+                  <div class="col-10 offset-1">
+                    <% if RailsBase.config.totp.enable? %>
+                      <% if current_user.mfa_otp_enabled %>
+                        <div class="row">
+                          <div class="col-12">
+                            <button type="button" class="btn btn-block btn_info close-me" data-toggle="modal" data-target="#totpDisableModal">
+                                Disable One Time Password Auth
+                            </button>
+                          </div>
+                        </div>
+                        <%= render partial: 'rails_base/shared/totp/remove_authenticator_modal', locals: { type: @type, endpoint: @endpoint } %>
+                        <br>
+                        <div class="row">
+                          <div class="col-12">
+                            <button type="button" class="btn btn-block btn_info close-me" data-toggle="modal" data-target="#totpEnableModal">
+                              Add One Time Password Auth
+                            </button>
+                          </div>
+                        </div>
+                      <% else %>
+                        <button type="button" class="btn btn-block btn_info close-me" data-toggle="modal" data-target="#totpEnableModal">
+                            Enable One Time Password Auth
+                        </button>
+                      <% end %>
+                      <%= render partial: 'rails_base/shared/totp/add_authenticator_modal', locals: { type: @type, endpoint: @endpoint } %>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <%= render partial: 'rails_base/shared/standardized_collapse', locals: { options: { id: "advancedSecurity", title_id: "advancedSecurity-title", body_id: "advancedSecurity-body", default_closed: true, function_name: function_name } } %>
+
+      </div>
+    </div>
+    </br>
+    <hr>
     <div class="row" style="margin-top: 50px">
       <button type="button" class="btn btn_danger btn-block" data-toggle="modal" data-target="#destroyUserModal">
         Destroy account
@@ -52,3 +130,8 @@
 <%= render 'modify_password' %>
 <%= render 'destroy_user' %>
 
+<script type="text/javascript">
+  $(document).ready(function(){
+    _railsBase_goToStandardizedCollapse("openmfa", `#advancedSecurity-body`, `<%= function_name %>`)
+  })
+</script>

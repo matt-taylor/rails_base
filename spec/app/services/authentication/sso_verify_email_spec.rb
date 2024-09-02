@@ -1,7 +1,7 @@
 RSpec.describe RailsBase::Authentication::SsoVerifyEmail do
 	subject(:call) { described_class.call(params) }
 
-	let(:user) { User.first  }
+	let(:user) { create(:user, :unvalidated_email)  }
 	let(:verification) { datum.data  }
 	let(:params) { { verification: verification } }
 	let!(:datum) do
@@ -23,10 +23,11 @@ RSpec.describe RailsBase::Authentication::SsoVerifyEmail do
 		let(:mfa_params) do
 			{
 				expires_at: Time.zone.now + RailsBase::Authentication::Constants::SVE_TTL,
+				purpose: RailsBase::Authentication::Constants::SSOVE_PURPOSE,
 				user: user,
-				purpose: RailsBase::Authentication::Constants::SSOVE_PURPOSE
 			}
 		end
+
 		context 'when datum is invalid' do
 			before do
 				allow(ShortLivedData).to receive(:get_by_data).with(data: datum.data, reason: RailsBase::Authentication::Constants::SVE_LOGIN_REASON)
@@ -40,12 +41,11 @@ RSpec.describe RailsBase::Authentication::SsoVerifyEmail do
 			it { expect(call.redirect_url).to eq(RailsBase::Authentication::Constants::URL_HELPER.new_user_session_path) }
 		end
 
-
 		it { expect(call.success?).to be true }
 		it { expect { call }.to change { user.reload.email_validated }.from(false).to(true) }
 		it { expect(call.encrypted_val).not_to be_nil }
 		it do
-			expect(RailsBase::Authentication::MfaSetEncryptToken).to receive(:call).with(mfa_params).and_call_original
+			expect(RailsBase::Mfa::EncryptToken).to receive(:call).with(mfa_params).and_call_original
 
 			call
 		end

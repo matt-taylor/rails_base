@@ -85,7 +85,6 @@ module RailsBase::Admin
     end
 
     def call(req:, params:, admin_user:, user:, struct: nil)
-      # byebug
       if proc
         action_params = proc.call(req, params, admin_user, user, title, struct)
         return if action_params.nil?

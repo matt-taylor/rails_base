@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module RailsBase
   class AdminController < RailsBaseApplicationController
     before_action :authenticate_user!, except: [:sso_retrieve]
@@ -9,9 +11,10 @@ module RailsBase
 
     # GET admin
     def index
+      add_mfa_event_to_session(event: RailsBase::MfaEvent.admin_actions(user: current_user))
     end
 
-    # GET admin
+    # GET admin/config
     def show_config
       unless RailsBase.config.admin.config_page?(current_user)
         flash[:alert] = 'You do not have correct permissions to view admin config'
@@ -36,7 +39,7 @@ module RailsBase
         uses: Authentication::Constants::SSO_SEND_USES,
         reason: Authentication::Constants::SSO_REASON,
         expires_at: Authentication::Constants::SSO_EXPIRES.from_now,
-        url_redirect: RailsBase.url_routes.user_settings_path
+        url_redirect: RailsBase.url_routes.authenticated_root_path
       }
 
       status = RailsBase::Authentication::SingleSignOnSend.call(local_params)
@@ -50,6 +53,7 @@ module RailsBase
       redirect_to RailsBase.url_routes.admin_base_path
     end
 
+    # TODO: Move this to a different controller
     #GET auth/sso/:data
     def sso_retrieve
       local_params = {
@@ -153,6 +157,14 @@ module RailsBase
 
     # POST admin/update
     def update_attribute
+      unless RailsBase.config.admin.view_admin_page?(current_user)
+        session.clear
+        sign_out(current_user)
+        logger.warn("Unauthorized user has tried to update attributes. Fail Quickly!")
+        render json: { success: false, message: "Unauthorized action. You have been signed out" }, status: 404
+        return
+      end
+
       update = RailsBase::AdminUpdateAttribute.call(params: params, admin_user: admin_user)
       if update.success?
         @_admin_action_struct = RailsBase::AdminStruct.new(update.original_attribute, update.attribute, update.model)
@@ -161,12 +173,17 @@ module RailsBase
         @_admin_action_struct = false
         render json: { success: false, message: update.message }, status: 404
       end
+
+      session[:mfa_randomized_token] = nil
     end
 
+    # POST admin/update/name
     def update_name
       unless RailsBase.config.admin.name_tile_users?(admin_user)
-        flash[:alert] = 'You do not have correct permissions to change a users name'
-        redirect_to RailsBase.url_routes.admin_base_path
+        session.clear
+        sign_out(current_user)
+        logger.warn("Unauthorized user has tried to update attributes. Fail Quickly!")
+        render json: { success: false, message: "Unauthorized action. You have been signed out" }, status: 404
         return
       end
       user = User.find(params[:id])
@@ -186,12 +203,17 @@ module RailsBase
         @_admin_action_struct = false
         render json: { success: false, message: "Failed to change #{user.id} name" }, status: 404
       end
+
+      session[:mfa_randomized_token] = nil
     end
 
+    # POST admin/update/email
     def update_email
       unless RailsBase.config.admin.email_tile_users?(admin_user)
-        flash[:alert] = 'You do not have correct permissions to change a users name'
-        redirect_to RailsBase.url_routes.admin_base_path
+        session.clear
+        sign_out(current_user)
+        logger.warn("Unauthorized user has tried to update emai. Fail Quickly!")
+        render json: { success: false, message: "Unauthorized action. You have been signed out" }, status: 404
         return
       end
 
@@ -205,9 +227,20 @@ module RailsBase
         @_admin_action_struct = false
         render json: { success: false, message: result.message }, status: 404
       end
+
+      session[:mfa_randomized_token] = nil
     end
 
+    # POST admin/update/phone
     def update_phone
+      unless RailsBase.config.admin.view_admin_page?(current_user)
+        session.clear
+        sign_out(current_user)
+        logger.warn("Unauthorized user has tried to update phone. Fail Quickly!")
+        render json: { success: false, message: "Unauthorized action. You have been signed out" }, status: 400
+        return
+      end
+
       begin
         params[:value] = params[:phone_number].gsub(/\D/,'')
       rescue
@@ -220,6 +253,14 @@ module RailsBase
 
     # POST admin/validate_intent/send
     def send_2fa
+      unless RailsBase.config.admin.view_admin_page?(current_user)
+        session.clear
+        sign_out(current_user)
+        logger.warn("Unauthorized user has tried to send 2fa. Fail Quickly!")
+        render json: { success: false, message: "Unauthorized action. You have been signed out" }, status: 404
+        return
+      end
+
       reason = "#{SESSION_REASON_BASE}-#{SecureRandom.uuid}"
       result = AdminRiskyMfaSend.call(user: admin_user, reason: reason)
       if result.success?
@@ -232,6 +273,8 @@ module RailsBase
 
     # POST admin/validate_intent/verify
     def verify_2fa
+      return unless validate_mfa_with_event_json!(mfa_event_name: RailsBase::MfaEvent::ADMIN_VERIFY)
+
       unless modify_id = params[:modify_id]
         logger.warn("Failed to find #{modify_id} in payload")
         render json: { success: false, message: 'Hmm. Something fishy happend. Failed to find text to modify' }, status: 404
@@ -251,13 +294,14 @@ module RailsBase
       end
 
       params = {
+        mfa_event: @__rails_base_mfa_event,
         session_mfa_user_id: admin_user.id,
         current_user: admin_user,
         input_reason: session_reason,
         params: parse_mfa_to_obj
       }
-      result = RailsBase::Authentication::MfaValidator.call(params)
-      encrypt = RailsBase::Authentication::MfaSetEncryptToken.call(user: admin_user, purpose: session_reason, expires_at: 1.minute.from_now)
+      result = RailsBase::Mfa::Sms::Validate.call(params)
+      encrypt = RailsBase::Mfa::EncryptToken.call(user: admin_user, purpose: session_reason, expires_at: 1.minute.from_now)
 
       begin
         html = render_to_string(partial: render_partial, locals: { user: user, modify_id: modify_id })
@@ -266,9 +310,10 @@ module RailsBase
         logger.warn("Failed to render html correctly")
         html = nil
       end
+
       if html.nil?
         logger.warn("Failed to find render html correctly")
-        render json: { success: false, message: 'Apologies. Wee are struggling to render the page. Please try again later' }, status: 500
+        render json: { success: false, message: 'Apologies. We are struggling to render the page. Please try again later' }, status: 500
         return
       end
 

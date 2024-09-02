@@ -3,4 +3,6 @@ RailsBase.configure do |config|
   config.admin.admin_type_tile_users = ->(user) { user.active && user.at_least_super? }
   config.admin.default_admin_type = :super
   config.redis.admin_action_namespace = "rails_base"
+  config.appearance.default_mode = :match_os
+  config.totp.enable = true
 end

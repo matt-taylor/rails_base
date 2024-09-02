@@ -2,13 +2,11 @@ module RailsBase
   class SecondaryAuthenticationController < RailsBaseApplicationController
     before_action :authenticate_user!, only: [:remove_phone_mfa, :confirm_phone_registration]
 
-    before_action :validate_token!, only: [:resend_email, :wait, :confirm_phone_registration]
-
-    before_action :json_validate_current_user!, only: [:phone_registration]
+    before_action :validate_mfa_token!, only: [:resend_email, :wait, :confirm_phone_registration]
 
     # GET auth/wait
     def static
-      return unless validate_token!(purpose: Authentication::Constants::SSOVE_PURPOSE)
+      return unless validate_mfa_token!(purpose: Authentication::Constants::SSOVE_PURPOSE)
 
       if flash[:notice].nil? && flash[:alert].nil?
         flash[:notice] = Authentication::Constants::STATIC_WAIT_FLASH
@@ -16,11 +14,6 @@ module RailsBase
     end
 
     def remove_me
-    end
-
-    def testing_route
-      Rails.logger.error("This will cause an error to be thrown")
-      raise ArgumentError, 'Boo'
     end
 
     # POST auth/resend_email
@@ -51,7 +44,7 @@ module RailsBase
 
     # GET auth/login
     def after_email_login_session_new
-      return unless validate_token!(purpose: Authentication::Constants::SSOVE_PURPOSE)
+      return unless validate_mfa_token!(purpose: Authentication::Constants::SSOVE_PURPOSE)
 
       @user = User.new
       if flash[:alert].nil? && flash[:notice].nil?
@@ -61,7 +54,7 @@ module RailsBase
 
     # POST auth/login
     def after_email_login_session_create
-      return unless validate_token!(purpose: Authentication::Constants::SSOVE_PURPOSE)
+      return unless validate_mfa_token!(purpose: Authentication::Constants::SSOVE_PURPOSE)
 
       flash[:notice] = nil
       flash[:alert] = nil
@@ -78,37 +71,6 @@ module RailsBase
       redirect_to RailsBase.url_routes.authenticated_root_path
     end
 
-    # POST auth/phone
-    def phone_registration
-      result = Authentication::UpdatePhoneSendVerification.call(user: current_user, phone_number: params[:phone_number])
-      if result.failure?
-        render :json => { error: I18n.t('request_response.teapot.fail'), msg: result.message }.to_json, :status => 418
-        return
-      end
-      session[:mfa_randomized_token] = result.mfa_randomized_token
-
-      render :json => { status: :success, message: I18n.t('request_response.teapot.valid') }
-    end
-
-    # POST auth/phone/mfa
-    def confirm_phone_registration
-      mfa_validity = Authentication::MfaValidator.call(current_user: current_user, params: params, session_mfa_user_id: @token_verifier.user_id)
-      if mfa_validity.failure?
-        redirect_to RailsBase.url_routes.authenticated_root_path, alert: I18n.t('authentication.confirm_phone_registration.fail', message: mfa_validity.message)
-        return
-      end
-
-      current_user.update!(mfa_enabled: true)
-
-      redirect_to RailsBase.url_routes.authenticated_root_path, notice: I18n.t('authentication.confirm_phone_registration.valid')
-    end
-
-    # DELETE auth/phone/disable
-    def remove_phone_mfa
-      current_user.update!(mfa_enabled: false, last_mfa_login: nil)
-      redirect_to RailsBase.url_routes.authenticated_root_path, notice: I18n.t('authentication.remove_phone_mfa')
-    end
-
     # GET auth/email/forgot/:data
     def forgot_password
       result = Authentication::VerifyForgotPassword.call(data: params[:data])
@@ -117,52 +79,52 @@ module RailsBase
         redirect_to result.redirect_url, alert: result.message
         return
       end
-      session[:mfa_randomized_token] = result.encrypted_val
-      flash[:notice] =
-        if @mfa_flow = result.mfa_flow
-          I18n.t('authentication.forgot_password.2fa')
-        else
-          I18n.t('authentication.forgot_password.base')
-        end
-      @user = result.user
-      @data = params[:data]
+
+      event = RailsBase::MfaEvent.forgot_password(user: result.user, data: params[:data])
+      if result.mfa_flow
+        flash[:notice] = "MFA required to reset password"
+        redirect_to(RailsBase.url_routes.mfa_with_event_path(mfa_event: event.event))
+      else
+        # Requirements to continue were satiatet..we can let the user reset their password
+        event.satiated!
+        flash[:notice] = "Datum valid. Reset your password"
+        redirect_to(RailsBase.url_routes.reset_password_input_path(data: params[:data]))
+      end
+
+      # Upload event to the session as a last step to ensure we capture if it was satiated or not
+      add_mfa_event_to_session(event:)
     end
 
-    # POST auth/email/forgot/:data
-    def forgot_password_with_mfa
-      return unless validate_token!(purpose: Authentication::Constants::VFP_PURPOSE)
+    # GET auth/password/reset/:data
+    def reset_password_input
+      return unless validate_mfa_with_event!(mfa_event_name: RailsBase::MfaEvent::FORGOT_PASSWORD)
 
-      # datum is expired because it was used with #forgot_password method
-      # we dont care, we just want to ensure the correct user (multiple verification ways)
-      # -- validate user by datum
-      # -- validate user by short lived token
-      # -- validate user by mfa_token
-      # -- When all match by user and within the lifetime of the short lived token... we b gucci uber super secure/over engineered
-      expired_datum = ShortLivedData.get_by_data(data: params[:data], reason: Authentication::Constants::VFP_REASON)
-
-      unless expired_datum
-        redirect_to(RailsBase.url_routes.new_user_password_path, alert: I18n.t('authentication.forgot_password_with_mfa.expired_datum'))
-        return
+      if @__rails_base_mfa_event.satiated?
+        @data = params[:data]
+        @user = User.find(@__rails_base_mfa_event.user_id)
+      else
+        logger.error("MFA Event was not satiated. Kicking user back to root")
+        clear_mfa_event_from_session!(event_name: @__rails_base_mfa_event.event)
+        session.clear
+        flash[:alert] = "Unauthorized access"
+        redirect_to(RailsBase.url_routes.unauthenticated_root_path)
       end
-
-      result = Authentication::MfaValidator.call(params: params, session_mfa_user_id: @token_verifier.user_id, current_user: expired_datum.user)
-      if result.failure?
-        redirect_to(RailsBase.url_routes.new_user_password_path, alert: result.message)
-        return
-      end
-
-      @mfa_flow = false
-      @data = params[:data]
-      @user = result.user
-      flash[:notice] = I18n.t('authentication.forgot_password_with_mfa.valid_mfa')
-      render :forgot_password
     end
 
     # POST auth/email/reset/:data
     def reset_password
-      return unless validate_token!(purpose: Authentication::Constants::VFP_PURPOSE)
+      return unless validate_mfa_with_event!(mfa_event_name: RailsBase::MfaEvent::FORGOT_PASSWORD)
 
-      result = Authentication::ModifyPassword.call(password: params[:user][:password], password_confirmation: params[:user][:password_confirmation], data: params[:data], user_id: @token_verifier.user_id, flow: :forgot_password)
+      unless @__rails_base_mfa_event.satiated?
+        logger.error("MFA Event was not satiated. Kicking user back to root")
+        clear_mfa_event_from_session!(event_name: @__rails_base_mfa_event.event)
+        session.clear
+        flash[:alert] = "Unauthorized access"
+        redirect_to(RailsBase.url_routes.unauthenticated_root_path)
+        return
+      end
+
+      result = Authentication::ModifyPassword.call(password: params[:user][:password], password_confirmation: params[:user][:password_confirmation], data: params[:data], user_id: @__rails_base_mfa_event.user_id, flow: :forgot_password)
       if result.failure?
         redirect_to RailsBase.url_routes.new_user_password_path, alert: result.message
         return
@@ -201,24 +163,6 @@ module RailsBase
 
       flash[:notice] = I18n.t('authentication.sso_login.valid')
       redirect_to url
-    end
-
-    private
-
-    def json_validate_current_user!
-      return if current_user
-
-      render json: { error: "Unauthorized" }.to_json, :status => 401
-      return false
-    end
-
-    def validate_token!(purpose: Authentication::Constants::MSET_PURPOSE)
-      @token_verifier =
-        Authentication::SessionTokenVerifier.call(purpose: purpose, mfa_randomized_token: session[:mfa_randomized_token])
-      return true if @token_verifier.success?
-
-      redirect_to RailsBase.url_routes.new_user_session_path, alert: @token_verifier.message
-      return false
     end
   end
 end

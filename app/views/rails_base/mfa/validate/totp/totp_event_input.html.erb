@@ -1,0 +1,1 @@
+<%= render partial: 'rails_base/shared/mfa/totp/login_input', locals: { endpoint: RailsBase.url_routes.totp_validate_event_path(mfa_event: @__rails_base_mfa_event.event), type: :rest, mfa_options: @mfa_options } %>

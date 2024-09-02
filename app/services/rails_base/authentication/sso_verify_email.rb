@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module RailsBase::Authentication
 	class SsoVerifyEmail < RailsBase::ServiceBase
 		delegate :verification, to: :context
@@ -15,7 +17,7 @@ module RailsBase::Authentication
 				user: user,
 				purpose: Constants::SSOVE_PURPOSE
 			}
-			context.encrypted_val = MfaSetEncryptToken.call(params).encrypted_val
+			context.encrypted_val = RailsBase::Mfa::EncryptToken.(params).encrypted_val
 		end
 
 		def validate_datum?(datum)

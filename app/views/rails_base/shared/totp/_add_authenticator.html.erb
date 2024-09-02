@@ -1,0 +1,76 @@
+<div id="totpAddAuthentication">
+  <div class="description">
+    <h4>What is this?</h4>
+    One time Passwords (OTP) are an industry standard for a secondary Authentication (MFA). <%= RailsBase.app_name %> supports One Time Passwords via Time based One Time Password (also referred to as TOTP).
+    <div class="row"><div class="col-6 offset-3">
+      <hr>
+    </div></div>
+    When TOTP is enabled on your account, upon logging in, you will be required to also provided the secondary Authentication facor before accessing your data. This is optional but highly recommended.
+    <div class="row"><div class="col-6 offset-3">
+      <hr>
+    </div></div>
+    <h4>How to use is this?</h4>
+    Using your password manager, you can scan the QR code here to store along with your Username and Password for <%= RailsBase.app_name %>. When logging in, your Password Manager should automatically give you your OTP.
+  </div>
+  <br>
+  <div class="row">
+    <div class="col-lg-6">
+      <div class="qrCode text-center"></div>
+    </div>
+    <div class="col-lg-6">
+      <div class="row otpauthLink" style="height: 50%; margin-top: 12.5%;">
+        <div class="col-12">
+          <a class="btn btn-info btn-block" id="defaultManagerURI" href="" target="_blank">Open Default Password Manager</a>
+        </div>
+      </div>
+      <div class="row otpauthLink">
+        <div class="col-12">
+          <button onclick="copyURIToClipboard()" class="btn btn-info btn-block" id="copyPasteURI">Copy To ClipBoard</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <br>
+  <div class="row"><div class="col-6 offset-3">
+    <hr>
+  </div></div>
+  <div class="totpValidation">
+    <div class="totpdescription">
+      <h4>Confirm TOTP code</h4>
+      Once you have added the TOTP Athentication to your password manager, please validate the below by entering the code. Once the code is validated, TOTP is enabled on your account.
+    </div>
+    <div class="totpComfirmation">
+      <%= render partial: 'rails_base/shared/totp/confirm_code', locals: { endpoint: endpoint, type: type } %>
+    </div>
+  </div>
+</div>
+
+
+<script type="text/javascript">
+  var text_to_write;
+  function copyURIToClipboard(){
+    navigator.clipboard.writeText(text_to_write)
+  }
+
+  function retrieveSuccess(data){
+    $(`#totpAddAuthentication .qrCode`).html(data.qr_code)
+    $(`#totpAddAuthentication #defaultManagerURI`).attr(`href`, data.uri)
+    text_to_write = data.uri
+  }
+
+  function retreiveSecret(){
+    $.ajax({
+      type: "POST",
+      url: "<%= RailsBase.url_routes.totp_register_secret_path %>",
+      headers: { 'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content') },
+      dataType: 'json',
+      success: function(data) {
+        retrieveSuccess(data)
+      },
+      error: function(xhr, status, error) {
+        _rails_base_display_alert(`Failed to get event`);
+      }
+    })
+  }
+</script>
