@@ -38,7 +38,7 @@ module RailsBase::Mfa
     end
 
     def execute_sms
-      log(level: :info, msg: "MFA type SMS is enabled on user. Executing OTP workflow")
+      log(level: :info, msg: "MFA type SMS is enabled on user. Executing SMS workflow")
       result = reauth_strategy_class.(user: user, force: force_mfa, mfa_type: SMS, mfa_last_used: user.last_mfa_sms_login)
       require_mfa = result.request_mfa
 

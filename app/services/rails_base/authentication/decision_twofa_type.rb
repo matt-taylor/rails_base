@@ -36,7 +36,9 @@ module RailsBase::Authentication
 				# no MFA type enabled on account
 				sign_in_user_context!
 				context.flash = { notice: "Welcome. You have succesfully signed in." }
-				context.session = { add_mfa_button: true }
+				if RailsBase.config.mfa.enable?
+					context.add_mfa_button = true
+				end
 			else
 				raise "Unknown MFA type provided"
 			end
@@ -80,7 +82,7 @@ module RailsBase::Authentication
 				context.token_ttl = 2.minutes.from_now
 			else
 				sign_in_user_context!
-				context.flash = { notice: "Welcome. You have succesfully signed in via #{decision.mfa_type.to_s.upcase} MFA." }
+				context.flash = { notice: "Welcome. You have succesfully signed in" }
 				nil
 			end
 		end
@@ -95,7 +97,7 @@ module RailsBase::Authentication
 				result
 			else
 				sign_in_user_context!
-				context.flash = { notice: "Welcome. You have succesfully signed in via #{decision.mfa_type.to_s.upcase} MFA." }
+				context.flash = { notice: "Welcome. You have succesfully signed in" }
 				nil
 			end
 		end
