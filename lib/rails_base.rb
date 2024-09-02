@@ -16,6 +16,7 @@ require 'switch_user'
 require 'rails_base/admin/action_cache'
 require 'rails_base/config'
 require 'rails_base/mfa_event'
+require 'rails_base/request_link'
 
 module RailsBase
 

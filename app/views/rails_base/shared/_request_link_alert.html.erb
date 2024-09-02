@@ -1,0 +1,48 @@
+<div class="regularAlert alert alert-success alert-dismissible fade show" role="alert">
+  <div class="row">
+    <div class="col-md-6">
+      <%= text %>
+    </div>
+    <div class="col-md-6">
+      <% dupped = RailsBase::RequestLink.items.dup %>
+      <% while(link = dupped.shift) do %>
+        <%= link_to link.text, link.link, method: :get, class: "btn btn-light float-right" %>
+      <% end %>
+    </div>
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+</div>
+
+<br>
+
+<div class="mobileAlert alert alert-success alert-dismissible fade show" role="alert">
+  <div class="row">
+    <div class="col-md-12 text-center">
+      <%= text %>
+    </div>
+  </div>
+  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+  <% while(link = RailsBase::RequestLink.items.shift) do %>
+    <div class="row">
+      <div class="col-12">
+        <%= link_to link.text, link.link, method: :get, class: "btn btn-light btn-block" %>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<script type="text/javascript">
+  $(document).ready(function(){
+    if(viewport_probable_mobile()){
+      $(`.regularAlert`).hide()
+      $(`.mobileAlert`).show()
+    } else {
+      $(`.regularAlert`).show()
+      $(`.mobileAlert`).hide()
+    }
+  });
+</script>

@@ -19,13 +19,24 @@
           </tr>
           <tr>
             <th scope="col" class='text-right' style="width: 40%">
-             MFA enabled?
+             SMS MFA enabled?
             </th>
             <td style="width: 40%">
               <%= current_user.mfa_sms_enabled %>
             </td>
             <td style="width: 20%">
-              <button class="btn btn_primary btn-block show-create-modal" type="button">Modify</button>
+              <button onclick="advancedSecurityCollapse_collapse_open()" class="btn btn_primary btn-block" type="button">Modify</button>
+            </td>
+          </tr>
+          <tr>
+            <th scope="col" class='text-right' style="width: 40%">
+             TOTP MFA enabled?
+            </th>
+            <td style="width: 40%">
+              <%= current_user.mfa_otp_enabled %>
+            </td>
+            <td style="width: 20%">
+              <button onclick="advancedSecurityCollapse_collapse_open()" class="btn btn_primary btn-block" type="button">Modify</button>
             </td>
           </tr>
           <tr>
@@ -92,7 +103,12 @@
                         <br>
                         <div class="row">
                           <div class="col-12">
-                            <button type="button" class="btn btn-block btn_info close-me" data-toggle="modal" data-target="#totpEnableModal">
+                            <button type="button" class="btn btn-block btn_info close-me" data-toggle="modal" data-target="#totpEnableModal" style="display: none;">
+                              <!--
+                              This is currently disabled.
+                              Steps to re-enabld
+                              - Enforce TOTP code is entered before showing totp secret
+                              -->
                               Add One Time Password Auth
                             </button>
                           </div>
@@ -101,8 +117,8 @@
                         <button type="button" class="btn btn-block btn_info close-me" data-toggle="modal" data-target="#totpEnableModal">
                             Enable One Time Password Auth
                         </button>
+                        <%= render partial: 'rails_base/shared/totp/add_authenticator_modal', locals: { type: @type, endpoint: @endpoint } %>
                       <% end %>
-                      <%= render partial: 'rails_base/shared/totp/add_authenticator_modal', locals: { type: @type, endpoint: @endpoint } %>
                     <% end %>
                   </div>
                 </div>

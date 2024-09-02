@@ -44,7 +44,10 @@ class RailsBase::Users::SessionsController < Devise::SessionsController
 
     if mfa_decision.sign_in_user
       sign_in(authenticate.user)
-      session.merge!(mfa_decision.session || {})
+      if mfa_decision.add_mfa_button
+        RailsBase::RequestLink.add(link: RailsBase.url_routes.user_settings_path(openmfa: true), text: "Enable MFA")
+      end
+
       # only referentially redirect when we know the user should sign in
       redirect_to(redirect_from_reference || RailsBase.url_routes.authenticated_root_path, mfa_decision.flash)
       return
