@@ -13,7 +13,13 @@ module RailsBase::Mfa
       decision = RailsBase::Mfa::Decision.(user: user)
       mfa_type = mfa_decision(provided: params[:type], default: decision.mfa_type, allowed: decision.mfa_options)
 
-      @masked_phone = user.masked_phone
+      if @__rails_base_mfa_event.phone_number
+        phone_number = @__rails_base_mfa_event.phone_number
+      else
+        phone_number = User.find(@__rails_base_mfa_event.user_id).phone_number
+      end
+
+      @masked_phone = User.masked_number(phone_number)
       @mfa_options = decision.mfa_options.map do |type|
         next if type == mfa_type
 
@@ -34,6 +40,11 @@ module RailsBase::Mfa
     private
 
     def mfa_decision(provided:, default:, allowed:)
+      if Array === @__rails_base_mfa_event.only_mfa
+        logger.warn("MFA Event is forcing one of #{@__rails_base_mfa_event.only_mfa}")
+        return @__rails_base_mfa_event.only_mfa.sample.to_sym
+      end
+
       # Nothing was provided by the user
       return default if provided.nil?
 

@@ -9,7 +9,7 @@ module RailsBase
 
     class InvalidParameter < ArgumentError; end
 
-    attr_reader :set_satiated_on_success, :satiated, :access_count, :flash_notice, :sign_in_user,
+    attr_reader :only_mfa, :phone_number, :set_satiated_on_success, :satiated, :access_count, :flash_notice, :sign_in_user,
       :invalid_redirect, :ttl, :user_id, :event, :description, :death_time, :redirect, :params, :access_count_max
 
     def self.admin_actions(user:)
@@ -80,7 +80,7 @@ module RailsBase
       new(**params)
     end
 
-    def initialize(event:, flash_notice:, redirect:, ttl: nil, death_time: nil, user_id: nil, user: nil, invalid_redirect: nil, sign_in_user: false, access_count: 0, access_count_max: nil, satiated: false, set_satiated_on_success: true)
+    def initialize(event:, flash_notice:, redirect:, only_mfa: nil, phone_number: nil, ttl: nil, death_time: nil, user_id: nil, user: nil, invalid_redirect: nil, sign_in_user: false, access_count: 0, access_count_max: nil, satiated: false, set_satiated_on_success: true)
       @death_time = begin
         raw = (death_time || ttl&.from_now)
         Time.zone.parse(raw.to_s) rescue nil
@@ -91,6 +91,8 @@ module RailsBase
       @event = event
       @flash_notice = flash_notice
       @invalid_redirect = invalid_redirect || RailsBase.url_routes.authenticated_root_path
+      @only_mfa = only_mfa
+      @phone_number = phone_number
       @redirect = redirect
       @satiated = satiated
       @set_satiated_on_success = set_satiated_on_success
@@ -108,6 +110,8 @@ module RailsBase
         event:,
         flash_notice:,
         invalid_redirect:,
+        only_mfa:,
+        phone_number:,
         redirect:,
         satiated:,
         set_satiated_on_success:,

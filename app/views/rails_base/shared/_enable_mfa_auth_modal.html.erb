@@ -86,7 +86,7 @@
 		var data = { 'phone_number': number}
 		$.ajax({
 		  type: "POST",
-		  url: "<%= RailsBase.url_routes.phone_registration_path%>",
+		  url: "<%= RailsBase.url_routes.phone_registration_path %>",
 		  headers: { 'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content') },
 		  dataType: 'json',
 		  data: data,

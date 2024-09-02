@@ -1,26 +1,41 @@
 RSpec.describe User do
-  let(:instance) { User.first }
 
   describe '#full_name' do
-    subject(:full_name) { instance.full_name }
+    subject(:full_name) { user.full_name }
 
-    let(:name) { "#{instance.first_name} #{instance.last_name}" }
+    let(:user) { create(:user) }
+    let(:name) { "#{user.first_name} #{user.last_name}" }
     it { is_expected.to eq(name) }
   end
 
   describe '#set_last_mfa_sms_login!' do
-    subject(:set_last_mfa_sms_login) { instance.set_last_mfa_sms_login! }
+    subject(:set_last_mfa_sms_login) { user.set_last_mfa_sms_login! }
 
+    let(:user) { create(:user) }
     # Time is frozen...but in memory presision is higher than DB precision. to_i is universal and will be the same
-    it { expect { set_last_mfa_sms_login }.to change { instance.reload.last_mfa_sms_login.to_i }.to(Time.zone.now.to_i) }
+    it { expect { set_last_mfa_sms_login }.to change { user.reload.last_mfa_sms_login.to_i }.to(Time.zone.now.to_i) }
   end
 
   describe '#masked_phone' do
-    subject(:masked_phone) { instance.masked_phone }
+    subject(:masked_phone) { user.masked_phone }
 
-    it { is_expected.to eq("(#{instance.phone_number[0]}**) ****-**#{instance.phone_number[-2..-1]}") }
+    let(:user) { create(:user) }
+
+    it { is_expected.to eq("(#{user.phone_number[0]}**) ****-**#{user.phone_number[-2..-1]}") }
     context 'when no phone' do
-      before { allow(instance).to receive(:phone_number).and_return(nil) }
+      before { allow(user).to receive(:phone_number).and_return(nil) }
+
+      it { is_expected.to be_nil }
+    end
+  end
+
+  describe '#readable_phone' do
+    subject(:readable_phone) { user.readable_phone }
+
+    let(:user) { create(:user) }
+    it { is_expected.to eq("(#{user.phone_number[0..2]}) #{user.phone_number[3..5]}-#{user.phone_number[6..-1]}") }
+    context 'when no phone' do
+      before { allow(user).to receive(:phone_number).and_return(nil) }
 
       it { is_expected.to be_nil }
     end
@@ -47,44 +62,48 @@ RSpec.describe User do
   end
 
   describe "#otp_provisioning_uri" do
+    let(:user) { create(:user, :totp_enabled) }
+
     it do
-      expect(instance.otp_provisioning_uri).to include(ERB::Util.url_encode(instance.email))
+      expect(user.otp_provisioning_uri).to include(ERB::Util.url_encode(user.email))
     end
 
     it do
-      expect(instance.otp_provisioning_uri).to include(ERB::Util.url_encode(RailsBase.app_name))
+      expect(user.otp_provisioning_uri).to include(ERB::Util.url_encode(RailsBase.app_name))
     end
   end
 
   describe "#generate_otp_backup_codes!" do
-    let(:empty_user) { User.second }
+    let(:user) { create(:user) }
 
     it do
-      expect(empty_user.otp_backup_codes).to eq([])
+      expect(user.otp_backup_codes).to eq([])
 
-      empty_user.generate_otp_backup_codes!
+      user.generate_otp_backup_codes!
 
-      expect(empty_user.otp_backup_codes.length).to eq(RailsBase.config.totp.backup_code_count)
-      expect(empty_user.otp_backup_codes).to all(be_a(String))
+      expect(user.otp_backup_codes.length).to eq(RailsBase.config.totp.backup_code_count)
+      expect(user.otp_backup_codes).to all(be_a(String))
     end
   end
 
   describe "#invalidate_otp_backup_code!" do
+    let(:user) { create(:user, :totp_enabled) }
+
     it "validates code and removes code" do
-      expect(instance.otp_backup_codes.length).to eq(RailsBase.config.totp.backup_code_count)
+      expect(user.otp_backup_codes.length).to eq(RailsBase.config.totp.backup_code_count)
 
-      expect(instance.invalidate_otp_backup_code!(instance.otp_backup_codes.sample)).to be(true)
+      expect(user.invalidate_otp_backup_code!(user.otp_backup_codes.sample)).to be(true)
 
-      expect(instance.otp_backup_codes.length).to eq(RailsBase.config.totp.backup_code_count - 1)
+      expect(user.otp_backup_codes.length).to eq(RailsBase.config.totp.backup_code_count - 1)
     end
 
     context "with incorrect code" do
       it do
-        expect(instance.invalidate_otp_backup_code!("Incorrect Code")).to be(false)
+        expect(user.invalidate_otp_backup_code!("Incorrect Code")).to be(false)
       end
 
       it do
-        expect { instance.invalidate_otp_backup_code!("Incorrect Code") }.to_not change { instance.otp_backup_codes.length }
+        expect { user.invalidate_otp_backup_code!("Incorrect Code") }.to_not change { user.otp_backup_codes.length }
       end
     end
   end

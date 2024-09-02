@@ -28,7 +28,7 @@ module RailsBase::Mfa::Validate
         user = current_user
       end
 
-      result = RailsBase::Mfa::Sms::Send.call(user: user)
+      result = RailsBase::Mfa::Sms::Send.call(expires_at: 5.minutes.from_now, phone_number: @__rails_base_mfa_event.phone_number, user: user)
 
       if result.success?
         flash[:notice] = msg = "SMS Code succesfully sent. Please check messages"
@@ -48,7 +48,13 @@ module RailsBase::Mfa::Validate
 
     # GET mfa/validate/sms/:mfa_event
     def sms_event_input
-      @masked_phone = User.find(@__rails_base_mfa_event.user_id).masked_phone
+      if @__rails_base_mfa_event.phone_number
+        phone_number = @__rails_base_mfa_event.phone_number
+      else
+        phone_number = User.find(@__rails_base_mfa_event.user_id).phone_number
+      end
+
+      @masked_phone = User.masked_number(phone_number)
     end
 
     # POST mfa/validate/sms/:mfa_event

@@ -10,7 +10,7 @@ module RailsBase::Mfa::Strategy
     def call
       log(level: :info, msg: "#{user_prepend} : MFA strategy against #{mfa_type}")
 
-      if require_mfa?(mfa_type: mfa_type, mfa_last_used: mfa_last_used)
+      if require_mfa?(user: user, mfa_type: mfa_type, mfa_last_used: mfa_last_used)
         mfa_required
       else
         if force

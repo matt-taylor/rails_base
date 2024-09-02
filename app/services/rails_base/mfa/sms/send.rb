@@ -26,12 +26,16 @@ module RailsBase::Mfa::Sms
     end
 
     def send_twilio!(code)
-      TwilioJob.perform_later(message: message(code), to: user.phone_number)
-      log(level: :info, msg: "Sent twilio message to #{user.phone_number}")
+      TwilioJob.perform_later(message: message(code), to: phone_number)
+      log(level: :info, msg: "Sent twilio message to #{phone_number}")
     rescue StandardError => e
       log(level: :error, msg: "Error caught #{e.class.name}")
-      log(level: :error, msg: "Failed to send sms to #{user.phone_number}")
+      log(level: :error, msg: "Failed to send sms to #{phone_number}")
       context.fail!(message: "Failed to send sms. Please retry logging in.")
+    end
+
+    def phone_number
+      context.phone_number || user.phone_number
     end
 
     def message(code)
@@ -73,7 +77,7 @@ module RailsBase::Mfa::Sms
         raise "Expected expires_at to be a ActiveSupport::TimeWithZone. Given #{expires_at.class}"
       end
 
-      raise NoPhoneNumber, "No phone for user [#{user.id}] [#{user.phone_number}]" if user.phone_number.nil?
+      raise NoPhoneNumber, "No phone for user [#{user.id}] [#{phone_number}]" if phone_number.nil?
     end
   end
 end

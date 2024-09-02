@@ -72,6 +72,18 @@ class User < RailsBase::ApplicationRecord
     end
   end
 
+  def self.masked_number(phone_number)
+    return nil unless phone_number
+
+    "(#{phone_number[0]}**) ****-**#{phone_number[-2..-1]}"
+  end
+
+  def self.readable_phone_number(phone_number)
+    return nil unless phone_number
+
+    "(#{phone_number[0..2]}) #{phone_number[3..5]}-#{phone_number[6..-1]}"
+  end
+
   def admin
     (self[:admin].presence || ADMIN_ROLE_NONE).to_sym
   end
@@ -89,9 +101,11 @@ class User < RailsBase::ApplicationRecord
   end
 
   def masked_phone
-    return nil unless phone_number
+    User.masked_number(phone_number)
+  end
 
-    "(#{phone_number[0]}**) ****-**#{phone_number[-2..-1]}"
+  def readable_phone
+     User.readable_phone_number(phone_number)
   end
 
   def soft_destroy_user!
