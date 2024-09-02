@@ -4,9 +4,12 @@
       <%= text %>
     </div>
     <div class="col-md-6">
-      <% dupped = RailsBase::RequestLink.items.dup %>
+      <%
+        dupped = RailsBase::RequestLink.items.dup
+      %>
+
       <% while(link = dupped.shift) do %>
-        <%= link_to link.text, link.link, method: :get, class: "btn btn-light float-right" %>
+        <%= link_to link.text, link.link, method: :get, class: "btn btn-light float-right", style: "margin-right: 0.5em;" %>
       <% end %>
     </div>
     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -26,12 +29,19 @@
   <button type="button" class="close" data-dismiss="alert" aria-label="Close">
     <span aria-hidden="true">&times;</span>
   </button>
-  <% while(link = RailsBase::RequestLink.items.shift) do %>
+  <% link = RailsBase::RequestLink.items.shift %>
+  <% while(link) do %>
     <div class="row">
       <div class="col-12">
         <%= link_to link.text, link.link, method: :get, class: "btn btn-light btn-block" %>
       </div>
     </div>
+    <% link = RailsBase::RequestLink.items.shift %>
+    <% if link %>
+    <div class="row"><div class="col-6 offset-3">
+      <hr>
+    </div></div>
+    <% end %>
   <% end %>
 </div>
 
