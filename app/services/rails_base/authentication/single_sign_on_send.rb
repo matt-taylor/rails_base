@@ -58,7 +58,7 @@ module RailsBase::Authentication
     # This method is expected to be overridden by the main app
     # This is expected default behavior if SSO is available
     def sso_decision_type
-      if user.phone_number.present?
+      if phone.present?
         SSO_DECISION_TWILIO
       elsif user.email_validated
         SSO_DECISION_EMAIL
@@ -69,13 +69,17 @@ module RailsBase::Authentication
     end
 
     def send_to_twilio!(message:)
-      TwilioJob.perform_later(message: message, to: user.phone_number)
-      log(level: :info, msg: "Sent twilio message to #{user.phone_number}")
+      TwilioJob.perform_later(message: message, to: phone)
+      log(level: :info, msg: "Sent twilio message to #{phone}")
     rescue StandardError => e
       log(level: :error, msg: "Error caught #{e.class.name}")
       log(level: :error, msg: "Error caught #{e.message}")
-      log(level: :error, msg: "Failed to send sms to #{user.phone_number}")
+      log(level: :error, msg: "Failed to send sms to #{phone}")
       context.fail!(message: "Failed to send sms to user. Try again.")
+    end
+
+    def phone
+      context.phone_number || user.phone_number
     end
 
     def send_to_email!(message:)

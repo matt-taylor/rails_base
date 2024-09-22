@@ -4,7 +4,7 @@ RSpec.describe RailsBase::Authentication::SingleSignOnSend do
   subject(:call) { described_class.call(params) }
 
   let(:instance) { described_class.new(params) }
-  let(:user) { User.first }
+  let(:user) { create(:user) }
   let(:token_length) { 32 }
   let(:token_type) { :alphanumeric }
   let(:uses) { nil }
@@ -54,10 +54,23 @@ RSpec.describe RailsBase::Authentication::SingleSignOnSend do
         end
       end
 
+      context "with custom phone" do
+        let(:phone_number) { "4158675309" }
+        let(:params) { super().merge(phone_number: phone_number) }
+        it 'sends to twilio' do
+          expect(TwilioHelper).to receive(:send_sms).with(
+            message: /Hello #{user.full_name}. This is your SSO link/,
+            to: phone_number,
+          )
+
+          call
+        end
+      end
+
       it 'sends to twilio' do
         expect(TwilioHelper).to receive(:send_sms).with(
           message: /Hello #{user.full_name}. This is your SSO link/,
-          to: user.phone_number
+          to: user.phone_number,
         )
 
         call
