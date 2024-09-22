@@ -30,6 +30,7 @@ RSpec.describe RailsBase::Authentication::SingleSignOnSend do
   end
 
   describe '#call' do
+    before { allow(TwilioHelper).to receive(:send_sms) }
     context 'when sso_decision_type is invalid' do
       before do
         allow(user).to receive(:phone_number).and_return(nil)
