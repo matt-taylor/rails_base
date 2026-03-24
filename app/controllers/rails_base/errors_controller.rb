@@ -5,19 +5,19 @@ module RailsBase
     def not_found
       @status = 404
       @message = "The Page can't be found"
-      render template: 'rails_base/errors/not_found'
+      render template: 'rails_base/errors/not_found', status: :not_found
     end
 
     def unacceptable
       @status = 422
       @message = "Client Error. Please retry"
-      render template: 'rails_base/errors/unacceptable'
+      render template: 'rails_base/errors/unacceptable', status: :unprocessable_entity
     end
 
     def internal_error
       @status = 500
       @message = "An Internal Error has occured"
-      render template: 'rails_base/errors/internal_error'
+      render template: 'rails_base/errors/internal_error', status: :internal_server_error
     end
 
     private
