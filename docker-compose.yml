@@ -30,8 +30,6 @@ x-common-environment: &common-environment
 services:
   mysql:
     image: mysql:latest
-    command:
-      - --default-authentication-plugin=mysql_native_password
     environment:
       - MYSQL_ROOT_PASSWORD=root
       - MYSQL_HOST=mysql
@@ -123,4 +121,3 @@ services:
     links:
       - mysql
       - redis
-
