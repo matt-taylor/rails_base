@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+# Ruby 3.2+ / ActiveSupport 6.1: factory_bot loads ActiveSupport before Logger is defined.
+require "logger"
+
 require "factory_bot"
 
 RSpec.configure do |config|

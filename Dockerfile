@@ -1,5 +1,5 @@
 # ./Dockerfile
-FROM ruby:3.0.1 as base
+FROM ruby:3.2.5 as base
 
 # set some default ENV values for the image
 ENV RAILS_LOG_TO_STDOUT 1
@@ -39,4 +39,3 @@ RUN bundle config set force_ruby_platform true
 COPY . $APP_HOME
 
 RUN gem build rails_base
-
